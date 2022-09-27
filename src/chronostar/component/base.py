@@ -1,0 +1,15 @@
+from abc import ABCMeta, abstractmethod
+from numpy.typing import ArrayLike
+
+
+class BaseComponent(metaclass=ABCMeta):
+    def __init__(self, config_params) -> None:
+        self.config_params = config_params
+
+    @abstractmethod
+    def estimate_log_prob(self, X: ArrayLike) -> ArrayLike:
+        pass
+
+    @abstractmethod
+    def maximize(self, X: ArrayLike, log_resp: ArrayLike) -> None:
+        pass

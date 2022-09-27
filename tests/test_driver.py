@@ -4,11 +4,12 @@ import os
 from pathlib import Path
 try:
     from .context import chronostar as c
+    from .fooclasses import FooComponent, FooICPool, FooIntroducer, FooMixture
 except ImportError:
     from context import chronostar as c
+    from fooclasses import FooComponent, FooICPool, FooIntroducer, FooMixture
 
 # Import a bunch of placeholder classes that simulate required behaviour
-from fooclasses import FooComponent, FooICPool, FooIntroducer, FooMixture
 
 
 def test_construction() -> None:
