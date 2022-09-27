@@ -17,6 +17,8 @@ class BaseICPool(metaclass=ABCMeta):
         self.introducer_class = introducer_class
         self.component_class = component_class
 
+        self.registry = {}
+
     @abstractmethod
     def pool():
         pass

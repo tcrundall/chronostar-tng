@@ -1,2 +1,1 @@
-
-from . import chronostar
+from . import chronostar     # noqa F401

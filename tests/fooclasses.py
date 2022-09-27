@@ -1,6 +1,11 @@
 from dataclasses import dataclass
 import numpy as np
 
+try:
+    from .context import chronostar as c
+except ImportError:
+    from context import chronostar as c
+
 
 @dataclass
 class FooComponent:
@@ -27,17 +32,9 @@ class FooIntroducer:
     config_params: dict
 
 
-class FooICPool:
-    def __init__(
-        self,
-        config_params: dict,
-        introducer_class,
-        component_class,
-    ) -> None:
-        self.config_params: dict = config_params
-        self.introducer_class = introducer_class
-        self.component_class = component_class
-        self.registry = {}
+class FooICPool(c.icpool.base.BaseICPool):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def pool(self) -> list[tuple[int, FooComponent]]:
         return [
