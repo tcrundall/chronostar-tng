@@ -1,0 +1,11 @@
+name: chron39
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - numpy
+  - pyyaml
+  - pip
+  - pathlib
+  - pytest
+  - ipython
