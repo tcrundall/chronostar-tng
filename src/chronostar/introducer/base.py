@@ -2,7 +2,6 @@ from abc import ABCMeta, abstractmethod
 from typing import Type, Union
 
 from ..component.base import BaseComponent
-from ..mixture.base import BaseMixture
 
 
 class BaseIntroducer(metaclass=ABCMeta):
@@ -17,6 +16,10 @@ class BaseIntroducer(metaclass=ABCMeta):
     @abstractmethod
     def next_gen(
         self,
-        prev_mixtures: Union[list[BaseMixture], BaseMixture, None],
+        prev_comp_sets: Union[
+            list[list[BaseComponent]],
+            list[BaseComponent],
+            None
+        ],
     ) -> list[list[BaseComponent]]:
         pass
