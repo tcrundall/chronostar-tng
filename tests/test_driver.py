@@ -1,24 +1,19 @@
 # assume chronostar is on path?
-import numpy as np
 import os
 from pathlib import Path
-try:
-    from .context import chronostar as c
-except ImportError:
-    from context import chronostar as c
-try:
-    from fooclasses import FooComponent, FooICPool, FooIntroducer, FooMixture
-except ImportError:
-    from .fooclasses import FooComponent, FooICPool, FooIntroducer, FooMixture
+
+from src.chronostar.driver.driver import Driver
+from tests.fooclasses import FooComponent, FooICPool, FooIntroducer, FooMixture
+from tests.fooclasses import DATA
 
 # Import a bunch of placeholder classes that simulate required behaviour
 
 
 def test_construction() -> None:
     test_dir = Path(os.path.dirname(__file__))
-    FooConfigfile = test_dir / 'test_resources' / 'placeholder_configfile.yml'
-    driver = c.driver.driver.Driver(
-        config_file=FooConfigfile,
+    foo_configfile = test_dir / 'test_resources' / 'placeholder_configfile.yml'
+    driver = Driver(
+        config_file=foo_configfile,
         mixture_class=FooMixture,
         icpool_class=FooICPool,
         introducer_class=FooIntroducer,
@@ -32,10 +27,8 @@ def test_run() -> None:
     # Set up fake config file and data
     test_dir = Path(os.path.dirname(__file__))
     foo_configfile = test_dir / 'test_resources' / 'placeholder_configfile.yml'
-    n_samples, n_features = 100, 6
-    data = np.random.rand(n_samples, n_features)
 
-    driver = c.driver.driver.Driver(
+    driver = Driver(
         config_file=foo_configfile,
         mixture_class=FooMixture,
         icpool_class=FooICPool,
@@ -43,7 +36,7 @@ def test_run() -> None:
         component_class=FooComponent,
         )
 
-    best_mixture, memberships = driver.run(data)
+    best_mixture, memberships = driver.run(DATA)
 
     assert isinstance(best_mixture, FooMixture)
 

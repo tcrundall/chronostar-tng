@@ -1,17 +1,48 @@
+from __future__ import annotations
+
 from numpy.typing import ArrayLike
 import numpy as np
 
-from src.chronostar.component.base import BaseComponent
+from src.chronostar.component.base import BaseComponent, Splittable
+from src.chronostar.icpool.base import BaseICPool
+from src.chronostar.introducer.base import BaseIntroducer
 from src.chronostar.mixture.base import BaseMixture
 
-try:
-    from .context import chronostar as c
-except ImportError:
-    from context import chronostar as c
+# try:
+#     from .context import chronostar as c
+# except ImportError:
+#     from context import chronostar as c
 
 
-class FooComponent(BaseComponent):
-    def __init__(self, *args, **kwargs):
+CONFIG_PARAMS = {
+    'icpool': {
+        'a': 1,
+        'b': 2,
+        'c': 3,
+    },
+    'introducer': {
+        'a': 1,
+        'b': 2,
+        'c': 3,
+    },
+    'mixture': {
+        'a': 1,
+        'b': 2,
+        'c': 3, 
+    },
+    'component': {
+        'a': 1,
+        'b': 2,
+        'c': 3,
+    },
+}
+
+NSAMPLES, NFEATURES = 100, 6
+DATA = np.ones((NSAMPLES, NFEATURES))
+
+
+class FooComponent(BaseComponent, Splittable):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
     def estimate_log_prob(self, X: ArrayLike) -> ArrayLike:
@@ -20,22 +51,35 @@ class FooComponent(BaseComponent):
     def maximize(self, X: ArrayLike, log_resp: ArrayLike) -> None:
         return
 
+    def split(self) -> tuple[FooComponent, FooComponent]:
+        """Split this component into two, returning the result"""
+        c1 = FooComponent(self.config_params)
+        c2 = FooComponent(self.config_params)
+        return c1, c2
+
 
 class FooMixture(BaseMixture):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    def get_params(self) -> list[BaseComponent]:
+        return self._params
+
     def set_params(self, initial_conditions: list) -> None:
-        self._params = initial_conditions
+        self._params: list[BaseComponent] = initial_conditions
 
     def fit(self, data: ArrayLike) -> None:
         self.memberships = np.ones(data.shape) / data.shape[1]   # type: ignore
 
     def bic(self, data) -> float:
-        return 10.
+        """
+        Calculates a quadratic based on number of components.
+        Quadratic peaks at n=5
+        """
+        return -((len(self._params) - 5)**2)
 
 
-class FooIntroducer(c.introducer.base.BaseIntroducer):
+class FooIntroducer(BaseIntroducer):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
@@ -50,13 +94,13 @@ class FooIntroducer(c.introducer.base.BaseIntroducer):
             return prev_mixtures
 
 
-class FooICPool(c.icpool.base.BaseICPool):
+class FooICPool(BaseICPool):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def pool(self) -> list[tuple[int, FooComponent]]:
+    def pool(self) -> list[tuple[int, list[FooComponent]]]:
         return [
-            (i, fc)
+            (i, [fc])
             for i, fc in enumerate([FooComponent(self.config_params)])
         ]
 
