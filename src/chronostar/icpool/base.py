@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import Union
+from typing import Union, Type
 from ..mixture.base import BaseMixture
 from ..introducer.base import BaseIntroducer
 from ..component.base import BaseComponent
@@ -10,8 +10,8 @@ class BaseICPool(metaclass=ABCMeta):
     def __init__(
         self,
         config_params: dict,
-        introducer_class: BaseIntroducer,
-        component_class: BaseComponent,
+        introducer_class: Type[BaseIntroducer],
+        component_class: Type[BaseComponent],
     ) -> None:
         self.config_params = config_params
         self.introducer_class = introducer_class

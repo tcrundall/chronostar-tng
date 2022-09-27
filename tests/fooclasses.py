@@ -1,5 +1,8 @@
-from dataclasses import dataclass
+from numpy.typing import ArrayLike
 import numpy as np
+
+from src.chronostar.component.base import BaseComponent
+from src.chronostar.mixture.base import BaseMixture
 
 try:
     from .context import chronostar as c
@@ -7,29 +10,44 @@ except ImportError:
     from context import chronostar as c
 
 
-@dataclass
-class FooComponent:
-    config_params: dict
+class FooComponent(BaseComponent):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def estimate_log_prob(self, X: ArrayLike) -> ArrayLike:
+        return np.ones(X.shape[0])      # type: ignore
+
+    def maximize(self, X: ArrayLike, log_resp: ArrayLike) -> None:
+        return
 
 
-@dataclass
-class FooMixture:
-    config_params: dict
+class FooMixture(BaseMixture):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     def set_params(self, initial_conditions: list) -> None:
         self._params = initial_conditions
 
-    def fit(self, data) -> None:
-        self.memberships = np.ones(data.shape) / data.shape[1]
-        pass
+    def fit(self, data: ArrayLike) -> None:
+        self.memberships = np.ones(data.shape) / data.shape[1]   # type: ignore
 
     def bic(self, data) -> float:
         return 10.
 
 
-@dataclass
-class FooIntroducer:
-    config_params: dict
+class FooIntroducer(c.introducer.base.BaseIntroducer):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    def next_gen(self, prev_mixtures) -> list[BaseMixture]:
+        if prev_mixtures is None:
+            m = FooMixture(self.config_params)
+            m.set_params([self.component_class(self.config_params)])
+            return [m]
+        elif isinstance(prev_mixtures, BaseMixture):
+            return [prev_mixtures]
+        else:
+            return prev_mixtures
 
 
 class FooICPool(c.icpool.base.BaseICPool):
