@@ -8,33 +8,12 @@ from src.chronostar.icpool.base import BaseICPool
 from src.chronostar.introducer.base import BaseIntroducer
 from src.chronostar.mixture.base import BaseMixture
 
-# try:
-#     from .context import chronostar as c
-# except ImportError:
-#     from context import chronostar as c
-
 
 CONFIG_PARAMS = {
-    'icpool': {
-        'a': 1,
-        'b': 2,
-        'c': 3,
-    },
-    'introducer': {
-        'a': 1,
-        'b': 2,
-        'c': 3,
-    },
-    'mixture': {
-        'a': 1,
-        'b': 2,
-        'c': 3, 
-    },
-    'component': {
-        'a': 1,
-        'b': 2,
-        'c': 3,
-    },
+    'icpool': {'a': 1, 'b': 2, 'c': 3},
+    'introducer': {'a': 1, 'b': 2, 'c': 3},
+    'mixture': {'a': 1, 'b': 2, 'c': 3},
+    'component': {'a': 1, 'b': 2, 'c': 3},
 }
 
 NSAMPLES, NFEATURES = 100, 6
