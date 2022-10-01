@@ -24,6 +24,10 @@ class FooComponent(BaseComponent, Splittable):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    @property
+    def n_params(self) -> int:
+        return 1
+
     def estimate_log_prob(self, X: ArrayLike) -> ArrayLike:
         return np.ones(X.shape[0])      # type: ignore
 

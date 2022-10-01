@@ -17,6 +17,11 @@ class BaseComponent(metaclass=ABCMeta):
     def maximize(self, X: ArrayLike, log_resp: ArrayLike) -> None:
         pass
 
+    @property
+    @abstractmethod
+    def n_params(self) -> int:
+        pass
+
 
 class Splittable(metaclass=ABCMeta):
     @abstractmethod

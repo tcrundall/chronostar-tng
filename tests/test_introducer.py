@@ -23,7 +23,7 @@ def test_comp_count_increase() -> None:
     next_gen = introducer.next_gen(comp_set_1)      # type: ignore
     for comp_set in next_gen:
         assert len(comp_set) == 2
-    
+
     comp_set_2 = next_gen[0]
     next_gen = introducer.next_gen(comp_set_2)      # type: ignore
     for comp_set in next_gen:
