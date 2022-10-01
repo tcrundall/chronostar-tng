@@ -13,11 +13,10 @@ def test_construction() -> None:
 
 
 def test_simple_usage() -> None:
-    comps = [FooComponent(CONFIG_PARAMS) for _ in range(5)]
     cm = ComponentMixture(                          # noqa F401
         CONFIG_PARAMS,
         init_weights=list(np.ones(5)),
-        init_components=comps,
+        init_components=[FooComponent(CONFIG_PARAMS) for _ in range(5)],
     )
     cm.fit(DATA)
     score = cm.bic(DATA)        # noqa F401

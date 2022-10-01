@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import Union, Type
+from typing import Generator, Union, Type
 from ..mixture.base import BaseMixture
 from ..introducer.base import BaseIntroducer
 from ..component.base import BaseComponent
@@ -20,7 +20,7 @@ class BaseICPool(metaclass=ABCMeta):
         self.registry = {}
 
     @abstractmethod
-    def pool():
+    def pool() -> Generator[tuple[int, list[BaseComponent]], None, None]:
         pass
 
     @abstractmethod
@@ -30,4 +30,9 @@ class BaseICPool(metaclass=ABCMeta):
         mixture: BaseMixture,
         score: float
     ) -> None:
+        pass
+
+    @property
+    @abstractmethod
+    def best_mixture(self) -> BaseMixture:
         pass

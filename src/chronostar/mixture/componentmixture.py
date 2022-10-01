@@ -1,4 +1,3 @@
-from typing import Sequence
 from numpy import float64
 
 from src.chronostar.component.base import BaseComponent
@@ -25,7 +24,7 @@ class ComponentMixture(BaseMixture):
         self,
         config_params: dict,
         init_weights: list[float],
-        init_components: Sequence[BaseComponent],
+        init_components: list[BaseComponent],
     ) -> None:
         # Can handle extra parameters if I want...
         self.sklmixture = SKLComponentMixture(init_weights, init_components)
@@ -43,6 +42,9 @@ class ComponentMixture(BaseMixture):
     def get_params(self):
         return self.sklmixture._get_parameters()
 
+    def get_components(self) -> list[BaseComponent]:
+        _, components = self.get_params()
+        return components
 
 # if __name__ == '__main__':
 #     cm = ComponentMixture(CONFIG_PARAMS)

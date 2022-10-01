@@ -17,7 +17,7 @@ CONFIG_PARAMS = {
 }
 
 NSAMPLES, NFEATURES = 100, 6
-DATA = np.ones((NSAMPLES, NFEATURES))
+DATA = np.random.rand(NSAMPLES, NFEATURES)
 
 
 class FooComponent(BaseComponent, Splittable):
@@ -61,20 +61,16 @@ class FooMixture(BaseMixture):
         """
         return -((len(self._params) - 5)**2)
 
+    def get_components(self) -> list[BaseComponent]:
+        return self.get_params()
+
 
 class FooIntroducer(BaseIntroducer):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    def next_gen(self, prev_mixtures) -> list[BaseMixture]:
-        if prev_mixtures is None:
-            m = FooMixture(self.config_params)
-            m.set_params([self.component_class(self.config_params)])
-            return [m]
-        elif isinstance(prev_mixtures, BaseMixture):
-            return [prev_mixtures]
-        else:
-            return prev_mixtures
+    def next_gen(self, prev_mixtures) -> list[list[BaseComponent]]:
+        return [[FooComponent(CONFIG_PARAMS) for _ in range(5)]]
 
 
 class FooICPool(BaseICPool):
@@ -90,5 +86,6 @@ class FooICPool(BaseICPool):
     def register_result(self, unique_id, mixture, score) -> None:
         self.registry[unique_id] = (mixture, score)
 
+    @property
     def best_mixture(self) -> FooMixture:
         return max(self.registry.values(), key=lambda x: x[1])[0]

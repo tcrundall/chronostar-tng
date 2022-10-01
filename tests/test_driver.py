@@ -36,7 +36,7 @@ def test_run() -> None:
         component_class=FooComponent,
         )
 
-    best_mixture, memberships = driver.run(DATA)
+    best_mixture = driver.run(DATA)
 
     assert isinstance(best_mixture, FooMixture)
 

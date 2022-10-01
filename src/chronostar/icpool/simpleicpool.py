@@ -39,7 +39,11 @@ class SimpleICPool(BaseICPool):
 
             # Loop over the next generation of initial conditions
             for ix, init_conditions in enumerate(
-                self.introducer.next_gen(best_mixture)
+                self.introducer.next_gen(
+                    None if best_mixture is None else [list(
+                        best_mixture.get_components()
+                    )]
+                )
             ):
                 yield ix, init_conditions
 
@@ -51,4 +55,9 @@ class SimpleICPool(BaseICPool):
 
             # Using best fit, repeat until score ceases to improve
 
-            self.best_mixture = best_mixture
+            assert isinstance(best_mixture, BaseMixture)
+            self.best_mixture_ = best_mixture
+
+    @property
+    def best_mixture(self) -> BaseMixture:
+        return self.best_mixture_

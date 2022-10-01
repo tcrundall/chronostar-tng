@@ -1,14 +1,20 @@
+from typing import Type
 import yaml
+from src.chronostar.component.base import BaseComponent
+from src.chronostar.icpool.base import BaseICPool
+from src.chronostar.introducer.base import BaseIntroducer
+
+from src.chronostar.mixture.base import BaseMixture
 
 
 class Driver:
     def __init__(
         self,
         config_file,
-        mixture_class,
-        icpool_class,
-        introducer_class,
-        component_class,
+        mixture_class: Type[BaseMixture],
+        icpool_class: Type[BaseICPool],
+        introducer_class: Type[BaseIntroducer],
+        component_class: Type[BaseComponent],
     ) -> None:
         """Constructor method"""
 
@@ -19,7 +25,7 @@ class Driver:
         self.icpool_class = icpool_class
         self.introducer_class = introducer_class
 
-    def run(self, data):
+    def run(self, data) -> BaseMixture:
 
         icpool = self.icpool_class(
             config_params=self.config_params['icpool'],
@@ -34,9 +40,7 @@ class Driver:
             icpool.register_result(unique_id, m, m.bic(data))
 
         # loop will end when icg stops generating reasonable initial conditions
-        best_mixture = icpool.best_mixture()
-
-        return best_mixture, best_mixture.memberships
+        return icpool.best_mixture
 
     def read_config_file(self, config_file: str) -> dict:
         with open(config_file, "r") as stream:

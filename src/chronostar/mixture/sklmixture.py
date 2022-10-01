@@ -1,4 +1,3 @@
-from typing import Sequence
 from numpy.typing import NDArray
 from numpy import float64
 import numpy as np
@@ -11,7 +10,7 @@ class SKLComponentMixture(SKLBaseMixture):
     def __init__(
         self,
         weights_init: list[float],
-        components_init: Sequence[BaseComponent],
+        components_init: list[BaseComponent],
         *,
         tol=1e-3,
         reg_covar=1e-6,
@@ -38,7 +37,7 @@ class SKLComponentMixture(SKLBaseMixture):
         )
 
         self.weights_: NDArray[float64] = np.array(weights_init)
-        self.components_: Sequence[BaseComponent] = components_init
+        self.components_: list[BaseComponent] = list(components_init)
 
         if kwargs:
             print("Extra arguments provided...")
@@ -84,7 +83,7 @@ class SKLComponentMixture(SKLBaseMixture):
 
     def _get_parameters(
         self,
-    ) -> tuple[NDArray[float64], Sequence[BaseComponent]]:
+    ) -> tuple[NDArray[float64], list[BaseComponent]]:
 
         return (self.weights_, self.components_)
 

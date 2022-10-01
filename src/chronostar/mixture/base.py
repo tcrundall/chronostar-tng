@@ -20,3 +20,11 @@ class BaseMixture(metaclass=ABCMeta):
     @abstractmethod
     def fit(self, data: ArrayLike) -> None:
         pass
+
+    @abstractmethod
+    def bic(self, X) -> float:
+        pass
+
+    @abstractmethod
+    def get_components(self) -> list[BaseComponent]:
+        pass
