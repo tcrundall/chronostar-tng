@@ -1,9 +1,10 @@
+from typing import Any, Tuple
 from numpy import float64
+from numpy.typing import NDArray
 
-from src.chronostar.component.base import BaseComponent
+from src.chronostar.base import BaseComponent, BaseMixture
 from src.chronostar.mixture.sklmixture import SKLComponentMixture
-# from tests.fooclasses import CONFIG_PARAMS, DATA
-from .base import BaseMixture
+
 
 SKL_DEFAULT_PARAMS = {
     'n_components': 1,
@@ -22,30 +23,29 @@ SKL_DEFAULT_PARAMS = {
 class ComponentMixture(BaseMixture):
     def __init__(
         self,
-        config_params: dict,
-        init_weights: list[float],
+        config_params: dict[Any, Any],
+        init_weights: NDArray[float64],
         init_components: list[BaseComponent],
     ) -> None:
         # Can handle extra parameters if I want...
         self.sklmixture = SKLComponentMixture(init_weights, init_components)
         super().__init__(config_params)
 
-    def fit(self, X) -> None:
+    def fit(self, X: NDArray[float64]) -> None:
         self.sklmixture.fit(X)
 
-    def bic(self, X) -> float64:
-        return self.sklmixture.bic(X)
+    def bic(self, X: NDArray[float64]) -> float:
+        return float(self.sklmixture.bic(X))
 
-    def set_params(self, params):
+    def set_params(
+        self,
+        params: Tuple[NDArray[float64], list[BaseComponent]],
+    ) -> None:
         self.sklmixture._set_parameters(params)
 
-    def get_params(self):
+    def get_params(self) -> tuple[NDArray[float64], list[BaseComponent]]:
         return self.sklmixture._get_parameters()
 
     def get_components(self) -> list[BaseComponent]:
         _, components = self.get_params()
         return components
-
-# if __name__ == '__main__':
-#     cm = ComponentMixture(CONFIG_PARAMS)
-#     cm.fit(DATA)

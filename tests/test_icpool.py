@@ -1,4 +1,4 @@
-
+import numpy as np
 
 from src.chronostar.icpool.simpleicpool import SimpleICPool
 from tests.fooclasses import FooComponent, FooIntroducer, FooMixture
@@ -27,7 +27,8 @@ def test_simple_usage() -> None:
     score = 10.
     for (unique_id, init_conds) in icpool.pool():
         m = FooMixture(CONFIG_PARAMS)
-        m.set_params(init_conds)
+        ncomps = len(init_conds)
+        m.set_params((np.ones(ncomps)/ncomps, init_conds))
         icpool.register_result(unique_id, m, score)
 
         score -= 1.

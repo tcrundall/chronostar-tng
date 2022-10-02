@@ -1,27 +1,28 @@
+from typing import Any
 from numpy.typing import NDArray
 from numpy import float64
 import numpy as np
 from sklearn.mixture._base import BaseMixture as SKLBaseMixture
 
-from src.chronostar.component.base import BaseComponent
+from src.chronostar.base import BaseComponent
 
 
 class SKLComponentMixture(SKLBaseMixture):
     def __init__(
         self,
-        weights_init: list[float],
+        weights_init: NDArray[float64],
         components_init: list[BaseComponent],
         *,
-        tol=1e-3,
-        reg_covar=1e-6,
-        max_iter=100,
-        n_init=1,
-        init_params='kmeans',
-        random_state=None,
-        warm_start=False,
-        verbose=0,
-        verbose_interval=10,
-        **kwargs,
+        tol: float = 1e-3,
+        reg_covar: float = 1e-6,
+        max_iter: int = 100,
+        n_init: int = 1,
+        init_params: str = 'kmeans',
+        random_state: Any = None,
+        warm_start: bool = False,
+        verbose: int = 0,
+        verbose_interval: int = 10,
+        **kwargs: dict[str, Any],
     ) -> None:
         super().__init__(
             n_components=len(components_init),
@@ -45,10 +46,14 @@ class SKLComponentMixture(SKLBaseMixture):
     ##################################################
     #     Methods implemented by GaussianMixture     #
     ##################################################
-    def _check_parameters(self, X) -> None:
+    def _check_parameters(self, X: NDArray[float64]) -> None:
         pass
 
-    def _initialize(self, X, resp):
+    def _initialize(
+        self,
+        X: NDArray[float64],
+        resp: NDArray[float64]
+    ) -> None:
         """
         Not implemented.
 
@@ -57,7 +62,11 @@ class SKLComponentMixture(SKLBaseMixture):
         if self.weights_ is None or self.components_ is None:
             raise UserWarning("Invalid initial params")
 
-    def _m_step(self, X, log_resp) -> None:
+    def _m_step(
+        self,
+        X: NDArray[float64],
+        log_resp: NDArray[float64],
+    ) -> None:
         resp = np.exp(log_resp)
         nk = resp.sum(axis=0) + 10 * np.finfo(resp.dtype).eps
         self.weights_ = nk
@@ -65,7 +74,7 @@ class SKLComponentMixture(SKLBaseMixture):
         for i, component in enumerate(self.components_):
             component.maximize(X=X, log_resp=log_resp[:, i])
 
-    def _estimate_log_prob(self, X) -> NDArray[float64]:
+    def _estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
         n_samples = X.shape[0]
         n_components = len(self.components_)
 
@@ -78,7 +87,7 @@ class SKLComponentMixture(SKLBaseMixture):
     def _estimate_log_weights(self) -> NDArray[float64]:
         return np.log(self.weights_)
 
-    def _compute_lower_bound(self, _, log_prob_norm):
+    def _compute_lower_bound(self, _: Any, log_prob_norm: Any) -> Any:
         return log_prob_norm
 
     def _get_parameters(
@@ -87,7 +96,10 @@ class SKLComponentMixture(SKLBaseMixture):
 
         return (self.weights_, self.components_)
 
-    def _set_parameters(self, params) -> None:
+    def _set_parameters(
+        self,
+        params: tuple[NDArray[float64], list[BaseComponent]],
+    ) -> None:
         (self._weights_, self.components_) = params
 
     def _n_parameters(self) -> int:
@@ -97,10 +109,14 @@ class SKLComponentMixture(SKLBaseMixture):
         n_params += len(self.weights_) - 1
         return int(n_params)
 
-    def bic(self, X) -> float64:
-        return -2 * self.score(X) * X.shape[0] + self._n_parameters() * np.log(
-            X.shape[0]
+    def bic(self, X: NDArray[float64]) -> float:
+        return float(
+            -2 * self.score(X) * X.shape[0]
+            + self._n_parameters() * np.log(X.shape[0])
         )
 
-    def aic(self, X) -> float64:
-        return -2 * self.score(X) * X.shape[0] + 2 * self._n_parameters()
+    def aic(self, X: NDArray[float64]) -> float:
+        return float(
+            -2 * self.score(X) * X.shape[0]
+            + 2 * self._n_parameters()
+        )

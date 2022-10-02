@@ -1,22 +1,27 @@
 import numpy as np
 from numpy import float64
 from numpy.typing import NDArray
+from typing import Any
 
 from sklearn.mixture._gaussian_mixture import _compute_precision_cholesky
 from sklearn.mixture._gaussian_mixture import _estimate_log_gaussian_prob
 from sklearn.mixture._gaussian_mixture import _estimate_gaussian_parameters
 
-from src.chronostar.component.base import BaseComponent
+from src.chronostar.base import BaseComponent
 
 
 class SpaceComponent(BaseComponent):
     reg_covar = 1e-6
     covariance_type = "full"
 
-    def __init__(self, config_params) -> None:
+    def __init__(self, config_params: dict[Any, Any]) -> None:
         self.config_params = config_params
 
-    def maximize(self, X, log_resp: NDArray) -> None:
+    def maximize(
+        self,
+        X: NDArray[float64],
+        log_resp: NDArray[float64]
+    ) -> None:
         """
         Utilize sklearn methods, but adjusting array dimensions for
         single component usage.
@@ -34,13 +39,13 @@ class SpaceComponent(BaseComponent):
             self.covariance[np.newaxis], self.covariance_type
         ).squeeze()
 
-    def estimate_log_prob(self, X) -> NDArray[float64]:
-        return _estimate_log_gaussian_prob(
+    def estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
+        return np.array(_estimate_log_gaussian_prob(
             X,
             self.mean[np.newaxis],
             self.precision_chol[np.newaxis],
             self.covariance_type,
-        ).squeeze()
+        ).squeeze(), dtype=float64)
 
     @property
     def n_params(self) -> int:

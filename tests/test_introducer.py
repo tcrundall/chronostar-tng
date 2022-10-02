@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.chronostar.component.base import BaseComponent
+from src.chronostar.base import BaseComponent
 from src.chronostar.introducer.simpleintroducer import SimpleIntroducer
 from tests.fooclasses import CONFIG_PARAMS, DATA, FooComponent, FooMixture
 
@@ -25,7 +25,7 @@ def test_comp_count_increase() -> None:
         assert len(comp_set) == 2
 
     comp_set_2 = next_gen[0]
-    next_gen = introducer.next_gen(comp_set_2)      # type: ignore
+    next_gen = introducer.next_gen(comp_set_2)
     for comp_set in next_gen:
         assert len(comp_set) == 3
 
@@ -37,15 +37,18 @@ def test_full_usage() -> None:
     )
 
     best_mixture = FooMixture(CONFIG_PARAMS)
-    best_mixture.set_params([FooComponent(CONFIG_PARAMS)])
+    best_mixture.set_params((np.ones(1), [FooComponent(CONFIG_PARAMS)]))
     best_score = best_mixture.bic(DATA)
     prev_best_score = -np.inf
 
     while best_score > prev_best_score:
         # Produce the next generation and loop over them
-        for next_init_cond in introducer.next_gen(best_mixture.get_params()):
+        for next_init_cond in introducer.next_gen(
+            best_mixture.get_components()
+        ):
             m = FooMixture(CONFIG_PARAMS)
-            m.set_params(next_init_cond)
+            ncomps = len(next_init_cond)
+            m.set_params((np.ones(ncomps)/ncomps, next_init_cond))
             m.fit(DATA)
             if m.bic(DATA) > prev_best_score:
                 prev_best_score = best_score

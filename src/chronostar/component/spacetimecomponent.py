@@ -1,10 +1,12 @@
 import numpy as np
+from numpy import float64
+from numpy.typing import NDArray
 from scipy.optimize import minimize_scalar
 from sklearn.mixture._gaussian_mixture import _estimate_gaussian_parameters
 from sklearn.mixture._gaussian_mixture import _estimate_log_gaussian_prob
 from sklearn.mixture._gaussian_mixture import _compute_precision_cholesky
 
-from src.chronostar.component.base import BaseComponent
+from src.chronostar.base import BaseComponent
 from src.chronostar.utils.utils import trace_epicyclic_orbit
 from src.chronostar.utils.transform import transform_covmatrix
 
@@ -100,15 +102,18 @@ class SpaceTimeComponent(BaseComponent):
             self.covariance[np.newaxis], self.covariance_type
         ).squeeze()
 
-    def estimate_log_prob(self, X):
-        return _estimate_log_gaussian_prob(
+    def estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
+        return np.array(_estimate_log_gaussian_prob(
             X,
             self.mean[np.newaxis],
             self.precision_chol[np.newaxis],
             self.covariance_type,
-        ).squeeze()
+        ).squeeze(), dtype=float64)
 
-    def morph_covariance(self, covariance):
+    def morph_covariance(
+        self,
+        covariance: NDArray[float64]
+    ) -> NDArray[float64]:
         """
         Retain pos-pos correlation, vel-vel correlation,
         total position volume and total velocity volume.

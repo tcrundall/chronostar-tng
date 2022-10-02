@@ -12,12 +12,12 @@ COMPONENT_CLASSES = [
 ]
 
 
-def test_construction():
+def test_construction() -> None:
     for CompClass in COMPONENT_CLASSES:
         comp = CompClass(CONFIG_PARAMS['component'])   # noqa F841
 
 
-def test_simpleusage():
+def test_simpleusage() -> None:
     for CompClass in COMPONENT_CLASSES:
         comp = CompClass(CONFIG_PARAMS['component'])
         comp.maximize(DATA, np.ones(NSAMPLES))
@@ -25,7 +25,7 @@ def test_simpleusage():
         assert result.shape[0] == NSAMPLES
 
 
-def test_usage():
+def test_usage() -> None:
     # Generate simple data set
     true_mean = np.zeros(6)
     true_stdev = 30.
@@ -37,7 +37,7 @@ def test_usage():
     true_log_probs = multivariate_normal.logpdf(
         DATA,
         mean=true_mean,
-        cov=true_cov,               # type: ignore
+        cov=true_cov,       # type: ignore
     )
 
     # Instantiate, maximize, and check log_probs

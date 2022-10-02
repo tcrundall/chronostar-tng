@@ -1,12 +1,9 @@
-# assume chronostar is on path?
 import os
 from pathlib import Path
 
 from src.chronostar.driver.driver import Driver
 from tests.fooclasses import FooComponent, FooICPool, FooIntroducer, FooMixture
 from tests.fooclasses import DATA
-
-# Import a bunch of placeholder classes that simulate required behaviour
 
 
 def test_construction() -> None:

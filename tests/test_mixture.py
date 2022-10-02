@@ -1,13 +1,13 @@
 import numpy as np
 
 from src.chronostar.mixture.componentmixture import ComponentMixture
-from tests.fooclasses import CONFIG_PARAMS, DATA, FooComponent
+from tests.fooclasses import FooComponent, CONFIG_PARAMS, DATA
 
 
 def test_construction() -> None:
     cm = ComponentMixture(                          # noqa F841
         CONFIG_PARAMS['mixture'],
-        init_weights=[1.],
+        init_weights=np.ones(1),
         init_components=[FooComponent(CONFIG_PARAMS['component'])]
     )
 
@@ -15,7 +15,7 @@ def test_construction() -> None:
 def test_simple_usage() -> None:
     cm = ComponentMixture(                          # noqa F841
         CONFIG_PARAMS,
-        init_weights=list(np.ones(5)),
+        init_weights=np.ones(5)/5,
         init_components=[FooComponent(CONFIG_PARAMS) for _ in range(5)],
     )
     cm.fit(DATA)

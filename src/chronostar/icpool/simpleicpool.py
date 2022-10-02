@@ -1,18 +1,17 @@
-from collections import namedtuple
 import numpy as np
 from typing import Generator, Optional, Union
 
-from .base import BaseICPool
-from ..component.base import BaseComponent
-from ..introducer.base import BaseIntroducer
-from ..mixture.base import BaseMixture
-
-
-ScoredMixture = namedtuple('ScoredMixture', 'mixture score')
+from src.chronostar.base import (
+    BaseComponent,
+    BaseMixture,
+    BaseICPool,
+    BaseIntroducer,
+    ScoredMixture,
+)
 
 
 class SimpleICPool(BaseICPool):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:        # type: ignore
         super().__init__(*args, **kwargs)
 
         # Perhaps do this in pool()?
