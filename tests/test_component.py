@@ -1,14 +1,14 @@
 import numpy as np
 from scipy.stats import multivariate_normal
 
-# from src.chronostar.component.spacetimecomponent import SpaceTimeComponent
+from src.chronostar.component.spacetimecomponent import SpaceTimeComponent
 from src.chronostar.component.spacecomponent import SpaceComponent
 from tests.fooclasses import CONFIG_PARAMS, DATA, NSAMPLES
 
 
 COMPONENT_CLASSES = [
     SpaceComponent,
-    # SpaceTimeComponent
+    SpaceTimeComponent
 ]
 
 

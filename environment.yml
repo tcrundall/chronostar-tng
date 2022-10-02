@@ -9,3 +9,4 @@ dependencies:
   - pathlib
   - pytest
   - ipython
+  - ipdb

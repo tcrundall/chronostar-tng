@@ -2,10 +2,11 @@ import numpy as np
 from numpy import float64
 from numpy.typing import NDArray
 
-from src.chronostar.component.base import BaseComponent
 from sklearn.mixture._gaussian_mixture import _compute_precision_cholesky
 from sklearn.mixture._gaussian_mixture import _estimate_log_gaussian_prob
 from sklearn.mixture._gaussian_mixture import _estimate_gaussian_parameters
+
+from src.chronostar.component.base import BaseComponent
 
 
 class SpaceComponent(BaseComponent):
