@@ -43,7 +43,9 @@ def test_usage():
     # Instantiate, maximize, and check log_probs
     for CompClass in COMPONENT_CLASSES:
         comp = CompClass(CONFIG_PARAMS['component'])
-        comp.maximize(data, np.ones(NSAMPLES))
+
+        # a log_resp of 0 is a resp of 1 (i.e. full responsibility)
+        comp.maximize(data, log_resp=np.zeros(NSAMPLES))
 
         log_probs = comp.estimate_log_prob(DATA)
 

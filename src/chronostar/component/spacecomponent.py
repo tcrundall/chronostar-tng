@@ -5,35 +5,41 @@ from numpy.typing import NDArray
 from src.chronostar.component.base import BaseComponent
 from sklearn.mixture._gaussian_mixture import _compute_precision_cholesky
 from sklearn.mixture._gaussian_mixture import _estimate_log_gaussian_prob
+from sklearn.mixture._gaussian_mixture import _estimate_gaussian_parameters
 
 
 class SpaceComponent(BaseComponent):
+    reg_covar = 1e-6
+    covariance_type = "full"
+
     def __init__(self, config_params) -> None:
         self.config_params = config_params
 
-    def maximize(self, X, log_resp) -> None:
-        REG_COVAR = 1e-6
-        resp = np.exp(log_resp)
-        nk = resp.sum() + 10 * np.finfo(resp.dtype).eps
-        mean = np.dot(resp.T, X) / nk
+    def maximize(self, X, log_resp: NDArray) -> None:
+        """
+        Utilize sklearn methods, but adjusting array dimensions for
+        single component usage.
+        """
+        _, means_, covariances_ = _estimate_gaussian_parameters(
+            X,
+            np.exp(log_resp[:, np.newaxis]),
+            self.reg_covar,
+            self.covariance_type,
+        )
 
-        n_features = len(mean)
-
-        diff = X - mean
-        covariance = np.dot(resp * diff.T, diff) / nk
-        covariance.flat[:: n_features + 1] += REG_COVAR
-
-        self.mean = mean
-        self.covariance = covariance
+        self.mean = means_.squeeze()
+        self.covariance = covariances_.squeeze()
         self.precision_chol = _compute_precision_cholesky(
-            self.covariance[np.newaxis, :],
-            covariance_type="full",
-        )[0]
+            self.covariance[np.newaxis], self.covariance_type
+        ).squeeze()
 
     def estimate_log_prob(self, X) -> NDArray[float64]:
         return _estimate_log_gaussian_prob(
-            X, self.mean[np.newaxis], self.precision_chol[np.newaxis], "full",
-        )
+            X,
+            self.mean[np.newaxis],
+            self.precision_chol[np.newaxis],
+            self.covariance_type,
+        ).squeeze()
 
     @property
     def n_params(self) -> int:
