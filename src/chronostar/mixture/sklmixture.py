@@ -10,8 +10,8 @@ from src.chronostar.base import BaseComponent
 class SKLComponentMixture(SKLBaseMixture):
     def __init__(
         self,
-        weights_init: NDArray[float64],
-        components_init: list[BaseComponent],
+        # weights_init: NDArray[float64],
+        # components_init: list[BaseComponent],
         *,
         tol: float = 1e-3,
         reg_covar: float = 1e-6,
@@ -25,7 +25,7 @@ class SKLComponentMixture(SKLBaseMixture):
         **kwargs: dict[str, Any],
     ) -> None:
         super().__init__(
-            n_components=len(components_init),
+            n_components=None,
             tol=tol,
             reg_covar=reg_covar,
             max_iter=max_iter,
@@ -37,8 +37,8 @@ class SKLComponentMixture(SKLBaseMixture):
             verbose_interval=verbose_interval,
         )
 
-        self.weights_: NDArray[float64] = np.array(weights_init)
-        self.components_: list[BaseComponent] = list(components_init)
+        # self.weights_: NDArray[float64] = np.array(weights_init)
+        # self.components_: list[BaseComponent] = list(components_init)
 
         if kwargs:
             print("Extra arguments provided...")
@@ -59,8 +59,9 @@ class SKLComponentMixture(SKLBaseMixture):
 
         Lets try to avoid automatic initialization
         """
-        if self.weights_ is None or self.components_ is None:
-            raise UserWarning("Invalid initial params")
+        pass
+        # if self.weights_ is None or self.components_ is None:
+        #     raise UserWarning("Invalid initial params")
 
     def _m_step(
         self,
@@ -100,7 +101,8 @@ class SKLComponentMixture(SKLBaseMixture):
         self,
         params: tuple[NDArray[float64], list[BaseComponent]],
     ) -> None:
-        (self._weights_, self.components_) = params
+        (self.weights_, self.components_) = params
+        self.n_components = len(self.components_)
 
     def _n_parameters(self) -> int:
         n_params = 0

@@ -107,8 +107,10 @@ class BaseComponent(metaclass=ABCMeta):
         # Follows M . V = V . D
         #   where V := [v1, v2, ... vn]  (Matrix of eigvecs)
         #     and D is diagonal matrix where diagonals are eigvals
-        new_eigvals = eigvals[:]
+        new_eigvals = np.copy(eigvals)
         new_eigvals[np.argmax(eigvals)] /= 4.0      # eigvals are std**2
+        assert not np.allclose(eigvals, new_eigvals)
+
         D = np.eye(6) * eigvals
         new_covariance = np.dot(eigvecs, np.dot(D, eigvecs.T))
 

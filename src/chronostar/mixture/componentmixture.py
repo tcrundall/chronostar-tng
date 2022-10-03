@@ -24,11 +24,12 @@ class ComponentMixture(BaseMixture):
     def __init__(
         self,
         config_params: dict[Any, Any],
-        init_weights: NDArray[float64],
-        init_components: list[BaseComponent],
+        # init_weights: NDArray[float64],
+        # init_components: list[BaseComponent],
     ) -> None:
         # Can handle extra parameters if I want...
-        self.sklmixture = SKLComponentMixture(init_weights, init_components)
+        # self.sklmixture = SKLComponentMixture(init_weights, init_components)
+        self.sklmixture = SKLComponentMixture()
         super().__init__(config_params)
 
     def fit(self, X: NDArray[float64]) -> None:
