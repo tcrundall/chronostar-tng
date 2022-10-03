@@ -35,6 +35,8 @@ class SimpleICPool(BaseICPool):
         best_score = -np.inf
 
         while prev_best_score is None or best_score > prev_best_score:
+            print(f"-----{-best_score=}")
+            self.best_mixture_ = best_mixture
             prev_best_score = best_score
             self.registry = {}
 
@@ -50,15 +52,12 @@ class SimpleICPool(BaseICPool):
                     yield ix, init_conditions
 
             # Once all initial conditions are provided, look for best registry
-            if self.registry:
-                best_mixture, best_score = max(
-                    self.registry.values(),
-                    key=lambda x: x.score
-                )
-
-                # Using best fit, repeat until score ceases to improve
-                self.best_mixture_ = best_mixture
+            # if self.registry:
+            best_mixture, best_score = max(
+                self.registry.values(),
+                key=lambda x: x.score
+            )
 
     @property
     def best_mixture(self) -> BaseMixture:
-        return self.best_mixture_
+        return self.best_mixture_           # type: ignore

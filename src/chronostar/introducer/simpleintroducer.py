@@ -15,7 +15,7 @@ class SimpleIntroducer(BaseIntroducer):
         if prev_comp_sets is None:
             return [[self.component_class(self.config_params)]]
 
-        if not isinstance(prev_comp_sets[0], BaseComponent):
+        if isinstance(prev_comp_sets[0], list):
             raise UserWarning("This Introducer accepts one set of components")
 
         sets = []

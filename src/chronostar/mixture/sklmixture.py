@@ -60,20 +60,13 @@ class SKLComponentMixture(SKLBaseMixture):
 
         Lets try to avoid automatic initialization
         """
-        print(self.init_params)
         # if self.init_params == "random":
-        #     pass
         if any([not hasattr(comp, 'mean') for comp in self.components_]):
             nsamples = X.shape[0]
             resp = np.random.rand(nsamples, self.n_components)
             resp = (resp.T / resp.sum(axis=1)).T
             for i, component in enumerate(self.components_):
                 component.maximize(X, np.log(resp[:, i]))
-
-        # import ipdb; ipdb.set_trace()       # noqa
-
-        # if self.weights_ is None or self.components_ is None:
-        #     raise UserWarning("Invalid initial params")
 
     def _m_step(
         self,

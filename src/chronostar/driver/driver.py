@@ -49,7 +49,7 @@ class Driver:
                 init_conds,
             )
             m.fit(data)
-            icpool.register_result(unique_id, m, m.bic(data))
+            icpool.register_result(unique_id, m, -m.bic(data))
 
         # loop will end when icg stops generating reasonable initial conditions
         return icpool.best_mixture

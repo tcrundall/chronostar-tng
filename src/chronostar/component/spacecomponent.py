@@ -26,8 +26,6 @@ class SpaceComponent(BaseComponent):
         Utilize sklearn methods, but adjusting array dimensions for
         single component usage.
         """
-        print("Maximizing!!!")
-        # import ipdb; ipdb.set_trace()       # noqa
         nsamples = X.shape[0]
         if len(log_resp.shape) == 1:
             log_resp = log_resp[:, np.newaxis]
