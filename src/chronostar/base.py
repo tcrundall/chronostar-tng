@@ -96,7 +96,7 @@ class BaseComponent(metaclass=ABCMeta):
         # Get primary axis (longest eigen vector)
         eigvals, eigvecs = np.linalg.eigh(covariance)
         prim_axis_length = np.sqrt(np.max(eigvals))
-        prim_axis = eigvecs[np.argmax(eigvals)]
+        prim_axis = eigvecs[:, np.argmax(eigvals)]
 
         new_mean_1 = mean + prim_axis_length * prim_axis / 2.0
         new_mean_2 = mean - prim_axis_length * prim_axis / 2.0
@@ -108,7 +108,7 @@ class BaseComponent(metaclass=ABCMeta):
         #   where V := [v1, v2, ... vn]  (Matrix of eigvecs)
         #     and D is diagonal matrix where diagonals are eigvals
         new_eigvals = eigvals[:]
-        new_eigvals[np.argmax(eigvals)] /= 2.0
+        new_eigvals[np.argmax(eigvals)] /= 4.0      # eigvals are std**2
         D = np.eye(6) * eigvals
         new_covariance = np.dot(eigvecs, np.dot(D, eigvecs.T))
 

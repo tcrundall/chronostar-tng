@@ -1,28 +1,59 @@
 import numpy as np
 from scipy.stats import multivariate_normal
+from src.chronostar.base import BaseComponent
 
 from src.chronostar.component.spacetimecomponent import SpaceTimeComponent
 from src.chronostar.component.spacecomponent import SpaceComponent
 from tests.fooclasses import CONFIG_PARAMS, DATA, NSAMPLES
 
 
-COMPONENT_CLASSES = [
-    SpaceComponent,
-    SpaceTimeComponent
-]
+COMPONENT_CLASSES: dict[type[BaseComponent], tuple] = {
+    SpaceComponent: (),
+    SpaceTimeComponent: (1.,),
+}
 
 
 def test_construction() -> None:
-    for CompClass in COMPONENT_CLASSES:
+    for CompClass in COMPONENT_CLASSES.keys():
         comp = CompClass(CONFIG_PARAMS['component'])   # noqa F841
 
 
 def test_simpleusage() -> None:
-    for CompClass in COMPONENT_CLASSES:
+    for CompClass in COMPONENT_CLASSES.keys():
         comp = CompClass(CONFIG_PARAMS['component'])
         comp.maximize(DATA, np.ones(NSAMPLES))
         result = comp.estimate_log_prob(DATA)
         assert result.shape[0] == NSAMPLES
+
+
+def test_splitting():
+    dim = 6
+    mean = np.zeros(dim)
+    stdev = 10.
+    primary_stdev = 2 * stdev
+    covariance = stdev**2 * np.eye(dim)
+    covariance[0, 0] = primary_stdev**2
+
+    true_prim_axis = np.zeros(dim)
+    true_prim_axis[0] = 1.
+
+    true_prim_axis_len = primary_stdev
+
+    true_mean_1 = mean + true_prim_axis_len * true_prim_axis / 2.0
+    true_mean_2 = mean - true_prim_axis_len * true_prim_axis / 2.0
+    true_new_covariance = stdev**2 * np.eye(dim)
+
+    for CompClass, default_params in COMPONENT_CLASSES.items():
+        # Skip classes that don't have split
+        comp = CompClass(config_params={})
+        comp.set_parameters((mean, covariance, *default_params))
+        c1, c2 = comp.split()
+        mean_1, new_covariance, *_ = c1.get_parameters()
+        mean_2, _, *_ = c2.get_parameters()
+
+        assert np.allclose(true_mean_1, mean_1)
+        assert np.allclose(true_mean_2, mean_2)
+        assert np.allclose(true_new_covariance, new_covariance)
 
 
 def test_usage() -> None:
