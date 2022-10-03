@@ -4,7 +4,7 @@ from src.chronostar.base import BaseComponent
 
 from src.chronostar.component.spacetimecomponent import SpaceTimeComponent
 from src.chronostar.component.spacecomponent import SpaceComponent
-from tests.fooclasses import CONFIG_PARAMS, DATA, NSAMPLES
+from tests.unit.fooclasses import CONFIG_PARAMS, DATA, NSAMPLES
 
 
 # Component classes and default extra parameters

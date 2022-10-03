@@ -1,8 +1,8 @@
 import numpy as np
 
 from src.chronostar.icpool.simpleicpool import SimpleICPool
-from tests.fooclasses import FooComponent, FooIntroducer, FooMixture
-from tests.fooclasses import CONFIG_PARAMS
+from tests.unit.fooclasses import FooComponent, FooIntroducer, FooMixture
+from tests.unit.fooclasses import CONFIG_PARAMS
 
 
 def test_construction() -> None:

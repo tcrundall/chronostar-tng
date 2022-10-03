@@ -2,8 +2,9 @@ import os
 from pathlib import Path
 
 from src.chronostar.driver.driver import Driver
-from tests.fooclasses import FooComponent, FooICPool, FooIntroducer, FooMixture
-from tests.fooclasses import DATA
+from tests.unit.fooclasses import \
+    FooComponent, FooICPool, FooIntroducer, FooMixture
+from tests.unit.fooclasses import DATA
 
 
 def test_construction() -> None:
