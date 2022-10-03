@@ -128,10 +128,10 @@ class BaseComponent(metaclass=ABCMeta):
         pass
 
 
-class Splittable(metaclass=ABCMeta):
-    @abstractmethod
-    def split(self) -> tuple[Splittable, Splittable]:
-        pass
+# class Splittable(metaclass=ABCMeta):
+#     @abstractmethod
+#     def split(self) -> tuple[Splittable, Splittable]:
+#         pass
 
 
 class BaseMixture(metaclass=ABCMeta):

@@ -1,6 +1,6 @@
 from typing import Union
 
-from src.chronostar.base import BaseIntroducer, BaseComponent, Splittable
+from src.chronostar.base import BaseIntroducer, BaseComponent
 
 
 class SimpleIntroducer(BaseIntroducer):
@@ -20,10 +20,9 @@ class SimpleIntroducer(BaseIntroducer):
 
         sets = []
         for i in range(len(prev_comp_sets)):
-            next_set: list[Splittable] = prev_comp_sets[:]    # type: ignore
+            next_set: list[BaseComponent] = prev_comp_sets[:]   # type: ignore
             target_comp = next_set.pop(i)
 
-            assert isinstance(target_comp, Splittable)
             c1, c2 = target_comp.split()
 
             next_set.insert(i, c2)

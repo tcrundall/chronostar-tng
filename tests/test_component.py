@@ -7,6 +7,7 @@ from src.chronostar.component.spacecomponent import SpaceComponent
 from tests.fooclasses import CONFIG_PARAMS, DATA, NSAMPLES
 
 
+# Component classes and default extra parameters
 COMPONENT_CLASSES: dict[type[BaseComponent], tuple] = {
     SpaceComponent: (),
     SpaceTimeComponent: (1.,),
@@ -26,7 +27,7 @@ def test_simpleusage() -> None:
         assert result.shape[0] == NSAMPLES
 
 
-def test_splitting():
+def test_splitting() -> None:
     dim = 6
     mean = np.zeros(dim)
     stdev = 10.

@@ -10,7 +10,6 @@ from src.chronostar.base import (
     BaseMixture,
     BaseICPool,
     BaseIntroducer,
-    Splittable,
     ScoredMixture,
 )
 
@@ -26,7 +25,7 @@ NSAMPLES, NFEATURES = 100, 6
 DATA = np.random.rand(NSAMPLES, NFEATURES)
 
 
-class FooComponent(BaseComponent, Splittable):
+class FooComponent(BaseComponent):
     dim = 6
 
     def __init__(self, *args, **kwargs) -> None:        # type: ignore
