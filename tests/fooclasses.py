@@ -27,6 +27,8 @@ DATA = np.random.rand(NSAMPLES, NFEATURES)
 
 
 class FooComponent(BaseComponent, Splittable):
+    dim = 6
+
     def __init__(self, *args, **kwargs) -> None:        # type: ignore
         super().__init__(*args, **kwargs)
 
@@ -42,7 +44,14 @@ class FooComponent(BaseComponent, Splittable):
         X: NDArray[float64],
         log_resp: NDArray[float64]
     ) -> None:
-        return
+        self.mean = np.ones(self.dim)
+        self.covariance = np.eye(self.dim)
+
+    def get_parameters(self) -> tuple:
+        return (self.mean, self.covariance)
+
+    def set_parameters(self, params: tuple) -> None:
+        self.mean, self.covariance = params
 
     def split(self) -> tuple[FooComponent, FooComponent]:
         """Split this component into two, returning the result"""

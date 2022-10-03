@@ -53,3 +53,9 @@ class SpaceComponent(BaseComponent):
         mean_params = n_features
         cov_params = n_features * (n_features + 1) / 2.0
         return int(mean_params + cov_params)
+
+    def set_parameters(self, params: tuple) -> None:
+        self.mean, self.covariance = params
+
+    def get_parameters(self) -> tuple:
+        return self.mean, self.covariance
