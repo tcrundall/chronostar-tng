@@ -1,3 +1,4 @@
+from typing import Optional, Callable
 import numpy as np
 from numpy import float64
 from numpy.typing import NDArray
@@ -9,6 +10,47 @@ from sklearn.mixture._gaussian_mixture import _compute_precision_cholesky
 from src.chronostar.base import BaseComponent
 from src.chronostar.utils.utils import trace_epicyclic_orbit
 from src.chronostar.utils.transform import transform_covmatrix
+
+
+def morph_covariance(covariance: NDArray[float64]) -> NDArray[float64]:
+    covariance[3:, :3] = 0.
+    covariance[:3, 3:] = 0.
+    return covariance
+
+
+def apply_age_constraints(
+    mean: NDArray[float64],
+    covariance: NDArray[float64],
+    age: float,
+    trace_func: Optional[Callable] = None,
+) -> tuple[NDArray[float64], NDArray[float64]]:
+    if trace_func is None:
+        trace_func = trace_epicyclic_orbit
+
+    # Get birth mean
+    mean_birth = trace_func(mean, -age)
+
+    # Get approximate birth covariance matrix
+    cov_birth_approx = transform_covmatrix(
+        cov=covariance,
+        trans_func=trace_func,
+        loc=mean,
+        args=(-age,),
+    )
+
+    # Morph birth covariance matrix so it matches assumptions
+    cov_birth = morph_covariance(cov_birth_approx)
+
+    # Project birth covariance matrix to current day
+    mean_aged = mean
+    cov_aged = transform_covmatrix(
+        cov=cov_birth,
+        trans_func=trace_epicyclic_orbit,
+        loc=mean_birth,
+        args=(age,),
+    )
+
+    return mean_aged, cov_aged
 
 
 class SpaceTimeComponent(BaseComponent):
@@ -25,7 +67,7 @@ class SpaceTimeComponent(BaseComponent):
         resp,
         age,
         reg_covar,
-    ):
+    ) -> tuple[NDArray[float64], NDArray[float64]]:
         _, means_, covariances_ = _estimate_gaussian_parameters(
             X,
             resp[:, np.newaxis],
@@ -35,32 +77,9 @@ class SpaceTimeComponent(BaseComponent):
         fitted_mean_now = means_.squeeze()
         fitted_cov_now = covariances_.squeeze()
 
-        # Get birth mean
-        mean_birth = trace_epicyclic_orbit(fitted_mean_now, -age)
+        return apply_age_constraints(fitted_mean_now, fitted_cov_now, age)
 
-        # Get approximate birth covariance matrix
-        cov_birth_approx = transform_covmatrix(
-            cov=fitted_cov_now,
-            trans_func=trace_epicyclic_orbit,
-            loc=fitted_mean_now,
-            args=(-age,),
-        )
-
-        # Morph birth covariance matrix s.t. it matches assumptions
-        cov_birth = self.morph_covariance(cov_birth_approx)
-
-        # Project birth covariance matrix to current day
-        aged_mean_now = fitted_mean_now
-        aged_cov_now = transform_covmatrix(
-            cov=cov_birth,
-            trans_func=trace_epicyclic_orbit,
-            loc=mean_birth,
-            args=(age,),
-        )
-
-        return aged_mean_now, aged_cov_now
-
-    def _loss(self, age, X, log_resp):
+    def _loss(self, age, X, log_resp) -> float:
         mean_now, cov_now = self._estimate_aged_gaussian_parameters(
             X,
             np.exp(log_resp),
@@ -80,17 +99,15 @@ class SpaceTimeComponent(BaseComponent):
             self.covariance_type,
         ).squeeze()
 
-        loss = -np.sum(np.exp(log_resp) * log_prob)
-        return loss
+        return float(-np.sum(np.exp(log_resp) * log_prob))
 
-    def maximize(self, X, log_resp):
+    def maximize(self, X, log_resp) -> None:
         res = minimize_scalar(
             self._loss,
             args=(X, log_resp),
             method="brent",
         )
         self.age = res.x
-        print(self.age)
 
         self.mean, self.covariance = self._estimate_aged_gaussian_parameters(
             X,
@@ -98,6 +115,7 @@ class SpaceTimeComponent(BaseComponent):
             self.age,
             self.reg_covar,
         )
+
         self.precision_chol = _compute_precision_cholesky(
             self.covariance[np.newaxis], self.covariance_type
         ).squeeze()
