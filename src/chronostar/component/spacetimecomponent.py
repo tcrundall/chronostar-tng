@@ -132,3 +132,29 @@ class SpaceTimeComponent(BaseComponent):
         cov_params = 6 + 3 + 3
         age_param = 1
         return mean_params + cov_params + age_param
+
+    def set_parameters(
+        self,
+        params,
+        # mean: NDArray[float64],
+        # covariance: NDArray[float64],
+        # age: float,
+    ) -> None:
+        (
+            self.mean,
+            self.covariance,
+            self.age,
+        ) = params
+        # self.age = age
+        # self.mean = mean
+        # self.covariance = covariance
+        self.precision_chol = _compute_precision_cholesky(
+            self.covariance[np.newaxis], self.covariance_type,
+        ).squeeze()
+
+    def get_parameters(self):
+        return (
+            self.mean,
+            self.covariance,
+            self.age,
+        )
