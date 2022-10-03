@@ -11,6 +11,8 @@ from src.chronostar.base import (
 
 
 class SimpleICPool(BaseICPool):
+    max_components = 30
+
     def __init__(self, *args, **kwargs) -> None:        # type: ignore
         super().__init__(*args, **kwargs)
 
@@ -39,23 +41,23 @@ class SimpleICPool(BaseICPool):
             # Loop over the next generation of initial conditions
             for ix, init_conditions in enumerate(
                 self.introducer.next_gen(
-                    None if best_mixture is None else [list(
+                    None if best_mixture is None else list(
                         best_mixture.get_components()
-                    )]
+                    )
                 )
             ):
-                yield ix, init_conditions
+                if len(init_conditions) < self.max_components:
+                    yield ix, init_conditions
 
             # Once all initial conditions are provided, look for best registry
-            best_mixture, best_score = max(
-                self.registry.values(),
-                key=lambda x: x.score
-            )
+            if self.registry:
+                best_mixture, best_score = max(
+                    self.registry.values(),
+                    key=lambda x: x.score
+                )
 
-            # Using best fit, repeat until score ceases to improve
-
-            assert isinstance(best_mixture, BaseMixture)
-            self.best_mixture_ = best_mixture
+                # Using best fit, repeat until score ceases to improve
+                self.best_mixture_ = best_mixture
 
     @property
     def best_mixture(self) -> BaseMixture:

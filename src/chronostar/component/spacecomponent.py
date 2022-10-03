@@ -26,9 +26,15 @@ class SpaceComponent(BaseComponent):
         Utilize sklearn methods, but adjusting array dimensions for
         single component usage.
         """
+        print("Maximizing!!!")
+        # import ipdb; ipdb.set_trace()       # noqa
+        nsamples = X.shape[0]
+        if len(log_resp.shape) == 1:
+            log_resp = log_resp[:, np.newaxis]
+        assert log_resp.shape == (nsamples, 1)
         _, means_, covariances_ = _estimate_gaussian_parameters(
             X,
-            np.exp(log_resp[:, np.newaxis]),
+            np.exp(log_resp),
             self.reg_covar,
             self.covariance_type,
         )
@@ -56,6 +62,9 @@ class SpaceComponent(BaseComponent):
 
     def set_parameters(self, params: tuple) -> None:
         self.mean, self.covariance = params
+        self.precision_chol = _compute_precision_cholesky(
+            self.covariance[np.newaxis], self.covariance_type
+        ).squeeze()
 
     def get_parameters(self) -> tuple:
         return self.mean, self.covariance

@@ -1,0 +1,18 @@
+icpool:
+  param1: 'param1'
+  param2: 'param2'
+  param3: 'param3'
+  list_param1:
+    - 1
+    - 2
+    - 3
+introducer:
+  param1: 'param1'
+mixture:
+  a: 1
+  b: 2
+  c: 3
+component:
+  a: 1
+  b: 2
+  c: 3

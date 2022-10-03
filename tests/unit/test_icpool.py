@@ -26,7 +26,9 @@ def test_simple_usage() -> None:
 
     score = 10.
     for (unique_id, init_conds) in icpool.pool():
-        m = FooMixture(CONFIG_PARAMS)
+        ncomps = len(init_conds)
+        init_weights = np.ones(ncomps) / ncomps
+        m = FooMixture(CONFIG_PARAMS, init_weights, init_conds)
         ncomps = len(init_conds)
         m.set_params((np.ones(ncomps)/ncomps, init_conds))
         icpool.register_result(unique_id, m, score)

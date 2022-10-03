@@ -41,9 +41,13 @@ class Driver:
         )
 
         for unique_id, init_conds in icpool.pool():
-            m = self.mixture_class(self.config_params)
             ncomps = len(init_conds)
-            m.set_params((np.ones(ncomps) / ncomps, init_conds))
+            init_weights = np.ones(ncomps)/ncomps
+            m = self.mixture_class(
+                self.config_params,
+                init_weights,
+                init_conds,
+            )
             m.fit(data)
             icpool.register_result(unique_id, m, m.bic(data))
 

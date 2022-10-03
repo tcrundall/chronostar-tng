@@ -80,6 +80,7 @@ class BaseComponent(metaclass=ABCMeta):
         X: NDArray[float64],
         log_resp: NDArray[float64],
     ) -> None:
+        print("What...?")
         pass
 
     @property
@@ -109,9 +110,8 @@ class BaseComponent(metaclass=ABCMeta):
         #     and D is diagonal matrix where diagonals are eigvals
         new_eigvals = np.copy(eigvals)
         new_eigvals[np.argmax(eigvals)] /= 4.0      # eigvals are std**2
-        assert not np.allclose(eigvals, new_eigvals)
 
-        D = np.eye(6) * eigvals
+        D = np.eye(6) * new_eigvals
         new_covariance = np.dot(eigvecs, np.dot(D, eigvecs.T))
 
         comp1 = self.__class__(self.config_params)
@@ -137,8 +137,15 @@ class BaseComponent(metaclass=ABCMeta):
 
 
 class BaseMixture(metaclass=ABCMeta):
-    def __init__(self, config_params: dict[Any, Any]) -> None:
+    def __init__(
+        self,
+        config_params: dict[Any, Any],
+        init_weights: NDArray[float64],
+        init_comps: list[BaseComponent],
+    ) -> None:
         self.config_params = config_params
+        self.weights = init_weights
+        self.comps = init_comps
 
     @abstractmethod
     def set_params(

@@ -10,22 +10,23 @@ from src.chronostar.base import BaseComponent
 class SKLComponentMixture(SKLBaseMixture):
     def __init__(
         self,
-        # weights_init: NDArray[float64],
-        # components_init: list[BaseComponent],
+        weights_init: NDArray[float64],
+        components_init: list[BaseComponent],
         *,
         tol: float = 1e-3,
         reg_covar: float = 1e-6,
         max_iter: int = 100,
         n_init: int = 1,
-        init_params: str = 'kmeans',
+        init_params: str = 'random',
         random_state: Any = None,
-        warm_start: bool = False,
+        warm_start: bool = True,
         verbose: int = 0,
         verbose_interval: int = 10,
         **kwargs: dict[str, Any],
     ) -> None:
+        print(f"{init_params=}")
         super().__init__(
-            n_components=None,
+            n_components=len(components_init),
             tol=tol,
             reg_covar=reg_covar,
             max_iter=max_iter,
@@ -37,8 +38,8 @@ class SKLComponentMixture(SKLBaseMixture):
             verbose_interval=verbose_interval,
         )
 
-        # self.weights_: NDArray[float64] = np.array(weights_init)
-        # self.components_: list[BaseComponent] = list(components_init)
+        self.weights_: NDArray[float64] = np.array(weights_init)
+        self.components_: list[BaseComponent] = list(components_init)
 
         if kwargs:
             print("Extra arguments provided...")
@@ -59,7 +60,18 @@ class SKLComponentMixture(SKLBaseMixture):
 
         Lets try to avoid automatic initialization
         """
-        pass
+        print(self.init_params)
+        # if self.init_params == "random":
+        #     pass
+        if any([not hasattr(comp, 'mean') for comp in self.components_]):
+            nsamples = X.shape[0]
+            resp = np.random.rand(nsamples, self.n_components)
+            resp = (resp.T / resp.sum(axis=1)).T
+            for i, component in enumerate(self.components_):
+                component.maximize(X, np.log(resp[:, i]))
+
+        # import ipdb; ipdb.set_trace()       # noqa
+
         # if self.weights_ is None or self.components_ is None:
         #     raise UserWarning("Invalid initial params")
 

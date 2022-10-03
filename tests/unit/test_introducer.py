@@ -36,8 +36,11 @@ def test_full_usage() -> None:
         component_class=FooComponent,
     )
 
-    best_mixture = FooMixture(CONFIG_PARAMS)
-    best_mixture.set_params((np.ones(1), [FooComponent(CONFIG_PARAMS)]))
+    best_mixture = FooMixture(
+        CONFIG_PARAMS,
+        np.ones(1),
+        [FooComponent(CONFIG_PARAMS)]
+    )
     best_score = best_mixture.bic(DATA)
     prev_best_score = -np.inf
 
@@ -46,9 +49,13 @@ def test_full_usage() -> None:
         for next_init_cond in introducer.next_gen(
             best_mixture.get_components()
         ):
-            m = FooMixture(CONFIG_PARAMS)
             ncomps = len(next_init_cond)
-            m.set_params((np.ones(ncomps)/ncomps, next_init_cond))
+            init_weights = np.ones(ncomps) / ncomps
+            m = FooMixture(
+                CONFIG_PARAMS,
+                init_weights,
+                next_init_cond
+            )
             m.fit(DATA)
             if m.bic(DATA) > prev_best_score:
                 prev_best_score = best_score
