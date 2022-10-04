@@ -21,7 +21,11 @@ def test_simple_spacemixture_run():
         component_class=SpaceComponent,
     )
 
+    np.random.seed(3)
     data = np.random.rand(10_000, 6)
+    data -= 0.5
+    data[:, :3] *= 3
+    data[:, 3:] *= 3
 
     best_mixture = driver.run(data)         # noqa F841
     weights, comps = best_mixture.get_params()
@@ -53,4 +57,4 @@ def test_simple_spacetimemixture_run():
 
 
 if __name__ == '__main__':
-    best_mixture, data = test_simple_spacemixture_run()
+    best_mixture, data = test_simple_spacetimemixture_run()

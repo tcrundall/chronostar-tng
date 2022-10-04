@@ -24,7 +24,6 @@ class SKLComponentMixture(SKLBaseMixture):
         verbose_interval: int = 10,
         **kwargs: dict[str, Any],
     ) -> None:
-        print(f"{init_params=}")
         super().__init__(
             n_components=len(components_init),
             tol=tol,
