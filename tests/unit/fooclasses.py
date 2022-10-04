@@ -117,7 +117,8 @@ class FooIntroducer(BaseIntroducer):
         self,
         prev_components: Union[None, list[list[BaseComponent]], list[BaseComponent]],  # noqa E501
     ) -> list[list[BaseComponent]]:
-        return [[FooComponent(CONFIG_PARAMS) for _ in range(5)]]
+
+        return [[FooComponent(params=None) for _ in range(5)]]
 
 
 class FooICPool(BaseICPool):
@@ -125,8 +126,13 @@ class FooICPool(BaseICPool):
         super().__init__(*args, **kwargs)
         self.registry: dict[Union[str, int], ScoredMixture] = {}
 
+    @classmethod
+    def configure(cls, **kwargs):
+        if kwargs:
+            print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
+
     def pool(self) -> Generator[tuple[int, list[BaseComponent]], None, None]:
-        for i, fc in enumerate([FooComponent(self.config_params)]):
+        for i, fc in enumerate([FooComponent(params=None)]):
             yield (i, [fc])
 
     def register_result(

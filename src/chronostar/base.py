@@ -16,15 +16,18 @@ class BaseICPool(metaclass=ABCMeta):
 
     def __init__(
         self,
-        config_params: dict[Any, Any],
         introducer_class: Type[BaseIntroducer],
         component_class: Type[BaseComponent],
     ) -> None:
-        self.config_params = config_params
         self.introducer_class = introducer_class
         self.component_class = component_class
 
         self.registry: dict[Union[str, int], ScoredMixture] = {}
+    
+    @classmethod
+    @abstractmethod
+    def configure(cls, **kwargs):
+        pass
 
     @abstractmethod
     def pool(self) -> Generator[tuple[int, list[BaseComponent]], None, None]:

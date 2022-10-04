@@ -11,15 +11,21 @@ from src.chronostar.base import (
 
 
 class SimpleICPool(BaseICPool):
-    max_components = 30
 
     def __init__(self, *args, **kwargs) -> None:        # type: ignore
         super().__init__(*args, **kwargs)
 
         # Perhaps do this in pool()?
         self.introducer: BaseIntroducer = self.introducer_class(
-            self.config_params, self.component_class
+            self.component_class
         )
+    
+    @classmethod
+    def configure(cls, max_components=30, **kwargs):
+        cls.max_components = max_components
+
+        if kwargs:
+            print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
 
     def register_result(
         self,
@@ -48,6 +54,7 @@ class SimpleICPool(BaseICPool):
                     )
                 )
             ):
+                # Only yield component sets that are within limits
                 if len(init_conditions) < self.max_components:
                     yield ix, init_conditions
 
