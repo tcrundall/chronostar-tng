@@ -7,7 +7,7 @@ icpool:
     - 2
     - 3
 introducer:
-  param1: 'param1'
+  param1: 'param1'    # explaining comment
 mixture:
   a: 1
   b: 2

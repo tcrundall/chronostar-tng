@@ -77,6 +77,7 @@ class SpaceTimeComponent(BaseComponent):
         fitted_mean_now = means_.squeeze()
         fitted_cov_now = covariances_.squeeze()
 
+        # Todo: CHECK THIS IS RIGHT
         return apply_age_constraints(fitted_mean_now, fitted_cov_now, age)
 
     def _loss(self, age, X, log_resp) -> float:

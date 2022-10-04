@@ -1,6 +1,5 @@
 import numpy as np
 
-from src.chronostar.base import BaseComponent
 from src.chronostar.introducer.simpleintroducer import SimpleIntroducer
 from tests.unit.fooclasses import CONFIG_PARAMS, DATA, FooComponent, FooMixture
 
