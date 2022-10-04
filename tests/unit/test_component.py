@@ -9,7 +9,7 @@ from tests.unit.fooclasses import CONFIG_PARAMS, DATA, NSAMPLES
 
 # Component classes and default extra parameters
 COMPONENT_CLASSES: dict[type[BaseComponent], tuple] = {
-    # SpaceComponent: (),
+    SpaceComponent: (),
     SpaceTimeComponent: (1.,),
 }
 

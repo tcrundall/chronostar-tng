@@ -68,12 +68,12 @@ class BaseIntroducer(metaclass=ABCMeta):
 
 class BaseComponent(metaclass=ABCMeta):
 
-    @abstractmethod
     def __init__(self, params: Optional[tuple] = None) -> None:
-        pass
+        if params:
+            self.set_parameters(params)
 
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def configure(cls, **kwargs):
         pass
 

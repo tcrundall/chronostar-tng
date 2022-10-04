@@ -11,11 +11,22 @@ from src.chronostar.base import BaseComponent
 
 
 class SpaceComponent(BaseComponent):
-    reg_covar = 1e-6
-    covariance_type = "full"
+    COVARIANCE_TYPE = "full"
 
-    def __init__(self, config_params: dict[Any, Any]) -> None:
-        self.config_params = config_params
+    @classmethod
+    def configure(
+        cls,
+        reg_covar=1e-6,
+        **kwargs
+    ):
+
+        cls.reg_covar = reg_covar
+
+        if kwargs:
+            print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
+
+    def __init__(self, params=None) -> None:
+        super().__init__(params)
 
     def maximize(
         self,
@@ -34,13 +45,13 @@ class SpaceComponent(BaseComponent):
             X,
             np.exp(log_resp),
             self.reg_covar,
-            self.covariance_type,
+            self.COVARIANCE_TYPE,
         )
 
         self.mean = means_.squeeze()
         self.covariance = covariances_.squeeze()
         self.precision_chol = _compute_precision_cholesky(
-            self.covariance[np.newaxis], self.covariance_type
+            self.covariance[np.newaxis], self.COVARIANCE_TYPE
         ).squeeze()
 
     def estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
@@ -48,7 +59,7 @@ class SpaceComponent(BaseComponent):
             X,
             self.mean[np.newaxis],
             self.precision_chol[np.newaxis],
-            self.covariance_type,
+            self.COVARIANCE_TYPE,
         ).squeeze(), dtype=float64)
 
     @property
@@ -61,7 +72,7 @@ class SpaceComponent(BaseComponent):
     def set_parameters(self, params: tuple) -> None:
         self.mean, self.covariance = params
         self.precision_chol = _compute_precision_cholesky(
-            self.covariance[np.newaxis], self.covariance_type
+            self.covariance[np.newaxis], self.COVARIANCE_TYPE
         ).squeeze()
 
     def get_parameters(self) -> tuple:

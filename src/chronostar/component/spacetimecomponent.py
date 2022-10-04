@@ -83,11 +83,10 @@ class SpaceTimeComponent(BaseComponent):
             raise UserWarning(f"{cls} config: Unknown {morph_cov_func=}")
 
         if (kwargs):
-            print(f"Extra keyword arguments provided:\n{kwargs}")
+            print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
 
     def __init__(self, params=None):
-        if params:
-            self.set_parameters(params)
+        super().__init__(params)
 
     def _estimate_aged_gaussian_parameters(
         self,
