@@ -28,8 +28,17 @@ DATA = np.random.rand(NSAMPLES, NFEATURES)
 class FooComponent(BaseComponent):
     dim = 6
 
-    def __init__(self, *args, **kwargs) -> None:        # type: ignore
-        super().__init__(*args, **kwargs)
+    def __init__(self, params) -> None:        # type: ignore
+        super().__init__(params)
+
+    @classmethod
+    def configure(cls, a=0, b=0, c=0, **kwargs):
+        cls.a = a
+        cls.b = b
+        cls.c = c
+
+        if kwargs:
+            print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
 
     @property
     def n_params(self) -> int:
@@ -54,10 +63,8 @@ class FooComponent(BaseComponent):
 
     def split(self) -> tuple[FooComponent, FooComponent]:
         """Split this component into two, returning the result"""
-        c1 = FooComponent(self.config_params)
-        c1.set_parameters(self.get_parameters())
-        c2 = FooComponent(self.config_params)
-        c2.set_parameters(self.get_parameters())
+        c1 = FooComponent(self.get_parameters())
+        c2 = FooComponent(self.get_parameters())
         return c1, c2
 
 

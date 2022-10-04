@@ -5,24 +5,23 @@ from tests.unit.fooclasses import FooComponent, CONFIG_PARAMS, DATA
 
 
 def test_construction() -> None:
+    FooComponent.configure(**CONFIG_PARAMS['component'])
+    ComponentMixture.configure(**CONFIG_PARAMS['mixture'])
+
     cm = ComponentMixture(                          # noqa F841
-        CONFIG_PARAMS['mixture'],
         init_weights=np.ones(1),
-        init_components=[FooComponent(CONFIG_PARAMS['component'])]
+        init_components=[FooComponent(params=None)]
     )
 
 
 def test_simple_usage() -> None:
+    FooComponent.configure(**CONFIG_PARAMS['component'])
+    ComponentMixture.configure(**CONFIG_PARAMS['mixture'])
+
     cm = ComponentMixture(                          # noqa F841
-        CONFIG_PARAMS,
         init_weights=np.ones(5)/5,
-        init_components=[FooComponent(CONFIG_PARAMS) for _ in range(5)],
+        init_components=[FooComponent(params=None) for _ in range(5)],
     )
-    # cm.set_params(
-    #     params=(
-    #         np.ones(5)/5, [FooComponent(CONFIG_PARAMS) for _ in range(5)]
-    #     )
-    # )
 
     cm.fit(DATA)
     score = cm.bic(DATA)                            # noqa F841

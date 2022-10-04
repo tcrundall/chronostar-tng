@@ -82,7 +82,7 @@ class SpaceTimeComponent(BaseComponent):
         else:
             raise UserWarning(f"{cls} config: Unknown {morph_cov_func=}")
 
-        if (kwargs):
+        if kwargs:
             print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
 
     def __init__(self, params=None):

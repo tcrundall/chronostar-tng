@@ -152,6 +152,11 @@ class BaseMixture(metaclass=ABCMeta):
         self.weights = init_weights
         self.comps = init_comps
 
+    @classmethod
+    @abstractmethod
+    def configure(cls, **kwargs):
+        pass
+
     @abstractmethod
     def set_params(
         self,
