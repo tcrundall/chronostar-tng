@@ -32,10 +32,14 @@ class Driver:
         self.icpool_class = icpool_class
         self.introducer_class = introducer_class
 
+        self.component_class.configure(**self.config_params["component"])
+        self.mixture_class.configure(**self.config_params["mixture"])
+        self.icpool_class.configure(**self.config_params["icpool"])
+        self.introducer_class.configure(**self.config_params["introducer"])
+
     def run(self, data: NDArray[float64]) -> BaseMixture:
 
         icpool = self.icpool_class(
-            config_params=self.config_params['icpool'],
             introducer_class=self.introducer_class,
             component_class=self.component_class,
         )
@@ -44,7 +48,6 @@ class Driver:
             ncomps = len(init_conds)
             init_weights = np.ones(ncomps)/ncomps
             m = self.mixture_class(
-                self.config_params,
                 init_weights,
                 init_conds,
             )
