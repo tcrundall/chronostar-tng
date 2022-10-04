@@ -34,14 +34,14 @@ def test_twoassocs():
     fitted_ages = [c.get_parameters()[2] for c in components]
 
     try:
-        assert np.allclose((nstars1, nstars2), weights*nstars, rtol=0.01)
+        assert np.allclose((nstars1, nstars2), weights*nstars, rtol=0.05)
     except AssertionError:
-        assert np.allclose((nstars2, nstars1), weights*nstars, rtol=0.01)
+        assert np.allclose((nstars2, nstars1), weights*nstars, rtol=0.05)
 
     try:
-        assert np.allclose([age1, age2], fitted_ages, atol=1)
+        assert np.allclose([age1, age2], fitted_ages, rtol=0.1)
     except AssertionError:
-        assert np.allclose([age2, age1], fitted_ages, atol=1)
+        assert np.allclose([age2, age1], fitted_ages, rtol=0.1)
 
     return best_mixture, stars, (age1, age2), (nstars1, nstars2)
 
@@ -166,7 +166,7 @@ def test_one_assoc_one_uniform_background():
 
     nstars = len(stars)
     assert np.isclose(assoc_nstars, fitted_assoc_weight*nstars, rtol=0.1)
-    assert np.isclose(assoc_age, fitted_age, atol=1.0)
+    assert np.isclose(assoc_age, fitted_age, rtol=0.1)
     return best_mixture, stars
 
 
