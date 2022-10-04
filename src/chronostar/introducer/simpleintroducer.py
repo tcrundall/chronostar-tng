@@ -4,8 +4,13 @@ from src.chronostar.base import BaseIntroducer, BaseComponent
 
 
 class SimpleIntroducer(BaseIntroducer):
-    def __init__(self, *args, **kwargs) -> None:        # type: ignore
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+    
+    @classmethod
+    def configure(cls, **kwargs):
+        if kwargs:
+            print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
 
     def next_gen(
         self,
@@ -13,12 +18,12 @@ class SimpleIntroducer(BaseIntroducer):
             Union[list[list[BaseComponent]], list[BaseComponent], None],
     ) -> list[list[BaseComponent]]:
         if prev_comp_sets is None:
-            return [[self.component_class(self.config_params)]]
+            return [[self.component_class(params=None)]]
 
         if isinstance(prev_comp_sets[0], list):
             raise UserWarning("This Introducer accepts one set of components")
 
-        sets = []
+        sets: list[list[BaseComponent]] = []
         for i in range(len(prev_comp_sets)):
             next_set: list[BaseComponent] = prev_comp_sets[:]   # type: ignore
             target_comp = next_set.pop(i)
@@ -29,4 +34,4 @@ class SimpleIntroducer(BaseIntroducer):
             next_set.insert(i, c1)
             sets.append(next_set)
 
-        return sets         # type: ignore
+        return sets

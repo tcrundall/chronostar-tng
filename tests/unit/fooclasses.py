@@ -71,6 +71,11 @@ class FooComponent(BaseComponent):
 class FooMixture(BaseMixture):
     def __init__(self, *args, **kwargs) -> None:        # type: ignore
         super().__init__(*args, **kwargs)
+    
+    @classmethod
+    def configure(cls, **kwargs):
+        if kwargs:
+            print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
 
     def get_params(self) -> tuple[NDArray[float64], list[BaseComponent]]:
         return (self.weights, self.comps)
@@ -102,6 +107,11 @@ class FooIntroducer(BaseIntroducer):
         **kwargs: dict[Any, Any],
     ) -> None:
         super().__init__(*args, **kwargs)       # type: ignore
+    
+    @classmethod
+    def configure(cls, **kwargs) -> None:
+        if kwargs:
+            print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
 
     def next_gen(
         self,

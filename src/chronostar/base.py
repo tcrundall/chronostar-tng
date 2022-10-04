@@ -48,11 +48,14 @@ class BaseICPool(metaclass=ABCMeta):
 class BaseIntroducer(metaclass=ABCMeta):
     def __init__(
         self,
-        config_params: dict[Any, Any],
         component_class: Type[BaseComponent],
     ) -> None:
-        self.config_params = config_params
         self.component_class = component_class
+
+    @classmethod
+    @abstractmethod
+    def configure(cls, **kwargs):
+        pass
 
     @abstractmethod
     def next_gen(
@@ -144,11 +147,9 @@ class BaseComponent(metaclass=ABCMeta):
 class BaseMixture(metaclass=ABCMeta):
     def __init__(
         self,
-        config_params: dict[Any, Any],
         init_weights: NDArray[float64],
         init_comps: list[BaseComponent],
     ) -> None:
-        self.config_params = config_params
         self.weights = init_weights
         self.comps = init_comps
 

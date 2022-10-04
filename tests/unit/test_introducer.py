@@ -5,19 +5,23 @@ from tests.unit.fooclasses import CONFIG_PARAMS, DATA, FooComponent, FooMixture
 
 
 def test_construction() -> None:
+    SimpleIntroducer.configure(**CONFIG_PARAMS['introducer'])
+    FooComponent.configure(**CONFIG_PARAMS['component'])
+
     introducer = SimpleIntroducer(   # noqa F401
-        config_params=CONFIG_PARAMS,
         component_class=FooComponent,
     )
 
 
 def test_comp_count_increase() -> None:
+    SimpleIntroducer.configure(**CONFIG_PARAMS['introducer'])
+    FooComponent.configure(**CONFIG_PARAMS['component'])
+
     introducer = SimpleIntroducer(
-        config_params=CONFIG_PARAMS,
         component_class=FooComponent,
     )
 
-    comp_set_1 = [FooComponent(CONFIG_PARAMS) for _ in range(1)]
+    comp_set_1 = [FooComponent(params=None) for _ in range(1)]
     [c.maximize(None, None) for c in comp_set_1]    # type: ignore
     next_gen = introducer.next_gen(comp_set_1)      # type: ignore
     for comp_set in next_gen:
@@ -30,17 +34,19 @@ def test_comp_count_increase() -> None:
 
 
 def test_full_usage() -> None:
+    SimpleIntroducer.configure(**CONFIG_PARAMS['introducer'])
+    FooComponent.configure(**CONFIG_PARAMS['component'])
+    FooMixture.configure(**CONFIG_PARAMS['mixture'])
+
     introducer = SimpleIntroducer(
-        config_params=CONFIG_PARAMS,
         component_class=FooComponent,
     )
 
-    comp = FooComponent(CONFIG_PARAMS)
+    comp = FooComponent(params=None)
     # hacky way to ensure mean and cov are set
     comp.maximize(None, None)       # type: ignore
 
     best_mixture = FooMixture(
-        CONFIG_PARAMS,
         np.ones(1),
         [comp]
     )
@@ -56,7 +62,6 @@ def test_full_usage() -> None:
             ncomps = len(next_init_cond)
             init_weights = np.ones(ncomps) / ncomps
             m = FooMixture(
-                CONFIG_PARAMS,
                 init_weights,
                 next_init_cond
             )
