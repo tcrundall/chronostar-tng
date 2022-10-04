@@ -12,7 +12,7 @@ from src.chronostar.utils.utils import trace_epicyclic_orbit
 from src.chronostar.utils.transform import transform_covmatrix
 
 
-def morph_covariance(covariance: NDArray[float64]) -> NDArray[float64]:
+def remove_posvel_correlations(covariance: NDArray[float64]) -> NDArray[float64]:
     covariance[3:, :3] = 0.
     covariance[:3, 3:] = 0.
     return covariance
@@ -22,24 +22,23 @@ def apply_age_constraints(
     mean: NDArray[float64],
     covariance: NDArray[float64],
     age: float,
-    trace_func: Optional[Callable] = None,
+    trace_orbit_func: Callable = trace_epicyclic_orbit,
+    morph_cov_func: Callable = remove_posvel_correlations,
 ) -> tuple[NDArray[float64], NDArray[float64]]:
-    if trace_func is None:
-        trace_func = trace_epicyclic_orbit
 
     # Get birth mean
-    mean_birth = trace_func(mean, -age)
+    mean_birth = trace_orbit_func(mean, -age)
 
     # Get approximate birth covariance matrix
     cov_birth_approx = transform_covmatrix(
         cov=covariance,
-        trans_func=trace_func,
+        trans_func=trace_orbit_func,
         loc=mean,
         args=(-age,),
     )
 
     # Morph birth covariance matrix so it matches assumptions
-    cov_birth = morph_covariance(cov_birth_approx)
+    cov_birth = morph_cov_func(cov_birth_approx)
 
     # Project birth covariance matrix to current day
     mean_aged = mean
@@ -54,12 +53,41 @@ def apply_age_constraints(
 
 
 class SpaceTimeComponent(BaseComponent):
-    reg_covar = 1e-6
-    covariance_type = "full"
-    # project = trace_epicyclic_orbit
+    COVARIANCE_TYPE = "full"     # an sklearn specific parameter. DON'T CHANGE!
 
-    def __init__(self, config_params):
-        self.config_params = config_params
+    @classmethod
+    def configure(
+        cls,
+        *,
+        minimize_method='brent',
+        reg_covar=1e-6,
+        trace_orbit_func=trace_epicyclic_orbit,
+        morph_cov_func=remove_posvel_correlations,
+    **kwargs) -> None:
+
+        cls.minimize_method = minimize_method
+        cls.reg_covar = reg_covar
+
+        if isinstance(trace_orbit_func, Callable):
+            cls.trace_orbit_func = trace_orbit_func
+        elif trace_orbit_func == 'epiyclic':
+            cls.trace_orbit_func = trace_epicyclic_orbit
+        else:
+            raise UserWarning(f"{cls} config: Unknown {trace_orbit_func=}")
+
+        if isinstance(morph_cov_func, Callable):
+            cls.morph_cov_func = morph_cov_func
+        elif morph_cov_func == "elliptical":
+            cls.morph_cov_func = remove_posvel_correlations
+        else:
+            raise UserWarning(f"{cls} config: Unknown {morph_cov_func=}")
+
+        if (kwargs):
+            print(f"Extra keyword arguments provided:\n{kwargs}")
+
+    def __init__(self, params=None):
+        if params:
+            self.set_parameters(params)
 
     def _estimate_aged_gaussian_parameters(
         self,
@@ -72,7 +100,7 @@ class SpaceTimeComponent(BaseComponent):
             X,
             resp[:, np.newaxis],
             reg_covar,
-            covariance_type="full",
+            covariance_type=self.COVARIANCE_TYPE,
         )
         fitted_mean_now = means_.squeeze()
         fitted_cov_now = covariances_.squeeze()
@@ -90,14 +118,14 @@ class SpaceTimeComponent(BaseComponent):
 
         prec_now_chol = _compute_precision_cholesky(
             cov_now[np.newaxis],
-            self.covariance_type,
+            "full",
         ).squeeze()
 
         log_prob = _estimate_log_gaussian_prob(
             X,
             mean_now[np.newaxis],
             prec_now_chol[np.newaxis],
-            self.covariance_type,
+            self.COVARIANCE_TYPE,
         ).squeeze()
 
         return float(-np.sum(np.exp(log_resp) * log_prob))
@@ -106,7 +134,7 @@ class SpaceTimeComponent(BaseComponent):
         res = minimize_scalar(
             self._loss,
             args=(X, log_resp),
-            method="brent",
+            method=self.minimize_method,
         )
         self.age = res.x
 
@@ -118,7 +146,7 @@ class SpaceTimeComponent(BaseComponent):
         )
 
         self.precision_chol = _compute_precision_cholesky(
-            self.covariance[np.newaxis], self.covariance_type
+            self.covariance[np.newaxis], self.COVARIANCE_TYPE
         ).squeeze()
 
     def estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
@@ -126,24 +154,8 @@ class SpaceTimeComponent(BaseComponent):
             X,
             self.mean[np.newaxis],
             self.precision_chol[np.newaxis],
-            self.covariance_type,
+            self.COVARIANCE_TYPE,
         ).squeeze(), dtype=float64)
-
-    def morph_covariance(
-        self,
-        covariance: NDArray[float64]
-    ) -> NDArray[float64]:
-        """
-        Retain pos-pos correlation, vel-vel correlation,
-        total position volume and total velocity volume.
-
-        i.e. remove all pos-vel correlations.
-
-        so.... I just set all pos-vel corrs to zero?
-        """
-        covariance[3:, :3] = 0.
-        covariance[:3, 3:] = 0.
-        return covariance
 
     @property
     def n_params(self) -> int:
@@ -155,25 +167,12 @@ class SpaceTimeComponent(BaseComponent):
     def set_parameters(
         self,
         params,
-        # mean: NDArray[float64],
-        # covariance: NDArray[float64],
-        # age: float,
     ) -> None:
-        (
-            self.mean,
-            self.covariance,
-            self.age,
-        ) = params
-        # self.age = age
-        # self.mean = mean
-        # self.covariance = covariance
+        (self.mean, self.covariance, self.age) = params
+
         self.precision_chol = _compute_precision_cholesky(
-            self.covariance[np.newaxis], self.covariance_type,
+            self.covariance[np.newaxis], self.COVARIANCE_TYPE,
         ).squeeze()
 
     def get_parameters(self):
-        return (
-            self.mean,
-            self.covariance,
-            self.age,
-        )
+        return (self.mean, self.covariance, self.age)

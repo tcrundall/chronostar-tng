@@ -9,19 +9,26 @@ from tests.unit.fooclasses import CONFIG_PARAMS, DATA, NSAMPLES
 
 # Component classes and default extra parameters
 COMPONENT_CLASSES: dict[type[BaseComponent], tuple] = {
-    SpaceComponent: (),
+    # SpaceComponent: (),
     SpaceTimeComponent: (1.,),
 }
 
 
 def test_construction() -> None:
-    for CompClass in COMPONENT_CLASSES.keys():
-        comp = CompClass(CONFIG_PARAMS['component'])   # noqa F841
+    for CompClass, extra_params in COMPONENT_CLASSES.items():
+        CompClass.configure(**CONFIG_PARAMS['component'])
+        params = (
+            np.zeros(6),
+            np.eye(6),
+            *extra_params
+        )
+        comp = CompClass(params)        # noqa F841
 
 
 def test_simpleusage() -> None:
     for CompClass in COMPONENT_CLASSES.keys():
-        comp = CompClass(CONFIG_PARAMS['component'])
+        CompClass.configure(**CONFIG_PARAMS['component'])
+        comp = CompClass()
         comp.maximize(DATA, np.ones(NSAMPLES))
         result = comp.estimate_log_prob(DATA)
         assert result.shape[0] == NSAMPLES
@@ -46,8 +53,9 @@ def test_splitting() -> None:
 
     for CompClass, default_params in COMPONENT_CLASSES.items():
         # Skip classes that don't have split
-        comp = CompClass(config_params={})
-        comp.set_parameters((mean, covariance, *default_params))
+        CompClass.configure(**CONFIG_PARAMS['component'])
+        comp = CompClass((mean, covariance, *default_params))
+        # comp.set_parameters((mean, covariance, *default_params))
         c1, c2 = comp.split()
         mean_1, new_covariance, *_ = c1.get_parameters()
         mean_2, _, *_ = c2.get_parameters()
@@ -74,7 +82,8 @@ def test_usage() -> None:
 
     # Instantiate, maximize, and check log_probs
     for CompClass in COMPONENT_CLASSES:
-        comp = CompClass(CONFIG_PARAMS['component'])
+        CompClass.configure(**CONFIG_PARAMS['component'])
+        comp = CompClass()
 
         # a log_resp of 0 is a resp of 1 (i.e. full responsibility)
         comp.maximize(data, log_resp=np.zeros(NSAMPLES))
@@ -82,3 +91,6 @@ def test_usage() -> None:
         log_probs = comp.estimate_log_prob(DATA)
 
         assert np.allclose(log_probs, true_log_probs, rtol=5e-2)
+
+if __name__ == '__main__':
+    test_simpleusage()

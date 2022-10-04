@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import Generator, NamedTuple, Union, Type, Any
+from typing import Generator, NamedTuple, Optional, Union, Type, Any
 import numpy as np
 from numpy.typing import NDArray
 from numpy import float64
@@ -67,8 +67,15 @@ class BaseIntroducer(metaclass=ABCMeta):
 
 
 class BaseComponent(metaclass=ABCMeta):
-    def __init__(self, config_params: dict[Any, Any]) -> None:
-        self.config_params = config_params
+
+    @abstractmethod
+    def __init__(self, params: Optional[tuple] = None) -> None:
+        pass
+
+    @abstractmethod
+    @classmethod
+    def configure(cls, **kwargs):
+        pass
 
     @abstractmethod
     def estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
@@ -114,10 +121,8 @@ class BaseComponent(metaclass=ABCMeta):
         D = np.eye(6) * new_eigvals
         new_covariance = np.dot(eigvecs, np.dot(D, eigvecs.T))
 
-        comp1 = self.__class__(self.config_params)
-        comp1.set_parameters((new_mean_1, new_covariance, *args))
-        comp2 = self.__class__(self.config_params)
-        comp2.set_parameters((new_mean_2, new_covariance, *args))
+        comp1 = self.__class__((new_mean_1, new_covariance, *args))
+        comp2 = self.__class__((new_mean_2, new_covariance, *args))
 
         return comp1, comp2
 
