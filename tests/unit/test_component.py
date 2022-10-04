@@ -92,5 +92,6 @@ def test_usage() -> None:
 
         assert np.allclose(log_probs, true_log_probs, rtol=5e-2)
 
+
 if __name__ == '__main__':
     test_simpleusage()

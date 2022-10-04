@@ -1,4 +1,4 @@
-from typing import Optional, Callable
+from typing import Callable
 import numpy as np
 from numpy import float64
 from numpy.typing import NDArray
@@ -12,7 +12,10 @@ from src.chronostar.utils.utils import trace_epicyclic_orbit
 from src.chronostar.utils.transform import transform_covmatrix
 
 
-def remove_posvel_correlations(covariance: NDArray[float64]) -> NDArray[float64]:
+def remove_posvel_correlations(
+    covariance: NDArray[float64]
+) -> NDArray[float64]:
+
     covariance[3:, :3] = 0.
     covariance[:3, 3:] = 0.
     return covariance
@@ -63,7 +66,8 @@ class SpaceTimeComponent(BaseComponent):
         reg_covar=1e-6,
         trace_orbit_func=trace_epicyclic_orbit,
         morph_cov_func=remove_posvel_correlations,
-    **kwargs) -> None:
+        **kwargs
+    ) -> None:
 
         cls.minimize_method = minimize_method
         cls.reg_covar = reg_covar

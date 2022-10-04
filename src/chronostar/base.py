@@ -23,7 +23,7 @@ class BaseICPool(metaclass=ABCMeta):
         self.component_class = component_class
 
         self.registry: dict[Union[str, int], ScoredMixture] = {}
-    
+
     @classmethod
     @abstractmethod
     def configure(cls, **kwargs):

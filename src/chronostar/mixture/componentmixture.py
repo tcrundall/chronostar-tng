@@ -54,7 +54,6 @@ class ComponentMixture(BaseMixture):
         if kwargs:
             print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
 
-
     def fit(self, X: NDArray[float64]) -> None:
         self.sklmixture.fit(X)
 

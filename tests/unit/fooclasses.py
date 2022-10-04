@@ -71,7 +71,7 @@ class FooComponent(BaseComponent):
 class FooMixture(BaseMixture):
     def __init__(self, *args, **kwargs) -> None:        # type: ignore
         super().__init__(*args, **kwargs)
-    
+
     @classmethod
     def configure(cls, **kwargs):
         if kwargs:
@@ -107,7 +107,7 @@ class FooIntroducer(BaseIntroducer):
         **kwargs: dict[Any, Any],
     ) -> None:
         super().__init__(*args, **kwargs)       # type: ignore
-    
+
     @classmethod
     def configure(cls, **kwargs) -> None:
         if kwargs:

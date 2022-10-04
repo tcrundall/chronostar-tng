@@ -6,7 +6,7 @@ from src.chronostar.base import BaseIntroducer, BaseComponent
 class SimpleIntroducer(BaseIntroducer):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-    
+
     @classmethod
     def configure(cls, **kwargs):
         if kwargs:

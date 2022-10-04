@@ -19,7 +19,7 @@ class SimpleICPool(BaseICPool):
         self.introducer: BaseIntroducer = self.introducer_class(
             self.component_class
         )
-    
+
     @classmethod
     def configure(cls, max_components=30, **kwargs):
         cls.max_components = max_components
