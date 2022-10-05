@@ -1,12 +1,18 @@
 name: chron39
 channels:
   - conda-forge
+  - http://ssb.stsci.edu/astroconda
+  - defaults
 dependencies:
-  - python=3.9
   - numpy
-  - pyyaml
+  - scipy
   - pip
-  - pathlib
+  - python=3.9
+  - pyyaml
+  - flake8
   - pytest
+  - pathlib
   - ipython
   - ipdb
+  - pylint
+prefix: /Users/tcrundall/opt/anaconda3/envs/chron39
