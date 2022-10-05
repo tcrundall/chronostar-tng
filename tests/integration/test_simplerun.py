@@ -21,15 +21,25 @@ def test_simple_spacemixture_run():
         component_class=SpaceComponent,
     )
 
-    np.random.seed(3)
-    data = np.random.rand(10_000, 6)
-    data -= 0.5
-    data[:, :3] *= 3
-    data[:, 3:] *= 3
+    seed = 0
+    rng = np.random.default_rng(seed)
+
+    bound = 200
+    uniform_data = rng.uniform(low=-bound, high=bound, size=(1_000, 6))
+
+    mean1 = np.zeros(6) + 100
+    cov1 = np.eye(6) * 10
+    gaussian_data1 = rng.multivariate_normal(mean1, cov1, size=500)
+
+    mean2 = np.zeros(6) - 50
+    cov2 = np.eye(6) * 20
+    gaussian_data2 = rng.multivariate_normal(mean2, cov2, size=300)
+
+    data = np.vstack((uniform_data, gaussian_data1, gaussian_data2))
 
     best_mixture = driver.run(data)         # noqa F841
     weights, comps = best_mixture.get_params()
-    assert len(weights) > 10
+    assert len(weights) == 3
     return best_mixture, data
 
 
@@ -44,15 +54,26 @@ def test_simple_spacetimemixture_run():
         component_class=SpaceTimeComponent,
     )
 
-    data = np.random.rand(10_000, 6)
-    data[:, :] -= 0.5
+    seed = 0
+    rng = np.random.default_rng(seed)
 
-    data[:, :3] *= 3
-    data[:, 3:] *= 3
+    bound = 200
+    uniform_data = rng.uniform(low=-bound, high=bound, size=(1_000, 6))
+
+    mean1 = np.zeros(6) + 100
+    cov1 = np.eye(6) * 10
+    gaussian_data1 = rng.multivariate_normal(mean1, cov1, size=500)
+
+    mean2 = np.zeros(6) - 50
+    cov2 = np.eye(6) * 20
+    gaussian_data2 = rng.multivariate_normal(mean2, cov2, size=300)
+
+    data = np.vstack((uniform_data, gaussian_data1, gaussian_data2))
 
     best_mixture = driver.run(data)         # noqa F841
     weights, comps = best_mixture.get_params()
-    assert len(weights) > 10
+    assert len(weights) == 3
+
     return best_mixture, data
 
 

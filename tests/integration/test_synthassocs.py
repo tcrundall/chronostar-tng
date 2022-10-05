@@ -58,8 +58,11 @@ def test_one_assoc_one_gaussian_background():
     bg_age = 0.
     bg_nstars = 10_000
 
+    seed = 0
+    rng = np.random.default_rng(seed)
+
     bg_stars = synthdata.generate_association(
-        bg_mean, bg_cov, bg_age, bg_nstars,
+        bg_mean, bg_cov, bg_age, bg_nstars, rng=rng,
     )
 
     assoc_mean = np.ones(DIM)
@@ -73,7 +76,7 @@ def test_one_assoc_one_gaussian_background():
     assoc_cov[3:] *= assoc_stdev_vel**2
 
     assoc_stars = synthdata.generate_association(
-        assoc_mean, assoc_cov, assoc_age, assoc_nstars,
+        assoc_mean, assoc_cov, assoc_age, assoc_nstars, rng=rng,
     )
 
     stars = np.vstack((assoc_stars, bg_stars))
@@ -112,10 +115,12 @@ def test_one_assoc_one_uniform_background():
     # background_centre = np.ones(DIM)
     background_spread_pos = 1000.
     background_spread_vel = 30.
-    background_nstars = 10_000
+    background_nstars = 1_000
 
-    np.random.seed(0)
-    bg_stars = np.random.uniform(
+    seed = 2
+    rng = np.random.default_rng(seed)
+    print(f"{seed=}")
+    bg_stars = rng.uniform(
         low=-0.5,
         high=0.5,
         size=(background_nstars, DIM)
@@ -123,7 +128,11 @@ def test_one_assoc_one_uniform_background():
     bg_stars[:, :3] *= background_spread_pos
     bg_stars[:, 3:] *= background_spread_vel
 
-    assoc_mean = np.ones(DIM)
+    # Setting the association right in the centre leads to only one component
+    percent_offset = 0.15
+    assoc_mean = np.zeros(DIM)
+    assoc_mean[:3] += percent_offset * background_spread_pos
+    assoc_mean[3:] += percent_offset * background_spread_vel
     assoc_stdev_pos = 50.
     assoc_stdev_vel = 1.5
     assoc_age = 30.
@@ -138,6 +147,7 @@ def test_one_assoc_one_uniform_background():
         assoc_cov,
         assoc_age,
         assoc_nstars,
+        rng=rng,
     )
 
     stars = np.vstack((assoc_stars, bg_stars))
@@ -171,5 +181,5 @@ def test_one_assoc_one_uniform_background():
 
 
 if __name__ == '__main__':
-    print("Fitting to the Gaussian one")
+    print("Fitting to the uniform one")
     best_mixture, stars = test_one_assoc_one_gaussian_background()
