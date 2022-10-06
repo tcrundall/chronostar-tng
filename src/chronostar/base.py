@@ -73,6 +73,12 @@ class BaseIntroducer(metaclass=ABCMeta):
 
 
 class BaseComponent(metaclass=ABCMeta):
+    """Abstract class for a (assumed-to-be Gaussian) 
+    component to be used in a mixture model
+
+    Capable of fitting itself to a set of samples and
+    responsibilities (membership probabilities)
+    """
 
     def __init__(self, params: Optional[tuple] = None) -> None:
         if params:
@@ -102,6 +108,22 @@ class BaseComponent(metaclass=ABCMeta):
         pass
 
     def split(self) -> tuple[BaseComponent, BaseComponent]:
+        """Split this component in half along primary axis
+        in feature space.
+
+        Notes
+        -----
+        This method generates two components, identical to `self`
+        but with half the width along the primary axis and means 
+        offset in direction of primary axis such that
+        new_mean = old_mean +/- prim_axis_length/2
+
+        Returns
+        -------
+        tuple[BaseComponent, BaseComponent]
+            Two components with identical parameters except
+            half as wide and offset from mean
+        """
         params = self.get_parameters()
         mean = params[0]
         covariance = params[1]
@@ -139,12 +161,6 @@ class BaseComponent(metaclass=ABCMeta):
     @abstractmethod
     def set_parameters(self, params: tuple) -> None:
         pass
-
-
-# class Splittable(metaclass=ABCMeta):
-#     @abstractmethod
-#     def split(self) -> tuple[Splittable, Splittable]:
-#         pass
 
 
 class BaseMixture(metaclass=ABCMeta):

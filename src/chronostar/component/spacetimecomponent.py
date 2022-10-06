@@ -126,7 +126,7 @@ class SpaceTimeComponent(BaseComponent):
         morph_cov_func=remove_posvel_correlations,
         **kwargs
     ) -> None:
-        """Set class level configuration parameters that will be
+        r"""Set class level configuration parameters that will be
         carried through to all instances.
 
         Parameters
@@ -283,7 +283,14 @@ class SpaceTimeComponent(BaseComponent):
             Input data
         log_resp : ndarray of shape (n_samples)
             log of component responsibilities (membership probabilities)
+
+        Notes
+        -----
+        This method performs a parameter exploration on the age,
+        and infers an appropriate mean and covariance based on the
+        best age and the data.
         """
+
         res = minimize_scalar(
             self.loss,
             args=(X, log_resp),
