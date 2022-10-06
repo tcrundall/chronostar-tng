@@ -8,22 +8,21 @@ from src.chronostar.mixture.sklmixture import SKLComponentMixture
 
 class ComponentMixture(BaseMixture):
     """A mixture model of arbitrary components
+
+    Parameters
+    ----------
+    init_weights : NDArray[float64] of shape (n_components)
+        Initial weights of the components
+    init_components : list[BaseComponent]
+        Component objects which will be maximised to the data,
+        optionally with pre-initialised parameters
     """
+
     def __init__(
         self,
         init_weights: NDArray[float64],
         init_components: list[BaseComponent],
     ) -> None:
-        """Constructor method
-
-        Parameters
-        ----------
-        init_weights : NDArray[float64] of shape (n_components)
-            Initial weights of the components
-        init_components : list[BaseComponent]
-            Component objects which will be maximised to the data,
-            optionally with pre-initialised parameters
-        """
         # Can handle extra parameters if I want...
         self.sklmixture = SKLComponentMixture(
             init_weights,

@@ -10,7 +10,38 @@ from src.chronostar.base import BaseComponent
 class SKLComponentMixture(SKLBaseMixture):
     """A derived class utilising much from scikit-learn
     to fit a Gaussian Mixture Model
+
+    Parameters
+    ----------
+    weights_init : NDArray[float64] of shape (n_components)
+        Initial weights of each component, ideally normalized
+        to sum to 1
+    components_init : list[BaseComponent]
+        Component objects which will be maximised to the data,
+        optionally with pre-initialised parameters
+    tol : float, optional
+        Some tolerance used by sklearn... , by default 1e-3
+    reg_covar : float, optional
+        Regularisation factor added to diagonal elements of
+        covariance matrices, by default 1e-6
+    max_iter : int, optional
+        Maximum iterations of EM algorithm, by default 100
+    n_init : int, optional
+        sklearn parameter we don't use, by default 1
+    init_params : str, optional
+        How to initialise components if not already set,
+        'random' assigns memberships randomly then maximises,
+        by default 'random'
+    random_state : Any, optional
+        sklearn parameter... the random seed?, by default None
+    warm_start : bool, optional
+        sklearn parameter that we don't use, by default True
+    verbose : int, optional
+        sklearn parameter..., by default 0
+    verbose_interval : int, optional
+        sklearn parameter, by default 10
     """
+
     def __init__(
         self,
         weights_init: NDArray[float64],
@@ -27,38 +58,6 @@ class SKLComponentMixture(SKLBaseMixture):
         verbose_interval: int = 10,
         **kwargs: dict[str, Any],
     ) -> None:
-        """Constructor method
-
-        Parameters
-        ----------
-        weights_init : NDArray[float64] of shape (n_components)
-            Initial weights of each component, ideally normalized
-            to sum to 1
-        components_init : list[BaseComponent]
-            Component objects which will be maximised to the data,
-            optionally with pre-initialised parameters
-        tol : float, optional
-            Some tolerance used by sklearn... , by default 1e-3
-        reg_covar : float, optional
-            Regularisation factor added to diagonal elements of
-            covariance matrices, by default 1e-6
-        max_iter : int, optional
-            Maximum iterations of EM algorithm, by default 100
-        n_init : int, optional
-            sklearn parameter we don't use, by default 1
-        init_params : str, optional
-            How to initialise components if not already set,
-            'random' assigns memberships randomly then maximises,
-            by default 'random'
-        random_state : Any, optional
-            sklearn parameter... the random seed?, by default None
-        warm_start : bool, optional
-            sklearn parameter that we don't use, by default True
-        verbose : int, optional
-            sklearn parameter..., by default 0
-        verbose_interval : int, optional
-            sklearn parameter, by default 10
-        """
         super().__init__(
             n_components=len(components_init),
             tol=tol,

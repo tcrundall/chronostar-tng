@@ -53,6 +53,13 @@ class BaseIntroducer(metaclass=ABCMeta):
         self,
         component_class: Type[BaseComponent],
     ) -> None:
+        """Abstract base class for Introducer objects
+
+        Parameters
+        ----------
+        component_class : Type[BaseComponent]
+            A derived class from BaseComponent
+        """
         self.component_class = component_class
 
     @classmethod
