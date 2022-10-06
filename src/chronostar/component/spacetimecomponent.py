@@ -16,7 +16,8 @@ from src.chronostar.utils.transform import transform_covmatrix
 def remove_posvel_correlations(
     covariance: NDArray[float64]
 ) -> NDArray[float64]:
-    """Impose birth-site assumption of no pos-vel correlations
+    """
+    Impose birth-site assumption of no pos-vel correlations
 
     Parameters
     ----------
@@ -35,6 +36,7 @@ def remove_posvel_correlations(
     return covariance
 
 
+# def estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
 def apply_age_constraints(
     mean: NDArray[float64],
     covariance: NDArray[float64],
@@ -48,34 +50,35 @@ def apply_age_constraints(
 
     Parameters
     ----------
-    mean : NDArray[float64]
+    mean : NDArray[float64] of shape (n_features)
         The current estimate of component's mean
-    covariance : NDArray[float64]
+    covariance : NDArray[float64] of shape (n_features, n_features)
         The current estimate of component's covariance
     age : float
         The current estimate of component's age
     trace_orbit_func : Callable, optional
         A function that traces an orbit through feature space by
-        a certain amoutn of time, by default trace_epicyclic_orbit.
+        A certain amoutn of time, by default
+        :func:`~src.chronostar.utils.utils.trace_epicyclic_orbit`.
 
         Signature must be of the form:
-            trace_orbit_func(
-                start: array-like of shape (n_features),
-                age: float,
-                )
+            f(start: array-like of shape (n_features), age: float)
+            -> end: array-like of shape (n_features)
     morph_cov_func : Callable, optional
         A function that modifies the birth-site's covariance
-        matrix, imposing assumptions, by default remove_posvel_correlations
+        matrix, imposing assumptions, by default
+        :func:`remove_posvel_correlations`.
 
         Signature must be of the form:
-            morph_cov_func(covariance)
+            f(covariance: array-like of shape (n_features, n_features))
+            -> res: array-like of shape (n_features, n_features)
 
     Returns
     -------
     tuple[NDArray[float64], NDArray[float64]]
-        Return the mean and covariance matrix of the component
-        (current day) with time evolution baked into the
-        covariance matrix.
+        Return the mean (nfeatures,) and covariance matrix
+        (n_features, n_features) of the component (current day)
+        with time evolution baked into the covariance matrix.
     """
 
     # Get birth mean
@@ -123,6 +126,40 @@ class SpaceTimeComponent(BaseComponent):
         morph_cov_func=remove_posvel_correlations,
         **kwargs
     ) -> None:
+        """Set class level configuration parameters that will be
+        carried through to all instances.
+
+        Parameters
+        ----------
+        minimize_method : str, optional
+            method used by scipy.optimize.minimize_scalar for
+            optimizing the :meth:`loss` for best parameters,
+            by default 'brent'
+        reg_covar : float, optional
+            A regularization constant added to the diagonal elements
+            of covariance matrices to ensure invertability, by default
+            1e-6
+        trace_orbit_func : callable, optional
+            A function that traces an orbit from a starting point in
+            feature space through time by a certain age, by default
+            :func:`.trace_epicyclic_orbit`
+            Callable of form
+            f(start: [n_dim], age: float[, \*args]) -> end: [n_dim]
+        morph_cov_func : callable, optional
+            A function that applies birth-site assumptions to the
+            feature-space covariance matrix, by default
+            :func:`remove_posvel_correlations`
+            Callable of form
+            f(approx_birth_covariance: [n_dim, n_dim])
+            -> birth_covariance: [n_dim, n_dim]
+
+        Raises
+        ------
+        UserWarning
+            For unknown trace_orbit_func
+        UserWarning
+            For unknown morph_cov_func
+        """
 
         cls.minimize_method = minimize_method
         cls.reg_covar = reg_covar
@@ -149,11 +186,33 @@ class SpaceTimeComponent(BaseComponent):
 
     def _estimate_aged_gaussian_parameters(
         self,
-        X,
-        resp,
-        age,
-        reg_covar,
-    ) -> tuple[NDArray[float64], NDArray[float64]]:
+        X: NDArray,
+        resp: NDArray,
+        age: float,
+        reg_covar: float,
+    ) -> tuple[NDArray, NDArray]:
+        """Estimate gaussian parameters, taking into account
+        assumed age.
+
+        Parameters
+        ----------
+        X : ndarray of shape (n_samples, n_features)
+            Input data
+        resp : ndarray of shape (n_samples)
+            Component responsibilities (membership probabilities)
+        age : float
+            Assumed age of component
+        reg_covar : float
+            Regularization constant added to covariance diagonal
+            elements.
+
+        Returns
+        -------
+        tuple[NDArray[float64], NDArray[float64]]
+            The best fitting mean (n_features) and
+            covariance matrix (n_features, n_features)
+            consistent with `age`
+        """
         _, means_, covariances_ = _estimate_gaussian_parameters(
             X,
             resp[:, np.newaxis],
@@ -166,7 +225,30 @@ class SpaceTimeComponent(BaseComponent):
         # Todo: CHECK THIS IS RIGHT
         return apply_age_constraints(fitted_mean_now, fitted_cov_now, age)
 
-    def _loss(self, age, X, log_resp) -> float:
+    def loss(
+        self,
+        age: float,
+        X: NDArray[float64],
+        log_resp: NDArray[float64]
+    ) -> float:
+        """Calculate the loss (i.e. -log likelihood) of the
+        data.
+
+        Parameters
+        ----------
+        age : float
+            The assumed age. This is the sole independent parameter.
+        X : ndarray of shape (n_samples, n_features)
+            Input data
+        log_resp : ndarray of shape (n_samples)
+            log of component responsibilities (membership probabilities)
+
+        Returns
+        -------
+        float
+            Negative log likelihood of data given `age` and derived
+            model parameters.
+        """
         mean_now, cov_now = self._estimate_aged_gaussian_parameters(
             X,
             np.exp(log_resp),
@@ -188,9 +270,22 @@ class SpaceTimeComponent(BaseComponent):
 
         return float(-np.sum(np.exp(log_resp) * log_prob))
 
-    def maximize(self, X, log_resp) -> None:
+    def maximize(
+        self,
+        X: NDArray[float64],
+        log_resp: NDArray[float64]
+    ) -> None:
+        """Find the best model parameters for the data
+
+        Parameters
+        ----------
+        X : ndarray of shape (n_samples, n_features)
+            Input data
+        log_resp : ndarray of shape (n_samples)
+            log of component responsibilities (membership probabilities)
+        """
         res = minimize_scalar(
-            self._loss,
+            self.loss,
             args=(X, log_resp),
             method=self.minimize_method,
         )
@@ -208,6 +303,20 @@ class SpaceTimeComponent(BaseComponent):
         ).squeeze()
 
     def estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
+        """Calculate the log probability of each sample given
+        this component
+
+        Parameters
+        ----------
+        X : ndarray of shape (n_samples, n_features)
+            Input data
+
+        Returns
+        -------
+        NDArray[float64] of shape (n_samples)
+            The multivariate normal defined by `self.mean` and
+            `self.covariance` evaluated at each point in X
+        """
         return np.array(_estimate_log_gaussian_prob(
             X,
             self.mean[np.newaxis],
@@ -217,6 +326,15 @@ class SpaceTimeComponent(BaseComponent):
 
     @property
     def n_params(self) -> int:
+        """Return the number of parameters required to
+        define this model
+
+        Returns
+        -------
+        int
+            The number of parameters required to define
+            this model
+        """
         mean_params = 6
         cov_params = 6 + 3 + 3
         age_param = 1
@@ -226,6 +344,13 @@ class SpaceTimeComponent(BaseComponent):
         self,
         params,
     ) -> None:
+        """Set the internal parameters of the model.
+
+        Parameters
+        ----------
+        params : (n_features), (n_features, n_features), float
+            mean, covariance, age
+        """
         (self.mean, self.covariance, self.age) = params
 
         self.precision_chol = _compute_precision_cholesky(
@@ -233,4 +358,11 @@ class SpaceTimeComponent(BaseComponent):
         ).squeeze()
 
     def get_parameters(self):
+        """Get the internal parameters of the model
+
+        Returns
+        -------
+        (n_features), (n_features, n_features), float
+            mean, covariance, age
+        """
         return (self.mean, self.covariance, self.age)
