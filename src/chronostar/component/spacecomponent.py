@@ -61,7 +61,7 @@ class SpaceComponent(BaseComponent):
         -----
         This method relies heavily on functions written by
         scikit-learn.
-        
+
         References
         ----------
         TODO: Cite the authors of code which was used as inspiration

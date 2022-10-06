@@ -73,7 +73,7 @@ class BaseIntroducer(metaclass=ABCMeta):
 
 
 class BaseComponent(metaclass=ABCMeta):
-    """Abstract class for a (assumed-to-be Gaussian) 
+    """Abstract class for a (assumed-to-be Gaussian)
     component to be used in a mixture model
 
     Capable of fitting itself to a set of samples and
@@ -114,7 +114,7 @@ class BaseComponent(metaclass=ABCMeta):
         Notes
         -----
         This method generates two components, identical to `self`
-        but with half the width along the primary axis and means 
+        but with half the width along the primary axis and means
         offset in direction of primary axis such that
         new_mean = old_mean +/- prim_axis_length/2
 
