@@ -1,6 +1,8 @@
 import numpy as np
+# from numba import jit
 
 
+# @jit(nopython=True)
 def convert_cart2curvilin(data, ro=8., vo=220.):
     """
     MZ (2020 - 01 - 17)
@@ -28,7 +30,7 @@ def convert_cart2curvilin(data, ro=8., vo=220.):
         zetadot:
 
     """
-    data = np.array(data)
+    # data = np.array(data)
 
     X, Y, Z, U, V, W = data.T
 
@@ -49,11 +51,12 @@ def convert_cart2curvilin(data, ro=8., vo=220.):
     etadot = R0 / R * (V * np.cos(phi) + U * np.sin(phi))
     zetadot = W
 
-    curvilin_coordinates = np.array([xi, eta, zeta, xidot, etadot, zetadot])
+    curvilin_coordinates = np.vstack((xi, eta, zeta, xidot, etadot, zetadot))
 
     return curvilin_coordinates.T
 
 
+# @jit(nopython=True)
 def convert_curvilin2cart(data, ro=8., vo=220.,
                           lsr_centered=True):
     """
@@ -84,11 +87,12 @@ def convert_curvilin2cart(data, ro=8., vo=220.,
     U = U + Y * Omega0
     V = V - X * Omega0
 
-    cart_coordinates = np.array([X, Y, Z, U, V, W])
+    cart_coordinates = np.vstack((X, Y, Z, U, V, W))
 
     return cart_coordinates.T
 
 
+# @jit(nopython=True)
 def epicyclic_approx(data, times=None, sA=0.89, sB=1.15, sR=1.21):
     """
     MZ (2020 - 01 - 17)
@@ -161,11 +165,12 @@ def epicyclic_approx(data, times=None, sA=0.89, sB=1.15, sR=1.21):
 
     zetadot = -zeta0 * nu * np.sin(nt) + zetadot0 * np.cos(nt)
 
-    new_position = np.array([xi, eta, zeta, xidot, etadot, zetadot])
+    new_position = np.vstack((xi, eta, zeta, xidot, etadot, zetadot))
     new_position = new_position.T
     return new_position
 
 
+# @jit(nopython=True)
 def trace_epicyclic_orbit(
     xyzuvw_start,
     time=None,
@@ -220,7 +225,8 @@ def trace_epicyclic_orbit(
     #     time = np.array(time)
 
     # Make sure numbers are floats, and reshape into 2d
-    xyzuvw_start = np.atleast_2d(xyzuvw_start.astype(float))
+    assert len(xyzuvw_start.shape) == 2
+    # xyzuvw_start = np.atleast_2d(xyzuvw_start)  # .astype(float))
 
     # Units: Velocities are in km/s, convert into pc/Myr
     xyzuvw_start[:, 3:] = xyzuvw_start[:, 3:] * 1.0227121650537077  # pc/Myr
@@ -238,4 +244,5 @@ def trace_epicyclic_orbit(
     xyzuvw_new[:, 3:] /= 1.0227121650537077
 
     # Remove empty dimensions
-    return np.squeeze(xyzuvw_new)
+    return xyzuvw_new
+    # return np.squeeze(xyzuvw_new)

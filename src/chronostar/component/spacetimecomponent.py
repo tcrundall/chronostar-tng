@@ -3,6 +3,7 @@ import numpy as np
 from numpy import float64
 from numpy.typing import NDArray
 from scipy.optimize import minimize_scalar
+
 from sklearn.mixture._gaussian_mixture import _estimate_gaussian_parameters
 from sklearn.mixture._gaussian_mixture import _estimate_log_gaussian_prob
 from sklearn.mixture._gaussian_mixture import _compute_precision_cholesky
@@ -15,6 +16,19 @@ from src.chronostar.utils.transform import transform_covmatrix
 def remove_posvel_correlations(
     covariance: NDArray[float64]
 ) -> NDArray[float64]:
+    """Impose birth-site assumption of no pos-vel correlations
+
+    Parameters
+    ----------
+    covariance : NDArray[float64] of shape (n_features, n_features)
+        Current approximation of birth-site's covariance
+
+    Returns
+    -------
+    NDArray[float64] of shape (n_features, n_features)
+        An association birth-site's covariance with no pos-vel
+        correlations.
+    """
 
     covariance[3:, :3] = 0.
     covariance[:3, 3:] = 0.
@@ -28,9 +42,44 @@ def apply_age_constraints(
     trace_orbit_func: Callable = trace_epicyclic_orbit,
     morph_cov_func: Callable = remove_posvel_correlations,
 ) -> tuple[NDArray[float64], NDArray[float64]]:
+    """Adjust a given multi-dimensional Gaussian such that
+    it's covariance reflects any expected correlations
+    implied by it's age.
+
+    Parameters
+    ----------
+    mean : NDArray[float64]
+        The current estimate of component's mean
+    covariance : NDArray[float64]
+        The current estimate of component's covariance
+    age : float
+        The current estimate of component's age
+    trace_orbit_func : Callable, optional
+        A function that traces an orbit through feature space by
+        a certain amoutn of time, by default trace_epicyclic_orbit.
+
+        Signature must be of the form:
+            trace_orbit_func(
+                start: array-like of shape (n_features),
+                age: float,
+                )
+    morph_cov_func : Callable, optional
+        A function that modifies the birth-site's covariance
+        matrix, imposing assumptions, by default remove_posvel_correlations
+
+        Signature must be of the form:
+            morph_cov_func(covariance)
+
+    Returns
+    -------
+    tuple[NDArray[float64], NDArray[float64]]
+        Return the mean and covariance matrix of the component
+        (current day) with time evolution baked into the
+        covariance matrix.
+    """
 
     # Get birth mean
-    mean_birth = trace_orbit_func(mean, -age)
+    mean_birth = trace_orbit_func(mean[np.newaxis, :], -age)
 
     # Get approximate birth covariance matrix
     cov_birth_approx = transform_covmatrix(
@@ -56,6 +105,12 @@ def apply_age_constraints(
 
 
 class SpaceTimeComponent(BaseComponent):
+    """A 6D phase-space Gaussian component with age.
+
+    Capable of fitting itself to a set of samples and
+    responsibilities (membership probabilities)
+    """
+
     COVARIANCE_TYPE = "full"     # an sklearn specific parameter. DON'T CHANGE!
 
     @classmethod

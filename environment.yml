@@ -9,10 +9,13 @@ dependencies:
   - pip
   - python=3.9
   - pyyaml
+  - astropy
   - flake8
   - pytest
   - pathlib
   - ipython
   - ipdb
   - pylint
+  - sphinx
+  - furo
 prefix: /Users/tcrundall/opt/anaconda3/envs/chron39
