@@ -19,6 +19,15 @@ class BaseICPool(metaclass=ABCMeta):
         introducer_class: Type[BaseIntroducer],
         component_class: Type[BaseComponent],
     ) -> None:
+        """_summary_
+
+        Parameters
+        ----------
+        introducer_class : Type[BaseIntroducer]
+            A class derived from BaseIntroducer
+        component_class : Type[BaseComponent]
+            A class derived from BaseComponent
+        """
         self.introducer_class = introducer_class
         self.component_class = component_class
 

@@ -11,9 +11,13 @@ from src.chronostar.base import (
 
 
 class SimpleICPool(BaseICPool):
+    """Manager and populator of a pool of initial conditions
+    """
 
     def __init__(self, *args, **kwargs) -> None:        # type: ignore
         super().__init__(*args, **kwargs)
+        """Constructor method
+        """
 
         # Perhaps do this in pool()?
         self.introducer: BaseIntroducer = self.introducer_class(
@@ -22,6 +26,16 @@ class SimpleICPool(BaseICPool):
 
     @classmethod
     def configure(cls, max_components=30, **kwargs):
+        """Set class level configuration parameters that will be
+        carried through to all instances.
+
+        Parameters
+        ----------
+        max_components : int
+            An upper limit on how many components can make up a
+            set of initial conditions, by default 30
+        """
+
         cls.max_components = max_components
 
         if kwargs:
@@ -33,9 +47,30 @@ class SimpleICPool(BaseICPool):
         mixture: BaseMixture,
         score: float,
     ) -> None:
+        """Register the result of a completed fit
+
+        Parameters
+        ----------
+        unique_id : Union[str, int]
+            A unique identifier
+        mixture : BaseMixture
+            A mixture object whose fit has been finalised
+        score : float
+            A score of the fit, where higher means better,
+            e.g. -BIC
+        """
+
         self.registry[unique_id] = ScoredMixture(mixture, score)
 
     def pool(self) -> Generator[tuple[int, list[BaseComponent]], None, None]:
+        """Produce a generator which will yields a set of initial conditions,
+        one at a time
+
+        Yields
+        ------
+        Generator[tuple[int, list[BaseComponent]], None, None]
+            TODO: understand what i should write here...
+        """
         best_mixture: Optional[BaseMixture] = None
         prev_best_score: Optional[float] = None
         best_score = -np.inf
@@ -67,4 +102,11 @@ class SimpleICPool(BaseICPool):
 
     @property
     def best_mixture(self) -> BaseMixture:
+        """Get the mixture with the best score
+
+        Returns
+        -------
+        BaseMixture
+            The best fitting mixture
+        """
         return self.best_mixture_           # type: ignore

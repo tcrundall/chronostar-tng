@@ -24,7 +24,7 @@ class SpaceComponent(BaseComponent):
         reg_covar=1e-6,
         **kwargs
     ):
-        r"""Set class level configuration parameters that will be
+        """Set class level configuration parameters that will be
         carried through to all instances.
 
         Parameters
