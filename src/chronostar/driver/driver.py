@@ -23,7 +23,23 @@ class Driver:
         introducer_class: Type[BaseIntroducer],
         component_class: Type[BaseComponent],
     ) -> None:
-        """Constructor method"""
+        """Top level class of Chronostar which drives the
+        entire fitting process
+
+        Parameters
+        ----------
+        config_file : Union[str, Path]
+            A yaml configuration file with sections mixture, icpool,
+            introducer and component.
+        mixture_class : Type[BaseMixture]
+            A class derived from BaseMixture
+        icpool_class : Type[BaseICPool]
+            A class derived from BaseICPool
+        introducer_class : Type[BaseIntroducer]
+            A class derived from BaseIntroducer
+        component_class : Type[BaseComponent]
+            A class derived from BaseComponent
+        """
 
         self.config_params = self.read_config_file(config_file)
 
@@ -38,6 +54,19 @@ class Driver:
         self.introducer_class.configure(**self.config_params["introducer"])
 
     def run(self, data: NDArray[float64]) -> BaseMixture:
+        """Run a fit on the input data
+
+        Parameters
+        ----------
+        data : NDArray[float64] of shape (n_samples, n_features)
+            The input data
+
+        Returns
+        -------
+        BaseMixture
+            A mixture object containing the best fitting parameters,
+            retrievable by mixture.get_parameters()
+        """
 
         icpool = self.icpool_class(
             introducer_class=self.introducer_class,
@@ -61,6 +90,25 @@ class Driver:
         self,
         config_file: Union[str, Path]
     ) -> dict[Any, Any]:
+        """Read the contents of the config file into a
+        dictionary
+
+        Parameters
+        ----------
+        config_file : Union[str, Path]
+            A yaml configuration file with sections mixture, icpool,
+            introducer and component.
+
+        Returns
+        -------
+        dict[Any, Any]
+            A dictionary of all configuration parameters
+
+        Raises
+        ------
+        exc
+            _description_
+        """
         with open(config_file, "r") as stream:
             try:
                 config_params = yaml.safe_load(stream)
