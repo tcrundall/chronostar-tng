@@ -5,15 +5,28 @@
 
 Chronostar, the next generation of discovery and characterisation of stellar associations
 
+See the full docs here.
+
 ### Installing
 Create a conda environment and install packages available through conda.
 ```
-conda env create --file environment.yml
+git clone https://github.com/tcrundall/chronostar-tng.git
+conda env create -n chron -f environment.yml    # set up py39 environment
+pip install .       # this will put chronostar-trial in your site-packages
 ```
 
-Install over the top some extra packages by pip:
-```
-pip install -r requirements.txt
-```
-todo: make a distinction between *user* environment and *developer* environment.
+You will now have three command-line tools at your disposal.
+Prepare your data into a numpy array of shape `(n_stars, n_features)`,
+where the features are in RHS cartesian coordinates centred on the local
+standard of rest (`XYZUVW`).
 
+In any directory you can call:
+```
+>>> fit-component path/to/data.npy [path/to/memberships.npy]
+>>> fit-mixture NCOMPONENTS path/to/data.npy
+    or
+>>> fit-chronostar path/to/data.npy
+```
+
+Where `memberships.npy` is a stored numpy array of shape `(n_stars)` with
+entries between `0` and `1`.
