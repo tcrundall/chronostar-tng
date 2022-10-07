@@ -86,10 +86,10 @@ class FooMixture(BaseMixture):
     ) -> None:
         self.weights, self.comps = params
 
-    def fit(self, data: NDArray[float64]) -> None:
-        self.memberships = np.ones(data.shape) / data.shape[1]
+    def fit(self, X: NDArray[float64]) -> None:
+        self.memberships = np.ones((len(X), len(self.comps))) / len(self.comps)
 
-    def bic(self, data: NDArray[float64]) -> float:
+    def bic(self, X: NDArray[float64]) -> float:
         """
         Calculates a quadratic based on number of components.
         Quadratic peaks at n=5
@@ -98,6 +98,12 @@ class FooMixture(BaseMixture):
 
     def get_components(self) -> list[BaseComponent]:
         return self.get_params()[1]
+
+    def estimate_membership_prob(
+        self,
+        X: NDArray[float64]
+    ) -> NDArray[float64]:
+        return self.memberships
 
 
 class FooIntroducer(BaseIntroducer):

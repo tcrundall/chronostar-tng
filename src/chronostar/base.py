@@ -215,3 +215,9 @@ class BaseMixture(metaclass=ABCMeta):
     @abstractmethod
     def get_components(self) -> list[BaseComponent]:
         pass
+
+    @abstractmethod
+    def estimate_membership_prob(
+        self, X: NDArray[float64]
+    ) -> NDArray[float64]:
+        pass

@@ -1,4 +1,5 @@
 from typing import Any, Tuple
+import numpy as np
 from numpy import float64
 from numpy.typing import NDArray
 
@@ -156,3 +157,29 @@ class ComponentMixture(BaseMixture):
         """
         _, components = self.get_params()
         return components
+
+    def estimate_membership_prob(self, X: NDArray[float64]):
+        """Estimate the membership probabilities of each sample to
+        each component
+
+        This method assumes the mixture has already been fit with
+        :meth:`fit`
+
+        Parameters
+        ----------
+        X : NDArray[float64] of shape (n_samples, n_features)
+            Input data
+
+        Returns
+        -------
+        NDArray[float64] of shape (n_samples, n_components)
+            The membership probabilities of each sample to each
+            component.
+        """
+        weighted_log_prob = self.sklmixture._estimate_weighted_log_prob(X)
+
+        # Take exponent
+        weighted_prob = np.exp(weighted_log_prob)
+
+        # Normalize such that each row sums to 1
+        return (weighted_prob.T / weighted_prob.sum(axis=1)).T

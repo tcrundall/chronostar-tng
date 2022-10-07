@@ -11,9 +11,13 @@ from src.chronostar.mixture.componentmixture import ComponentMixture
 
 
 def test_twoassocs():
-    age1, age2 = 30., 50.
-    nstars1, nstars2 = 1_000, 1_000
+    age1, age2 = 5., 10.
+    nstars1, nstars2 = 1_000, 2_000
     stars = synthdata.generate_two_overlapping(age1, age2, nstars1, nstars2)
+
+    true_membership_probs = np.zeros((nstars1 + nstars2, 2))
+    true_membership_probs[:nstars1, 0] = 1.
+    true_membership_probs[nstars1:, 1] = 1.
 
     curr_dir = Path(os.path.dirname(__file__))
     config_file = curr_dir / 'test_resources' / 'placeholder_configfile.yml'
@@ -32,16 +36,28 @@ def test_twoassocs():
 
     nstars = len(stars)
     fitted_ages = [c.get_parameters()[2] for c in components]
+    fitted_memberships = best_mixture.estimate_membership_prob(X=stars)
 
+    # First, assume component 1 mapped to association 1
     try:
         assert np.allclose((nstars1, nstars2), weights*nstars, rtol=0.05)
+        assert np.allclose([age1, age2], fitted_ages, rtol=0.1)
+        false_matches = np.sum(
+            (true_membership_probs != np.round(fitted_memberships))[:, 0]
+        )
+        assert false_matches < 0.05 * (nstars)
+
+    # If failed, assume component 1 mapped to association 2
     except AssertionError:
         assert np.allclose((nstars2, nstars1), weights*nstars, rtol=0.05)
-
-    try:
-        assert np.allclose([age1, age2], fitted_ages, rtol=0.1)
-    except AssertionError:
         assert np.allclose([age2, age1], fitted_ages, rtol=0.1)
+        false_matches = np.sum(
+            (
+                true_membership_probs[:, :: -1]
+                != np.round(fitted_memberships)
+             )[:, 0]
+        )
+        assert false_matches < 0.05 * (nstars)
 
     return best_mixture, stars, (age1, age2), (nstars1, nstars2)
 
@@ -182,4 +198,4 @@ def test_one_assoc_one_uniform_background():
 
 if __name__ == '__main__':
     print("Fitting to the uniform one")
-    best_mixture, stars = test_one_assoc_one_gaussian_background()
+    best_mixture, stars, *extra = test_twoassocs()
