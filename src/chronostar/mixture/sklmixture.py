@@ -4,7 +4,7 @@ from numpy import float64
 import numpy as np
 from sklearn.mixture._base import BaseMixture as SKLBaseMixture
 
-from src.chronostar.base import BaseComponent
+from ..base import BaseComponent
 
 
 class SKLComponentMixture(SKLBaseMixture):

@@ -7,6 +7,10 @@ from numpy.typing import NDArray
 from numpy import float64
 
 
+def joke():
+    return "Funny joke"
+
+
 class ScoredMixture(NamedTuple):
     mixture: BaseMixture
     score: float

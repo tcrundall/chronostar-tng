@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Generator, Optional, Union
 
-from src.chronostar.base import (
+from ..base import (
     BaseComponent,
     BaseMixture,
     BaseICPool,

@@ -8,9 +8,9 @@ from sklearn.mixture._gaussian_mixture import _estimate_gaussian_parameters
 from sklearn.mixture._gaussian_mixture import _estimate_log_gaussian_prob
 from sklearn.mixture._gaussian_mixture import _compute_precision_cholesky
 
-from src.chronostar.base import BaseComponent
-from src.chronostar.utils.utils import trace_epicyclic_orbit
-from src.chronostar.utils.transform import transform_covmatrix
+from ..base import BaseComponent
+from ..utils.utils import trace_epicyclic_orbit
+from ..utils.transform import transform_covmatrix
 
 
 def remove_posvel_correlations(

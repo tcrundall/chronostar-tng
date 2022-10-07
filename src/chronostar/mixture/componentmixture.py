@@ -3,8 +3,8 @@ import numpy as np
 from numpy import float64
 from numpy.typing import NDArray
 
-from src.chronostar.base import BaseComponent, BaseMixture
-from src.chronostar.mixture.sklmixture import SKLComponentMixture
+from ..base import BaseComponent, BaseMixture
+from .sklmixture import SKLComponentMixture
 
 
 class ComponentMixture(BaseMixture):

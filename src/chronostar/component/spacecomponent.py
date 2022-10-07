@@ -6,7 +6,7 @@ from sklearn.mixture._gaussian_mixture import _compute_precision_cholesky
 from sklearn.mixture._gaussian_mixture import _estimate_log_gaussian_prob
 from sklearn.mixture._gaussian_mixture import _estimate_gaussian_parameters
 
-from src.chronostar.base import BaseComponent
+from ..base import BaseComponent
 
 
 class SpaceComponent(BaseComponent):

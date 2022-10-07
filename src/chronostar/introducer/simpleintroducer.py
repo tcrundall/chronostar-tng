@@ -1,6 +1,6 @@
 from typing import Union
 
-from src.chronostar.base import BaseIntroducer, BaseComponent
+from ..base import BaseIntroducer, BaseComponent
 
 
 class SimpleIntroducer(BaseIntroducer):
