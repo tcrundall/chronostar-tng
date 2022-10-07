@@ -34,6 +34,7 @@ setup(
         "License :: OSI Approved :: BSD License",
     ],
     scripts=[
-        'bin/fit-component'
+        'bin/fit-component',
+        'bin/fit-mixture',
     ]
 )
