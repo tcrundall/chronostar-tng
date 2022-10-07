@@ -1,0 +1,118 @@
+#!/usr/bin/env python
+"""
+Command line tool that takes a data set and a config file
+and performs a fit and outputs (somehow) the results.
+"""
+import argparse
+import copy
+import numpy as np
+import os
+from pathlib import Path
+import yaml
+
+
+DEFAULT_CONFIG_PARAMS = {
+    'modules': {
+        'component': 'SpaceTimeComponent',
+    },
+    'component': {},
+    'run': {
+        'savedir': 'output',
+    }
+}
+
+
+def import_component(component):
+    if component == 'SpaceTimeComponent':
+        from chronostar.component.spacetimecomponent import SpaceTimeComponent
+        return SpaceTimeComponent
+    elif component == 'SpaceComponent':
+        from chronostar.component.spacecomponent import SpaceComponent
+        return SpaceComponent
+    else:
+        raise UserWarning(f"Implementation {component=} not found.")
+
+
+def init_argparse() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        # usage="%(prog)s [OPTION] config_file data_file [membership]",
+        description="Fit a single component to data",
+    )
+    parser.add_argument("-c", "--config", help="The configuration file")
+    parser.add_argument(
+        "data",
+        help="The data file, an (n_sample, n_feature) array stored as a "
+        ".npy file.",
+    )
+    parser.add_argument(
+        "membership",
+        nargs='?',
+        default=None,
+        help="Optional file of membership probabilities, an "
+        "(nsamples) array, stored as a .npy file.",
+    )
+
+    return parser
+
+
+if __name__ == '__main__':
+    # Parse command line arguments
+    parser = init_argparse()
+    args = parser.parse_args()
+
+    # Set up config with script defaults
+    config_params = copy.deepcopy(DEFAULT_CONFIG_PARAMS)
+
+    # Read in config file
+    if args.config:
+        with open(args.config, "r") as stream:
+            try:
+                user_config_params = yaml.safe_load(stream)
+            except yaml.YAMLError as exc:
+                raise exc
+
+        # Update config_params accordingly
+        for key in config_params:
+            if key in user_config_params.keys():
+                config_params[key].update(user_config_params[key])
+
+    # Set up save directory (before we waste time on computation)
+    savedir = Path(config_params['run']['savedir'])
+    if not savedir.is_dir():
+        os.mkdir(savedir)
+
+    # Read in numpy array of data
+    data = np.load(args.data)
+
+    # Read in membership array
+    if args.membership is None:
+        membership = np.ones(len(data))
+    else:
+        membership = np.load(args.membership)
+    print(membership)
+
+    # Import appropriate component implementation
+    CompClass = import_component(
+        config_params["modules"]["component"]
+    )
+
+    # Maximise component
+    CompClass.configure(**config_params['component'])
+    component = CompClass()
+    component.maximize(data, np.log(membership))
+
+    # Output result
+    params = component.get_parameters()
+    for i, param in enumerate(params):
+        outfile = savedir / f"param_{i}.npy"
+        np.save(outfile, param)
+
+    # Display some simple logging info to output
+    # (obviously should be substituted for some form of logging later)
+    print("-------------------")
+    print("----- RESULTS -----")
+    print("-------------------")
+    np.set_printoptions(suppress=True)
+    for i, param in enumerate(params):
+        print(f"  - param {i}")
+        print(params[i])

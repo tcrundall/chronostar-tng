@@ -34,6 +34,6 @@ setup(
         "License :: OSI Approved :: BSD License",
     ],
     scripts=[
-        'bin/funniest-joke'
+        'bin/fit-component'
     ]
 )
