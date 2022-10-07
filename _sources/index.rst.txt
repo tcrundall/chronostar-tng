@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to chronostar-dev's documentation!
+Welcome to Chronostar-TNG's documentation!
 ==========================================
 **Chronostar** is a Python library for discovering and characterising
 unbound stellar associations (aka "moving groups") and their members using 
@@ -17,16 +17,17 @@ Installing
 
    git clone https://github.com/tcrundall/chronostar-tng.git
    conda env create -n chron -f environment.yml    # set up py39 environment
+   conda activate chron
    pip install .
 
 Quickstart
 ----------
-Chronostar provides three command line tools: `fit-component`, `fit-mixture`
-and `fit-chronostar`. Each of these tools serve as entry points to different
+Chronostar provides three command line tools: :code:`fit-component`, :code:`fit-mixture`
+and :code:`fit-chronostar`. Each of these tools serve as entry points to different
 levels of complexity.
 
 Each command  assumes you have a data as numpy array of shape
-`(n_samples, n_features)` stored as a `.npy` file.
+:code:`(n_samples, n_features)` stored as a :code:`.npy` file.
 
 Fitting a component
 ^^^^^^^^^^^^^^^^^^^
@@ -34,23 +35,23 @@ This is for fitting a single component (e.g. a 6-D Gaussian) to the data.
 
 .. code::
 
-   >> fit-component path/to/data.npy
+   $ fit-component path/to/data.npy
 
 One can optionally include membership probabilities. The membership
-probabilities are expected as a numpy array of shape `(n_samples)`
-and stored in a `.npy` file.
+probabilities are expected as a numpy array of shape :code:`(n_samples)`
+and stored in a :code:`.npy` file.
 
 .. code::
 
-   >> fit-component path/to/data.npy path/to/memberships.npy
+   $ fit-component path/to/data.npy path/to/memberships.npy
 
 The behaviour can be configured by providing a config file:
 
 .. code::
 
-   >> fit-component -c path/to/config.yml path/to/data.npy
+   $ fit-component -c path/to/config.yml path/to/data.npy
 
-An empty config file is valid. An example `config.yml` file is:
+An empty config file is valid. An example :code:`config.yml` file is:
 
 .. code::
 
@@ -71,7 +72,7 @@ An empty config file is valid. An example `config.yml` file is:
 .. note::
 
    Make sure to include the decimal point when using scientific
-   notation, or `yaml` will treat the value as a string.
+   notation, or :code:`yaml` will treat the value as a string.
 
 
 Fitting a mixture
@@ -82,13 +83,13 @@ For example, to fit 5 components one would do:
 
 .. code::
 
-   >> fit-mixture 5 path/to/data.npy
+   $ fit-mixture 5 path/to/data.npy
 
 Similarly, one can provide a config file:
 
 .. code::
 
-   >> fit-mixture -c /path/to/config.yml 5 path/to/data.npy
+   $ fit-mixture -c /path/to/config.yml 5 path/to/data.npy
 
 .. note::
 
@@ -125,9 +126,14 @@ data, then progressively introduces more components, fitting
 more complex mixtures, until extra components cease improving
 the fit.
 
+.. role:: bash(code)
+   :language: bash
+
+Here is some example :bash:`a = b + c`
+
 .. code::
 
-   fit-chronostar -c path/to/config.yml path/to/data.npy
+   $ fit-chronostar -c path/to/config.yml path/to/data.npy
 
 An example config file is:
 
