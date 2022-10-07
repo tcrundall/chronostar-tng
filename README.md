@@ -12,6 +12,7 @@ Create a conda environment and install packages available through conda.
 ```
 git clone https://github.com/tcrundall/chronostar-tng.git
 conda env create -n chron -f environment.yml    # set up py39 environment
+conda activate chron
 pip install .       # this will put chronostar-trial in your site-packages
 ```
 
