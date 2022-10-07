@@ -36,5 +36,6 @@ setup(
     scripts=[
         'bin/fit-component',
         'bin/fit-mixture',
+        'bin/fit-chronostar',
     ]
 )

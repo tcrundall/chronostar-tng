@@ -1,3 +1,4 @@
+from collections import defaultdict
 from pathlib import Path
 from typing import Any, Type, Union
 import yaml
@@ -41,7 +42,9 @@ class Driver:
             A class derived from BaseComponent
         """
 
-        self.config_params = self.read_config_file(config_file)
+        self.config_params = defaultdict(dict)
+
+        self.config_params.update(self.read_config_file(config_file))
 
         self.component_class = component_class
         self.mixture_class = mixture_class

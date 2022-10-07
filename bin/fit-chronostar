@@ -1,0 +1,191 @@
+#!/usr/bin/env python
+"""
+Command line tool that takes a data set and a config file
+and performs an entire chronostar fit.
+
+Chronostar starts by fitting a one component mixture model,
+and then progressively fitting mixture models with more
+components, terminating when including components ceases
+to improve the fit (as measured by the Bayesian Information
+Criterion).
+"""
+import argparse
+import copy
+import numpy as np
+import os
+from pathlib import Path
+from typing import Type
+import yaml
+
+from chronostar.base import (
+    BaseICPool,
+    BaseComponent,
+    BaseMixture,
+    BaseIntroducer,
+)
+
+from chronostar.driver.driver import Driver
+
+
+DEFAULT_CONFIG_PARAMS = {
+    'modules': {
+        'introducer': 'SimpleIntroducer',
+        'icpool': 'SimpleICPool',
+        'component': 'SpaceTimeComponent',
+        'mixture': 'ComponentMixture'
+    },
+    'icpool': {},
+    'introducer': {},
+    'component': {},
+    'mixture': {},
+    'run': {
+        'savedir': 'output',
+    }
+}
+
+
+def import_icpool(icpool) -> Type[BaseICPool]:
+    if icpool == 'SimpleICPool':
+        from chronostar.icpool.simpleicpool import SimpleICPool
+        return SimpleICPool
+    else:
+        raise UserWarning(f"Implementation {icpool=} not found.")
+
+
+def import_introducer(introducer) -> Type[BaseIntroducer]:
+    if introducer == 'SimpleIntroducer':
+        from chronostar.introducer.simpleintroducer import SimpleIntroducer
+        return SimpleIntroducer
+    else:
+        raise UserWarning(f"Implementation {introducer=} not found.")
+
+
+def import_component(component) -> Type[BaseComponent]:
+    if component == 'SpaceTimeComponent':
+        from chronostar.component.spacetimecomponent import SpaceTimeComponent
+        return SpaceTimeComponent
+    elif component == 'SpaceComponent':
+        from chronostar.component.spacecomponent import SpaceComponent
+        return SpaceComponent
+    else:
+        raise UserWarning(f"Implementation {component=} not found.")
+
+
+def import_mixture(mixture) -> Type[BaseMixture]:
+    if mixture == 'ComponentMixture':
+        from chronostar.mixture.componentmixture import ComponentMixture
+        return ComponentMixture
+    else:
+        raise UserWarning(f"Implementation {mixture=} not found.")
+
+
+def init_argparse() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        # usage="%(prog)s [OPTION] config_file data_file [membership]",
+        description="Fit a single component to data",
+    )
+    parser.add_argument("-c", "--config", help="The configuration file")
+    parser.add_argument(
+        "data",
+        help="The data file, an (n_sample, n_feature) array stored as a "
+        ".npy file.",
+    )
+    # parser.add_argument(
+    #     "membership",
+    #     nargs='?',
+    #     default=None,
+    #     help="Optional file of membership probabilities, an "
+    #     "(n_samples, n_components) array, stored as a .npy file.",
+    # )
+
+    return parser
+
+
+if __name__ == '__main__':
+    # Parse command line arguments
+    parser = init_argparse()
+    args = parser.parse_args()
+
+    # Set up config with script defaults
+    config_params = copy.deepcopy(DEFAULT_CONFIG_PARAMS)
+
+    # Read in config file
+    if args.config:
+        with open(args.config, "r") as stream:
+            try:
+                user_config_params = yaml.safe_load(stream)
+            except yaml.YAMLError as exc:
+                raise exc
+
+        # Update config_params accordingly
+        for key in config_params:
+            if key in user_config_params.keys():
+                config_params[key].update(user_config_params[key])
+
+    # Set up save directory (lest we simply crash at the end)
+    savedir = Path(config_params['run']['savedir'])
+    if savedir.is_dir():
+        print(f"WARNING: Output directory \"{savedir}\" already exists")
+        print("         Results may get jumbled with previous ones")
+    if not savedir.is_dir():
+        os.mkdir(savedir)
+
+    # Read in numpy array of data
+    data = np.load(args.data)
+
+    # # Read in membership array
+    # membership = None
+    # if args.membership:
+    #     membership = np.load(args.membership)
+
+    # Import appropriate component implementation
+    CompClass = import_component(
+        config_params["modules"]["component"]
+    )
+    MixtureClass = import_mixture(
+        config_params["modules"]["mixture"]
+    )
+    IntroducerClass = import_introducer(
+        config_params["modules"]["introducer"]
+    )
+    ICPoolClass = import_icpool(
+        config_params["modules"]["icpool"]
+    )
+
+    # Setup chronostar's driver
+    driver = Driver(
+        config_file=args.config,
+        component_class=CompClass,
+        mixture_class=MixtureClass,
+        introducer_class=IntroducerClass,
+        icpool_class=ICPoolClass,
+    )
+
+    # Run chronostar and get the best mixture
+    mixture = driver.run(data)
+
+    # Output result
+    weights, components, *extra = mixture.get_params()
+    np.save(savedir / "weights.npy", weights)
+    for i, component in enumerate(components):
+        compdir = savedir / f"comp_{i:03}"
+        if not compdir.is_dir():
+            os.mkdir(compdir)
+
+        params = component.get_parameters()
+        for j, param in enumerate(params):
+            outfile = compdir / f"param_{i}.npy"
+            np.save(outfile, param)
+
+    # Display some simple logging info to output
+    # (obviously should be substituted for some form of logging later)
+    print("-------------------")
+    print("----- RESULTS -----")
+    print("-------------------")
+    np.set_printoptions(suppress=True)
+    for i, (weight, comp) in enumerate(zip(weights, components)):
+        print(f"--- component {i} ---")
+        print(f" weight: {weight}")
+        for j, param in enumerate(comp.get_parameters()):
+            print(f"    - param {j}")
+            print(param)
