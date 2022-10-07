@@ -89,7 +89,6 @@ if __name__ == '__main__':
         membership = np.ones(len(data))
     else:
         membership = np.load(args.membership)
-    print(membership)
 
     # Import appropriate component implementation
     CompClass = import_component(

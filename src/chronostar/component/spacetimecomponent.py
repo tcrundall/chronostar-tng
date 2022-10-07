@@ -166,7 +166,7 @@ class SpaceTimeComponent(BaseComponent):
 
         if isinstance(trace_orbit_func, Callable):
             cls.trace_orbit_func = trace_orbit_func
-        elif trace_orbit_func == 'epiyclic':
+        elif trace_orbit_func == 'epicyclic':
             cls.trace_orbit_func = trace_epicyclic_orbit
         else:
             raise UserWarning(f"{cls} config: Unknown {trace_orbit_func=}")
