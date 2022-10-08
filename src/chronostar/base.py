@@ -57,6 +57,55 @@ class BaseICPool(metaclass=ABCMeta):
         pass
 
 
+class BaseOOPICPool(metaclass=ABCMeta):
+
+    def __init__(
+        self,
+        introducer_class: Type[BaseIntroducer],
+        component_class: Type[BaseComponent],
+    ) -> None:
+        """_summary_
+
+        Parameters
+        ----------
+        introducer_class : Type[BaseIntroducer]
+            A class derived from BaseIntroducer
+        component_class : Type[BaseComponent]
+            A class derived from BaseComponent
+        """
+        self.introducer_class = introducer_class
+        self.component_class = component_class
+
+        self.registry: dict[Union[str, int], ScoredMixture] = {}
+
+    @classmethod
+    @abstractmethod
+    def configure(cls, **kwargs):
+        pass
+
+    @abstractmethod
+    def has_next(self) -> bool:
+        pass
+
+    @abstractmethod
+    def get_next(self) -> tuple[Union[str, int], list[BaseComponent]]:
+        pass
+
+    @abstractmethod
+    def register_result(
+        self,
+        unique_id: Union[str, int],
+        mixture: BaseMixture,
+        score: float
+    ) -> None:
+        pass
+
+    @property
+    @abstractmethod
+    def best_mixture(self) -> BaseMixture:
+        pass
+
+
 class BaseIntroducer(metaclass=ABCMeta):
     def __init__(
         self,
