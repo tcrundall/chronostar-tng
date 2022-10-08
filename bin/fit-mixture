@@ -130,12 +130,13 @@ if __name__ == '__main__':
     MixtureClass.configure(**config_params['mixture'])
 
     if membership is not None:
-        init_weights = membership.sum(axis=0)
+        init_weights = membership
     else:
         init_weights = np.ones(args.ncomps) / args.ncomps
+
     init_comps = [CompClass() for _ in range(args.ncomps)]
 
-    mixture = MixtureClass(init_weights, init_comps, init_resp=membership)
+    mixture = MixtureClass(init_weights, init_comps)
     mixture.fit(data)
 
     # Output result

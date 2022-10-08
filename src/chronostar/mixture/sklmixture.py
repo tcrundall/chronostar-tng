@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 from numpy.typing import NDArray
 from numpy import float64
 import numpy as np
@@ -52,7 +52,6 @@ class SKLComponentMixture(SKLBaseMixture):
         self,
         weights_init: NDArray[float64],
         components_init: list[BaseComponent],
-        init_resp: Optional[NDArray[float64]] = None,
         *,
         tol: float = 1e-3,
         reg_covar: float = 1e-6,
@@ -78,9 +77,15 @@ class SKLComponentMixture(SKLBaseMixture):
             verbose_interval=verbose_interval,
         )
 
-        self.weights_: NDArray[float64] = weights_init
         self.components_: list[BaseComponent] = components_init
-        self.init_resp = init_resp
+
+        # Check if weights was used to provide membership responsibilities
+        if len(weights_init.shape) == 2:
+            self.init_resp = weights_init
+            self.weights_ = weights_init.sum(axis=0)
+        else:
+            self.weights_: NDArray[float64] = weights_init
+            self.init_resp = None
 
         # If components all have attributes, then assume they came from
         # previously converged fit, so hack some SKL parameters to

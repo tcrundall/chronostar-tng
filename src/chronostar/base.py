@@ -186,13 +186,11 @@ class BaseComponent(metaclass=ABCMeta):
 class BaseMixture(metaclass=ABCMeta):
     def __init__(
         self,
-        init_comps: list[BaseComponent],
         init_weights: NDArray[float64],
-        init_resp: Optional[NDArray[float64]] = None,
+        init_comps: list[BaseComponent],
     ) -> None:
         self.init_comps = init_comps
         self.init_weights = init_weights
-        self.init_resp = init_resp
 
     @classmethod
     @abstractmethod

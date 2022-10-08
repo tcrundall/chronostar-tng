@@ -1,4 +1,4 @@
-from typing import Any, Optional, Tuple
+from typing import Any, Tuple
 import numpy as np
 from numpy import float64
 from numpy.typing import NDArray
@@ -21,23 +21,14 @@ class ComponentMixture(BaseMixture):
 
     def __init__(
         self,
+        init_weights: NDArray[float64],
         init_components: list[BaseComponent],
-        init_weights: Optional[NDArray[float64]] = None,
-        init_resp: Optional[NDArray[float64]] = None,
     ) -> None:
-        if init_resp is not None:
-            init_weights = init_resp.sum(axis=1)
-
-        if init_weights is None:
-            raise UserWarning(
-                "Either init_weights or init_resp must be provided"
-            )
 
         # Can handle extra parameters if I want...
         self.sklmixture = SKLComponentMixture(
             init_weights,
             init_components,
-            init_resp=init_resp,
             tol=self.tol,
             reg_covar=self.reg_covar,
             max_iter=self.max_iter,
