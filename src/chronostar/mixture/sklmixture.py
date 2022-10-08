@@ -1,7 +1,9 @@
-from typing import Any
+from typing import Any, Optional
 from numpy.typing import NDArray
 from numpy import float64
 import numpy as np
+from sklearn import cluster
+from sklearn.cluster import kmeans_plusplus
 from sklearn.mixture._base import BaseMixture as SKLBaseMixture
 
 from ..base import BaseComponent
@@ -31,7 +33,11 @@ class SKLComponentMixture(SKLBaseMixture):
     init_params : str, optional
         How to initialise components if not already set,
         'random' assigns memberships randomly then maximises,
-        by default 'random'
+        by default 'random'. Options are:
+
+        - 'random': each responsibility is randomly assigned
+        - 'init_resp': an initial responsiblity array is provided
+
     random_state : Any, optional
         sklearn parameter... the random seed?, by default None
     warm_start : bool, optional
@@ -46,6 +52,7 @@ class SKLComponentMixture(SKLBaseMixture):
         self,
         weights_init: NDArray[float64],
         components_init: list[BaseComponent],
+        init_resp: Optional[NDArray[float64]] = None,
         *,
         tol: float = 1e-3,
         reg_covar: float = 1e-6,
@@ -73,6 +80,14 @@ class SKLComponentMixture(SKLBaseMixture):
 
         self.weights_: NDArray[float64] = weights_init
         self.components_: list[BaseComponent] = components_init
+        self.init_resp = init_resp
+
+        # If components all have attributes, then assume they came from
+        # previously converged fit, so hack some SKL parameters to
+        # avoid reinitialization.
+        if all([hasattr(c, 'mean') for c in self.components_]):
+            self.converged_ = False
+            self.lower_bound_ = -np.inf
 
         if kwargs:
             print("Extra arguments provided...")
@@ -91,6 +106,68 @@ class SKLComponentMixture(SKLBaseMixture):
 
         pass
 
+    def _initialize_parameters(self, X, random_state):
+        """Initialize the model parameters.
+        Parameters
+        ----------
+        X : array-like of shape  (n_samples, n_features)
+        random_state : RandomState
+            A random number generator instance that controls the random seed
+            used for the method chosen to initialize the parameters.
+
+        References
+        ----------
+        Copy pasted from scikit-learn
+        TODO: Add explicit author credits
+        """
+        n_samples, _ = X.shape
+        print("[SKLMixture._initialize_parameters]: Initializing parameters!")
+        print(f"[SKLMixture._initialize_parameters]: {self.init_params=}")
+
+        if self.init_params == "init_resp":
+            if self.init_resp is None:
+                raise UserWarning(
+                    "init_params is 'init_resp' was set, "
+                    "so init_resp cannot be None"
+                )
+            resp = self.init_resp
+            assert resp is not None
+        elif self.init_params == "kmeans":
+            resp = np.zeros((n_samples, self.n_components))
+            label = (
+                cluster.KMeans(
+                    n_clusters=self.n_components,
+                    n_init=1,
+                    random_state=random_state,
+                )
+                .fit(X)
+                .labels_
+            )
+            resp[np.arange(n_samples), label] = 1
+        elif self.init_params == "random":
+            resp = random_state.uniform(size=(n_samples, self.n_components))
+            resp /= resp.sum(axis=1)[:, np.newaxis]
+        elif self.init_params == "random_from_data":
+            resp = np.zeros((n_samples, self.n_components))
+            indices = random_state.choice(
+                n_samples, size=self.n_components, replace=False
+            )
+            resp[indices, np.arange(self.n_components)] = 1
+        elif self.init_params == "k-means++":
+            resp = np.zeros((n_samples, self.n_components))
+            _, indices = kmeans_plusplus(
+                X,
+                self.n_components,
+                random_state=random_state,
+            )
+            resp[indices, np.arange(self.n_components)] = 1
+        else:
+            raise ValueError(
+                "Unimplemented initialization method '%s'" % self.init_params
+            )
+
+        self._initialize(X, resp)
+
     def _initialize(
         self,
         X: NDArray[float64],
@@ -108,14 +185,13 @@ class SKLComponentMixture(SKLBaseMixture):
 
         TODO: Actually only initialise randomly when "random" is set
         """
-        # if self.init_params == "random":
 
-        if any([not hasattr(comp, 'mean') for comp in self.components_]):
-            nsamples = X.shape[0]
-            resp = np.random.rand(nsamples, self.n_components)
-            resp = (resp.T / resp.sum(axis=1)).T
-            for i, component in enumerate(self.components_):
-                component.maximize(X, np.log(resp[:, i]))
+        # We can expect `resp` to be initialized. So:
+        for i, component in enumerate(self.components_):
+            component.maximize(X, np.log(resp[:, i]))
+
+        # However, the components may already have their parameters set...
+        # then we shouldn't even be here.
 
     def _m_step(
         self,

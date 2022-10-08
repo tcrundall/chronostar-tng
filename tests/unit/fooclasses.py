@@ -73,6 +73,8 @@ class FooComponent(BaseComponent):
 class FooMixture(BaseMixture):
     def __init__(self, *args, **kwargs) -> None:        # type: ignore
         super().__init__(*args, **kwargs)
+        self.comps = self.init_comps
+        self.weights = self.init_weights
 
     @classmethod
     def configure(cls, **kwargs):

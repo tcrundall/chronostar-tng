@@ -9,6 +9,7 @@ icpool:
 introducer:
   param1: 'param1'    # explaining comment
 mixture:
+  verbose: 1
   a: 1
   b: 2
   c: 3

@@ -49,8 +49,8 @@ def test_full_usage() -> None:
     comp.maximize(None, None)       # type: ignore
 
     best_mixture = FooMixture(
-        np.ones(1),
-        [comp]
+        init_comps=[comp],
+        init_weights=np.ones(1),
     )
 
     best_score = best_mixture.bic(DATA)
