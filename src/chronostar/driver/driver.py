@@ -81,7 +81,9 @@ class Driver:
             component_class=self.component_class,
         )
 
-        for unique_id, init_conds in icpool.pool():
+        while icpool.has_next():
+            unique_id, init_conds = icpool.get_next()
+
             ncomps = len(init_conds)
             init_weights = np.ones(ncomps)/ncomps
             m = self.mixture_class(
@@ -91,7 +93,7 @@ class Driver:
             m.fit(data)
             icpool.register_result(unique_id, m, -m.bic(data))
 
-        # loop will end when icg stops generating reasonable initial conditions
+        # loop will end when icpool stops generating initial conditions
         return icpool.best_mixture
 
     def read_config_file(

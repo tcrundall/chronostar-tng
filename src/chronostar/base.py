@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import Generator, NamedTuple, Optional, Union, Type, Any
+from typing import NamedTuple, Optional, Union, Type, Any
 import numpy as np
 from numpy.typing import NDArray
 from numpy import float64
@@ -13,51 +13,6 @@ class ScoredMixture(NamedTuple):
 
 
 class BaseICPool(metaclass=ABCMeta):
-
-    def __init__(
-        self,
-        introducer_class: Type[BaseIntroducer],
-        component_class: Type[BaseComponent],
-    ) -> None:
-        """_summary_
-
-        Parameters
-        ----------
-        introducer_class : Type[BaseIntroducer]
-            A class derived from BaseIntroducer
-        component_class : Type[BaseComponent]
-            A class derived from BaseComponent
-        """
-        self.introducer_class = introducer_class
-        self.component_class = component_class
-
-        self.registry: dict[Union[str, int], ScoredMixture] = {}
-
-    @classmethod
-    @abstractmethod
-    def configure(cls, **kwargs):
-        pass
-
-    @abstractmethod
-    def pool(self) -> Generator[tuple[int, list[BaseComponent]], None, None]:
-        pass
-
-    @abstractmethod
-    def register_result(
-        self,
-        unique_id: Union[str, int],
-        mixture: BaseMixture,
-        score: float
-    ) -> None:
-        pass
-
-    @property
-    @abstractmethod
-    def best_mixture(self) -> BaseMixture:
-        pass
-
-
-class BaseOOPICPool(metaclass=ABCMeta):
 
     def __init__(
         self,

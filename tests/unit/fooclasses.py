@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 from numpy.typing import NDArray
 from numpy import float64
-from typing import Any, Generator, Union
+from typing import Any, Union
 
 from ..context import chronostar     # noqa
 
@@ -134,14 +134,18 @@ class FooICPool(BaseICPool):
         super().__init__(*args, **kwargs)
         self.registry: dict[Union[str, int], ScoredMixture] = {}
 
+        self.queue = [(0, [FooComponent(params=None)])]
+
     @classmethod
     def configure(cls, **kwargs):
         if kwargs:
             print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
 
-    def pool(self) -> Generator[tuple[int, list[BaseComponent]], None, None]:
-        for i, fc in enumerate([FooComponent(params=None)]):
-            yield (i, [fc])
+    def has_next(self):
+        return len(self.queue) > 0
+
+    def get_next(self):
+        return self.queue.pop()
 
     def register_result(
         self,

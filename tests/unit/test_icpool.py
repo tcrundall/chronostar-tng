@@ -33,7 +33,8 @@ def test_simple_usage() -> None:
     )
 
     score = 10.
-    for (unique_id, init_conds) in icpool.pool():
+    while icpool.has_next():
+        (unique_id, init_conds) = icpool.get_next()
         ncomps = len(init_conds)
         init_weights = np.ones(ncomps) / ncomps
         m = FooMixture(init_weights, init_conds)

@@ -1,5 +1,6 @@
 import numpy as np
-from typing import Generator, Optional, Union
+from queue import Queue
+from typing import Optional, Union
 
 from ..base import (
     BaseComponent,
@@ -23,6 +24,12 @@ class SimpleICPool(BaseICPool):
         self.introducer: BaseIntroducer = self.introducer_class(
             self.component_class
         )
+        self.queue: Queue[tuple[int, list[BaseComponent]]] = Queue()
+        self.best_mixture_: Optional[BaseMixture] = None
+        self.best_score_: float = -np.inf
+
+        self.first_pass = True
+        self.generation = 0
 
     @classmethod
     def configure(cls, max_components=30, **kwargs) -> None:
@@ -62,43 +69,53 @@ class SimpleICPool(BaseICPool):
 
         self.registry[unique_id] = ScoredMixture(mixture, score)
 
-    def pool(self) -> Generator[tuple[int, list[BaseComponent]], None, None]:
-        """Produce a generator which will yields a set of initial conditions,
-        one at a time
+    def try_populate_queue(self) -> None:
 
-        Yields
-        ------
-        Generator[tuple[int, list[BaseComponent]], None, None]
-            TODO: understand what i should write here...
-        """
-        best_mixture: Optional[BaseMixture] = None
-        prev_best_score: Optional[float] = None
-        best_score = -np.inf
+        # If this is our first pass, let our introducer provide starting point
+        if self.first_pass:
+            print("Letting introducer generate first IC")
+            for ix, init_conds in enumerate(self.introducer.next_gen(None)):
+                self.queue.put((ix, init_conds))
+            self.first_pass = False
+            print(f"{self.generation=}")
+            self.generation += 1
+            return
 
-        while prev_best_score is None or best_score > prev_best_score:
-            print(f"-----{-best_score=}")
+        # Otherwise, check registry, see if we should generate next generation
+        # If we are serial, we can trust that each run has been registered.
+        # parallel needs some more thinking
+        best_mixture, best_score = max(
+            self.registry.values(),
+            key=lambda x: x.score
+        )
+
+        # If we have improved previous best mixture, save current best and
+        # repopulate queue
+        if best_score > self.best_score_:
+            print(f"{self.generation=}")
+            print(f"{best_score=}")
+            self.generation += 1
+
             self.best_mixture_ = best_mixture
-            prev_best_score = best_score
+            self.best_score_ = best_score
+
             self.registry = {}
 
             # Loop over the next generation of initial conditions
             for ix, init_conditions in enumerate(
-                self.introducer.next_gen(
-                    None if best_mixture is None else list(
-                        best_mixture.get_components()
-                    )
-                )
+                self.introducer.next_gen(list(best_mixture.get_components()))
             ):
-                # Only yield component sets that are within limits
-                if len(init_conditions) < self.max_components:
-                    yield ix, init_conditions
+                self.queue.put((ix, init_conditions))
 
-            # Once all initial conditions are provided, look for best registry
-            # if self.registry:
-            best_mixture, best_score = max(
-                self.registry.values(),
-                key=lambda x: x.score
-            )
+    def has_next(self) -> bool:
+        if not self.queue.empty():
+            return True
+
+        self.try_populate_queue()
+        return not self.queue.empty()
+
+    def get_next(self) -> tuple[int, list[BaseComponent]]:
+        return self.queue.get()
 
     @property
     def best_mixture(self) -> BaseMixture:
