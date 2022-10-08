@@ -2,10 +2,10 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="chronostar" href="modules.html" /><link rel="prev" title="Quickstart" href="quickstart.html" />
 
     <meta name="generator" content="sphinx-5.2.3, furo 2022.09.29"/>
-        <title>src.chronostar.mixture package - chronostar-tng 1.0 documentation</title>
+        <title>Scripts - chronostar-tng 1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
@@ -153,7 +153,25 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Scripts</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="chronostar.html">chronostar package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="chronostar.component.html">chronostar.component package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chronostar.driver.html">chronostar.driver package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chronostar.icpool.html">chronostar.icpool package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chronostar.introducer.html">chronostar.introducer package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chronostar.mixture.html">chronostar.mixture package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chronostar.utils.html">chronostar.utils package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
 </div>
 </div>
 
@@ -186,19 +204,62 @@
           </label>
         </div>
         <article role="main">
-          <div class="section" id="src-chronostar-mixture-package">
-<h1>src.chronostar.mixture package<a class="headerlink" href="#src-chronostar-mixture-package" title="Permalink to this heading">#</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
+          <div class="section" id="scripts">
+<h1>Scripts<a class="headerlink" href="#scripts" title="Permalink to this heading">#</a></h1>
+<div class="section" id="fitting-a-component">
+<h2>Fitting a component<a class="headerlink" href="#fitting-a-component" title="Permalink to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">from</span> <span class="nn">chronostar.component.spacetimecomponent</span> <span class="kn">import</span> <span class="n">SpaceTimeComponent</span>
+
+<span class="c1"># prepare your data array, e.g. by loading from file</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;path/to/data.npy&#39;</span><span class="p">)</span>
+
+<span class="c1"># Optionally can prepare your membership array, e.g. by loading from file</span>
+<span class="n">memb_probs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;path/to/membership.npy&#39;</span><span class="p">)</span>
+
+<span class="c1"># Configuration parameters are expected as a dictionary.</span>
+<span class="c1"># We recommend storing them in a .yaml file and loading them like so:</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;path/to/config.yml&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+    <span class="n">config_params</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+
+<span class="c1"># But you may build your config dictionary however you like</span>
+<span class="c1"># Before usage, the SpaceTimeComponent class must be configured</span>
+<span class="c1"># Here are three different options</span>
+
+<span class="c1"># With config parameter dictionary</span>
+<span class="n">SpaceTimeComponent</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="o">**</span><span class="n">config_params</span><span class="p">)</span>
+
+<span class="c1"># With explicit parameter setting</span>
+<span class="n">SpaceTimeComponent</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span>
+    <span class="n">minimize_method</span><span class="o">=</span><span class="s1">&#39;brent&#39;</span><span class="p">,</span>
+    <span class="n">trace_orbit_func</span><span class="o">=</span><span class="n">some_func_you_imported</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<span class="c1"># Or with no configuration</span>
+<span class="n">SpaceTimeComponent</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
+
+<span class="c1"># Now we can instantiate the class and perform the fit</span>
+<span class="n">comp</span> <span class="o">=</span> <span class="n">SpaceTimeComponent</span><span class="p">()</span>
+<span class="n">comp</span><span class="o">.</span><span class="n">maximize</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">memb_probs</span><span class="p">))</span>
+
+<span class="c1"># The best fitting parameters can be accessed as a tuple</span>
+<span class="n">params</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">get_parameters</span><span class="p">()</span>
+
+<span class="c1"># In the case of SpaceTimeComponent, the parameters are:</span>
+<span class="n">mean</span><span class="p">,</span> <span class="n">covariance</span><span class="p">,</span> <span class="n">age</span> <span class="o">=</span> <span class="n">params</span>
+
+<span class="c1"># But this varies depending on the implementation of Component</span>
+</pre></div>
 </div>
-<div class="section" id="src-chronostar-mixture-componentmixture-module">
-<h2>src.chronostar.mixture.componentmixture module<a class="headerlink" href="#src-chronostar-mixture-componentmixture-module" title="Permalink to this heading">#</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Currently maximize accepts the log of <code class="code docutils literal notranslate"><span class="pre">memb_probs</span></code>. I plan
+to change that to be just <code class="code docutils literal notranslate"><span class="pre">memb_probs</span></code>. I must remember
+to update docs accordingly.</p>
 </div>
-<div class="section" id="src-chronostar-mixture-sklmixture-module">
-<h2>src.chronostar.mixture.sklmixture module<a class="headerlink" href="#src-chronostar-mixture-sklmixture-module" title="Permalink to this heading">#</a></h2>
-</div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">#</a></h2>
+<p>Fitting a Mixture</p>
 </div>
 </div>
 
@@ -207,8 +268,26 @@
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="modules.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">chronostar</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="quickstart.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Quickstart</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -241,11 +320,8 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">src.chronostar.mixture package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#src-chronostar-mixture-componentmixture-module">src.chronostar.mixture.componentmixture module</a></li>
-<li><a class="reference internal" href="#src-chronostar-mixture-sklmixture-module">src.chronostar.mixture.sklmixture module</a></li>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#">Scripts</a><ul>
+<li><a class="reference internal" href="#fitting-a-component">Fitting a component</a></li>
 </ul>
 </li>
 </ul>
