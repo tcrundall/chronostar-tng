@@ -74,18 +74,18 @@ def convert_curvilin2cart(data, ro=8., vo=220.,
     R = R0 - xi
     phi = eta / R0
 
-    X = xi * np.cos(phi) + R0 * (1.0 - np.cos(phi))  # R0 - R*np.cos(phi)
+    X = xi*np.cos(phi) + R0 * (1.0-np.cos(phi))  # R0 - R*np.cos(phi)
     Y = R * np.sin(phi)
     Z = zeta
 
-    U = xidot * np.cos(phi) + R / R0 * etadot * np.sin(phi)
-    V = - xidot * np.sin(phi) + R / R0 * etadot * np.cos(phi)
+    U = xidot*np.cos(phi) + R/R0 * etadot * np.sin(phi)
+    V = - xidot*np.sin(phi) + R/R0 * etadot * np.cos(phi)
     W = zetadot
 
     # Convert to a non-rotating observed frame
     Omega0 = vo / R0  # km/s / pc
-    U = U + Y * Omega0
-    V = V - X * Omega0
+    U = U + Y*Omega0
+    V = V - X*Omega0
 
     cart_coordinates = np.vstack((X, Y, Z, U, V, W))
 
@@ -94,14 +94,14 @@ def convert_curvilin2cart(data, ro=8., vo=220.,
 
 # @jit(nopython=True)
 def epicyclic_approx(data, times=None, sA=0.89, sB=1.15, sR=1.21):
-    """
+    r"""
     MZ (2020 - 01 - 17)
 
     Epicyclic approximation following the Makarov et al. 2004 paper
     in the curvilinear coordinate system:
     The radial component xi is pointing towards the Galactic center
     at all times and equals 0 at R0.
-    The circular component eta circles around the Galaxy; eta = phi*R.
+    The circular component eta circles around the Galaxy; eta = phi\*R.
     The vertical component is defined as a displacement from the
     Galactic plane.
 
@@ -109,10 +109,10 @@ def epicyclic_approx(data, times=None, sA=0.89, sB=1.15, sR=1.21):
 
     Parameters
     ------------
-    data : [pc, pc*, pc, km/s, km/s, km/s]
+    data : [pc, pc\*, pc, km/s, km/s, km/s]
            xi, eta, zeta, xidot, etadot, zetadot
 
-        # *parsecs in the eta component are scales parsecs...
+        # \*parsecs in the eta component are scales parsecs...
     """
     xi0, eta0, zeta0, xidot0, etadot0, zetadot0 = data.T
 
@@ -137,8 +137,8 @@ def epicyclic_approx(data, times=None, sA=0.89, sB=1.15, sR=1.21):
     rho_scale_factor = sR  # 1.36
     rho = rho_scale_factor * 0.0889  # M0/pc3
     Grho = rho * 0.004498502151575285  # Myr-2; rho should be given in M0/pc3
-    kappa = np.sqrt(-4.0 * B * (A - B))  # Myr-1
-    nu = np.sqrt(4.0 * np.pi * Grho + (A + B) * (A - B))  # Myr-1
+    kappa = np.sqrt(-4.0 * B * (A-B))  # Myr-1
+    nu = np.sqrt(4.0*np.pi*Grho + (A+B)*(A-B))  # Myr-1
 
     t = times
 
@@ -146,24 +146,24 @@ def epicyclic_approx(data, times=None, sA=0.89, sB=1.15, sR=1.21):
     nt = nu * t
 
     xi = xi0 \
-        + xidot0 / kappa * np.sin(kt) \
-        + (etadot0 - 2.0 * A * xi0) * (1.0 - np.cos(kt)) / (2.0*B)
+        + xidot0/kappa * np.sin(kt) \
+        + (etadot0 - 2.0*A*xi0) * (1.0-np.cos(kt)) / (2.0*B)
 
     eta = eta0 \
-        - xidot0 * (1.0 - np.cos(kt)) / (2.0*B) \
-        + etadot0 * (A*kt - (A-B) * np.sin(kt)) / (kappa * B) \
-        - xi0 * 2.0 * A * (A - B) * (kt - np.sin(kt)) / (kappa * B)
+        - xidot0 * (1.0-np.cos(kt)) / (2.0*B) \
+        + etadot0 * (A*kt - (A-B) * np.sin(kt)) / (kappa*B) \
+        - xi0 * 2.0 * A * (A-B) * (kt-np.sin(kt)) / (kappa*B)
 
     zeta = zeta0 * np.cos(nt) + zetadot0 / nu * np.sin(nt)
 
     xidot = xidot0 * np.cos(kt) \
-        + (etadot0 - 2.0 * A * xi0) * kappa * np.sin(kt) / (2.0 * B)
+        + (etadot0 - 2.0*A*xi0) * kappa * np.sin(kt) / (2.0*B)
 
-    etadot = -xidot0 * kappa/(2.0 * B) * np.sin(kt) \
-        + etadot0/B * (A - (A - B) * np.cos(kt)) \
-        - 2.0 * A * xi0 * (A-B) * (1.0 - np.cos(kt)) / B
+    etadot = -xidot0 * kappa/(2.0*B) * np.sin(kt) \
+        + etadot0/B * (A - (A-B) * np.cos(kt)) \
+        - 2.0 * A * xi0 * (A-B) * (1.0-np.cos(kt)) / B
 
-    zetadot = -zeta0 * nu * np.sin(nt) + zetadot0 * np.cos(nt)
+    zetadot = -zeta0*nu*np.sin(nt) + zetadot0 * np.cos(nt)
 
     new_position = np.vstack((xi, eta, zeta, xidot, etadot, zetadot))
     new_position = new_position.T

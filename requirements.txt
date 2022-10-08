@@ -1,3 +1,9 @@
+python=3.9
 pyyaml
 pathlib
 scikit-learn
+numpy
+scipy
+astropy
+pytest
+pathlib
