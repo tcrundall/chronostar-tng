@@ -5,7 +5,7 @@
 
 Chronostar, the next generation of discovery and characterisation of stellar associations
 
-See the full docs here.
+[The full docs](https://tcrundall.github.io/chronostar-tng/) have a more detailed installation and quickstart.
 
 ### Installing
 Create a conda environment and install packages available through conda.
