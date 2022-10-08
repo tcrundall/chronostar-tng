@@ -2,12 +2,14 @@ import os
 from pathlib import Path
 import numpy as np
 
-from src.chronostar.driver.driver import Driver
-from src.chronostar.mixture.componentmixture import ComponentMixture
-from src.chronostar.icpool.simpleicpool import SimpleICPool
-from src.chronostar.introducer.simpleintroducer import SimpleIntroducer
-from src.chronostar.component.spacetimecomponent import SpaceTimeComponent
-from src.chronostar.component.spacecomponent import SpaceComponent
+from ..context import chronostar     # noqa
+
+from chronostar.driver.driver import Driver
+from chronostar.mixture.componentmixture import ComponentMixture
+from chronostar.icpool.simpleicpool import SimpleICPool
+from chronostar.introducer.simpleintroducer import SimpleIntroducer
+from chronostar.component.spacetimecomponent import SpaceTimeComponent
+from chronostar.component.spacecomponent import SpaceComponent
 
 
 def test_simple_spacemixture_run():
@@ -38,7 +40,7 @@ def test_simple_spacemixture_run():
     data = np.vstack((uniform_data, gaussian_data1, gaussian_data2))
 
     best_mixture = driver.run(data)         # noqa F841
-    weights, comps = best_mixture.get_params()
+    weights, comps = best_mixture.get_parameters()
     assert len(weights) == 3
     return best_mixture, data
 
@@ -71,7 +73,7 @@ def test_simple_spacetimemixture_run():
     data = np.vstack((uniform_data, gaussian_data1, gaussian_data2))
 
     best_mixture = driver.run(data)         # noqa F841
-    weights, comps = best_mixture.get_params()
+    weights, comps = best_mixture.get_parameters()
     assert len(weights) == 3
 
     return best_mixture, data

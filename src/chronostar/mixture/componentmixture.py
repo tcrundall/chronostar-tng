@@ -122,7 +122,7 @@ class ComponentMixture(BaseMixture):
 
         return float(self.sklmixture.bic(X))
 
-    def set_params(
+    def set_parameters(
         self,
         params: Tuple[NDArray[float64], list[BaseComponent]],
     ) -> None:
@@ -136,7 +136,7 @@ class ComponentMixture(BaseMixture):
 
         self.sklmixture._set_parameters(params)
 
-    def get_params(self) -> tuple[NDArray[float64], list[BaseComponent]]:
+    def get_parameters(self) -> tuple[NDArray[float64], list[BaseComponent]]:
         """Get the parameters that characterise the mixture
 
         Returns
@@ -155,7 +155,7 @@ class ComponentMixture(BaseMixture):
         list[BaseComponent]
             The list of components
         """
-        _, components = self.get_params()
+        _, components = self.get_parameters()
         return components
 
     def estimate_membership_prob(self, X: NDArray[float64]):

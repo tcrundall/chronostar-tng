@@ -5,7 +5,9 @@ from numpy.typing import NDArray
 from numpy import float64
 from typing import Any, Generator, Union
 
-from src.chronostar.base import (
+from ..context import chronostar     # noqa
+
+from chronostar.base import (
     BaseComponent,
     BaseMixture,
     BaseICPool,
@@ -77,10 +79,10 @@ class FooMixture(BaseMixture):
         if kwargs:
             print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
 
-    def get_params(self) -> tuple[NDArray[float64], list[BaseComponent]]:
+    def get_parameters(self) -> tuple[NDArray[float64], list[BaseComponent]]:
         return (self.weights, self.comps)
 
-    def set_params(
+    def set_parameters(
         self,
         params: tuple[NDArray[float64], list[BaseComponent]],
     ) -> None:
@@ -97,7 +99,7 @@ class FooMixture(BaseMixture):
         return -((len(self.comps) - 5)**2)
 
     def get_components(self) -> list[BaseComponent]:
-        return self.get_params()[1]
+        return self.get_parameters()[1]
 
     def estimate_membership_prob(
         self,

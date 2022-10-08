@@ -2,12 +2,14 @@ import numpy as np
 import os
 from pathlib import Path
 
-from tests.integration import synthdata
-from src.chronostar.driver.driver import Driver
-from src.chronostar.component.spacetimecomponent import SpaceTimeComponent
-from src.chronostar.icpool.simpleicpool import SimpleICPool
-from src.chronostar.introducer.simpleintroducer import SimpleIntroducer
-from src.chronostar.mixture.componentmixture import ComponentMixture
+from ..context import chronostar     # noqa
+
+from chronostar.driver.driver import Driver
+from chronostar.component.spacetimecomponent import SpaceTimeComponent
+from chronostar.icpool.simpleicpool import SimpleICPool
+from chronostar.introducer.simpleintroducer import SimpleIntroducer
+from chronostar.mixture.componentmixture import ComponentMixture
+from . import synthdata
 
 
 def test_twoassocs():
@@ -30,7 +32,7 @@ def test_twoassocs():
     )
 
     best_mixture = driver.run(data=stars)
-    params = best_mixture.get_params()
+    params = best_mixture.get_parameters()
     weights = params[0]
     components: list[SpaceTimeComponent] = params[1]
 
@@ -109,7 +111,7 @@ def test_one_assoc_one_gaussian_background():
 
     best_mixture = driver.run(data=stars)
 
-    params = best_mixture.get_params()
+    params = best_mixture.get_parameters()
     weights = params[0]
     components: list[SpaceTimeComponent] = params[1]
 
@@ -180,7 +182,7 @@ def test_one_assoc_one_uniform_background():
 
     best_mixture = driver.run(data=stars)
 
-    params = best_mixture.get_params()
+    params = best_mixture.get_parameters()
     weights = params[0]
     components: list[SpaceTimeComponent] = params[1]
 

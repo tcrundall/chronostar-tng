@@ -7,10 +7,6 @@ from numpy.typing import NDArray
 from numpy import float64
 
 
-def joke():
-    return "Funny joke"
-
-
 class ScoredMixture(NamedTuple):
     mixture: BaseMixture
     score: float
@@ -198,18 +194,18 @@ class BaseMixture(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def set_params(
+    def set_parameters(
         self,
         params: tuple[NDArray[float64], list[BaseComponent]],
     ) -> None:
         pass
 
     @abstractmethod
-    def get_params(self) -> Any:
+    def get_parameters(self) -> Any:
         pass
 
     @abstractmethod
-    def fit(self, data: NDArray[float64]) -> None:
+    def fit(self, X: NDArray[float64]) -> None:
         pass
 
     @abstractmethod

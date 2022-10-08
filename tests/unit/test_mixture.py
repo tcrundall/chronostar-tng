@@ -1,7 +1,9 @@
 import numpy as np
 
-from src.chronostar.mixture.componentmixture import ComponentMixture
-from tests.unit.fooclasses import FooComponent, CONFIG_PARAMS, DATA
+from ..context import chronostar     # noqa
+
+from chronostar.mixture.componentmixture import ComponentMixture
+from .fooclasses import FooComponent, CONFIG_PARAMS, DATA
 
 
 def test_construction() -> None:

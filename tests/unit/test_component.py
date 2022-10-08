@@ -1,10 +1,12 @@
 import numpy as np
 from scipy.stats import multivariate_normal
-from src.chronostar.base import BaseComponent
 
-from src.chronostar.component.spacetimecomponent import SpaceTimeComponent
-from src.chronostar.component.spacecomponent import SpaceComponent
-from tests.unit.fooclasses import CONFIG_PARAMS, DATA, NSAMPLES
+from ..context import chronostar    # noqa
+
+from chronostar.base import BaseComponent
+from chronostar.component.spacetimecomponent import SpaceTimeComponent
+from chronostar.component.spacecomponent import SpaceComponent
+from .fooclasses import CONFIG_PARAMS, DATA, NSAMPLES
 
 
 # Component classes and default extra parameters

@@ -165,7 +165,7 @@ if __name__ == '__main__':
     mixture = driver.run(data)
 
     # Output result
-    weights, components, *extra = mixture.get_params()
+    weights, components, *extra = mixture.get_parameters()
     np.save(savedir / "weights.npy", weights)
     for i, component in enumerate(components):
         compdir = savedir / f"comp_{i:03}"

@@ -1,7 +1,9 @@
 import numpy as np
 
-from src.chronostar.introducer.simpleintroducer import SimpleIntroducer
-from tests.unit.fooclasses import CONFIG_PARAMS, DATA, FooComponent, FooMixture
+from ..context import chronostar     # noqa
+
+from chronostar.introducer.simpleintroducer import SimpleIntroducer
+from .fooclasses import CONFIG_PARAMS, DATA, FooComponent, FooMixture
 
 
 def test_construction() -> None:

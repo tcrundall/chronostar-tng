@@ -14,15 +14,20 @@ from ..base import (
     BaseIntroducer,
 )
 
+from ..component.spacetimecomponent import SpaceTimeComponent
+from ..mixture.componentmixture import ComponentMixture
+from ..introducer.simpleintroducer import SimpleIntroducer
+from ..icpool.simpleicpool import SimpleICPool
+
 
 class Driver:
     def __init__(
         self,
         config_file: Union[str, Path],
-        mixture_class: Type[BaseMixture],
-        icpool_class: Type[BaseICPool],
-        introducer_class: Type[BaseIntroducer],
-        component_class: Type[BaseComponent],
+        mixture_class: Type[BaseMixture] = ComponentMixture,
+        icpool_class: Type[BaseICPool] = SimpleICPool,
+        introducer_class: Type[BaseIntroducer] = SimpleIntroducer,
+        component_class: Type[BaseComponent] = SpaceTimeComponent,
     ) -> None:
         """Top level class of Chronostar which drives the
         entire fitting process

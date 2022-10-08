@@ -1,8 +1,10 @@
 import numpy as np
 
-from src.chronostar.icpool.simpleicpool import SimpleICPool
-from tests.unit.fooclasses import FooComponent, FooIntroducer, FooMixture
-from tests.unit.fooclasses import CONFIG_PARAMS
+from ..context import chronostar     # noqa
+
+from chronostar.icpool.simpleicpool import SimpleICPool
+from .fooclasses import FooComponent, FooIntroducer, FooMixture
+from .fooclasses import CONFIG_PARAMS
 
 
 def test_construction() -> None:
@@ -36,7 +38,7 @@ def test_simple_usage() -> None:
         init_weights = np.ones(ncomps) / ncomps
         m = FooMixture(init_weights, init_conds)
         ncomps = len(init_conds)
-        m.set_params((np.ones(ncomps)/ncomps, init_conds))
+        m.set_parameters((np.ones(ncomps)/ncomps, init_conds))
         icpool.register_result(unique_id, m, score)
 
         score -= 1.

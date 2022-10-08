@@ -1,10 +1,11 @@
 import os
 from pathlib import Path
 
-from src.chronostar.driver.driver import Driver
-from tests.unit.fooclasses import \
-    FooComponent, FooICPool, FooIntroducer, FooMixture
-from tests.unit.fooclasses import DATA
+from ..context import chronostar     # noqa
+
+from chronostar.driver.driver import Driver
+from .fooclasses import FooComponent, FooICPool, FooIntroducer, FooMixture
+from .fooclasses import DATA
 
 
 def test_construction() -> None:
