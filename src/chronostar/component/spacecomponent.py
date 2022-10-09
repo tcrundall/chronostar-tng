@@ -18,6 +18,12 @@ class SpaceComponent(BaseComponent):
 
     COVARIANCE_TYPE = "full"
 
+    # Configurable attributes
+    reg_covar: float = 1e-6
+
+    def __init__(self, params=None) -> None:
+        super().__init__(params)
+
     @classmethod
     def configure(
         cls,
@@ -39,9 +45,6 @@ class SpaceComponent(BaseComponent):
 
         if kwargs:
             print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
-
-    def __init__(self, params=None) -> None:
-        super().__init__(params)
 
     def maximize(
         self,

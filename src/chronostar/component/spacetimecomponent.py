@@ -116,14 +116,20 @@ class SpaceTimeComponent(BaseComponent):
 
     COVARIANCE_TYPE = "full"     # an sklearn specific parameter. DON'T CHANGE!
 
+    # Configurable attributes
+    minimize_method: str = 'brent'
+    reg_covar: float = 1e-6
+    trace_orbit_func = trace_epicyclic_orbit
+    morph_cov_func = remove_posvel_correlations
+
     @classmethod
     def configure(
         cls,
-        *,
-        minimize_method='brent',
-        reg_covar=1e-6,
-        trace_orbit_func=trace_epicyclic_orbit,
-        morph_cov_func=remove_posvel_correlations,
+        # *,
+        # minimize_method='brent',
+        # reg_covar=1e-6,
+        # trace_orbit_func=trace_epicyclic_orbit,
+        # morph_cov_func=remove_posvel_correlations,
         **kwargs
     ) -> None:
         r"""Set class level configuration parameters that will be
@@ -161,25 +167,31 @@ class SpaceTimeComponent(BaseComponent):
             For unknown morph_cov_func
         """
 
-        cls.minimize_method = minimize_method
-        cls.reg_covar = reg_covar
+        for param, val in kwargs.items():
+            if hasattr(cls, param):
+                setattr(cls, param, val)
+            else:
+                print(f"[CONFIG]:{cls} unexpected config param: {param}={val}")
 
-        if isinstance(trace_orbit_func, Callable):
-            cls.trace_orbit_func = trace_orbit_func
-        elif trace_orbit_func == 'epicyclic':
-            cls.trace_orbit_func = trace_epicyclic_orbit
-        else:
-            raise UserWarning(f"{cls} config: Unknown {trace_orbit_func=}")
+        # cls.minimize_method = minimize_method
+        # cls.reg_covar = reg_covar
 
-        if isinstance(morph_cov_func, Callable):
-            cls.morph_cov_func = morph_cov_func
-        elif morph_cov_func == "elliptical":
-            cls.morph_cov_func = remove_posvel_correlations
-        else:
-            raise UserWarning(f"{cls} config: Unknown {morph_cov_func=}")
+        # if isinstance(trace_orbit_func, Callable):
+        #     cls.trace_orbit_func = trace_orbit_func
+        # elif trace_orbit_func == 'epicyclic':
+        #     cls.trace_orbit_func = trace_epicyclic_orbit
+        # else:
+        #     raise UserWarning(f"{cls} config: Unknown {trace_orbit_func=}")
 
-        if kwargs:
-            print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
+        # if isinstance(morph_cov_func, Callable):
+        #     cls.morph_cov_func = morph_cov_func
+        # elif morph_cov_func == "elliptical":
+        #     cls.morph_cov_func = remove_posvel_correlations
+        # else:
+        #     raise UserWarning(f"{cls} config: Unknown {morph_cov_func=}")
+
+        # if kwargs:
+        #   print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
 
     def __init__(self, params=None):
         super().__init__(params)
