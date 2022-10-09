@@ -4,6 +4,7 @@ Command line tool that takes a data set and a config file
 and performs a fit and outputs (somehow) the results.
 """
 import argparse
+from collections import defaultdict
 import copy
 import numpy as np
 import os
@@ -55,16 +56,18 @@ def init_argparse() -> argparse.ArgumentParser:
     return parser
 
 
-if __name__ == '__main__':
-    # Parse command line arguments
-    parser = init_argparse()
-    args = parser.parse_args()
-
+def parse_config(config_file):
     # Set up config with script defaults
-    config_params = copy.deepcopy(DEFAULT_CONFIG_PARAMS)
+    config_params = defaultdict(dict)
+    config_params.update(copy.deepcopy(DEFAULT_CONFIG_PARAMS))
 
     # Read in config file
     if args.config:
+        acceptable_keys = [
+            'modules',
+            'component',
+            'run',
+        ]
         with open(args.config, "r") as stream:
             try:
                 user_config_params = yaml.safe_load(stream)
@@ -72,9 +75,20 @@ if __name__ == '__main__':
                 raise exc
 
         # Update config_params accordingly
-        for key in config_params:
-            if key in user_config_params.keys():
-                config_params[key].update(user_config_params[key])
+        for key in user_config_params:
+            if key not in acceptable_keys:
+                raise UserWarning(f"[CONFIG] {key=} not recognised!")
+            config_params[key].update(user_config_params[key])
+
+    return config_params
+
+
+if __name__ == '__main__':
+    # Parse command line arguments
+    parser = init_argparse()
+    args = parser.parse_args()
+
+    config_params = parse_config(args.config)
 
     # Set up save directory (before we waste time on computation)
     savedir = Path(config_params['run']['savedir'])

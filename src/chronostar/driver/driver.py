@@ -1,3 +1,4 @@
+from collections import defaultdict
 from pathlib import Path
 from typing import Any, Type, Union
 import yaml
@@ -28,7 +29,7 @@ class Driver:
 
     def __init__(
         self,
-        config_file: Union[str, Path],
+        config_file: Union[dict, str, Path],
         mixture_class: Type[BaseMixture] = ComponentMixture,
         icpool_class: Type[BaseICPool] = SimpleICPool,
         introducer_class: Type[BaseIntroducer] = SimpleIntroducer,
@@ -52,7 +53,10 @@ class Driver:
             A class derived from BaseComponent
         """
 
-        config_params = self.read_config_file(config_file)
+        if isinstance(config_file, dict):
+            config_params = config_file
+        else:
+            config_params = self.read_config_file(config_file)
 
         self.component_class = component_class
         self.mixture_class = mixture_class
@@ -152,11 +156,20 @@ class Driver:
         exc
             _description_
         """
+        # We use a default dict to gracefully handle empty config file
+        config_params = defaultdict(dict)
         with open(config_file, "r") as stream:
             try:
-                config_params = yaml.safe_load(stream)
+                config_params.update(yaml.safe_load(stream))
             except yaml.YAMLError as exc:
                 raise exc
 
-        assert isinstance(config_params, dict)
+        # Fail loudly if config file improperly structured
+        acceptable_keys = [
+            'driver', 'icpool', 'component', 'introducer', 'mixture',
+        ]
+        for key in config_params:
+            if key not in acceptable_keys:
+                raise UserWarning(f"[CONFIG] {key} not recognised!")
+
         return config_params
