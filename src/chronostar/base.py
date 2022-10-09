@@ -141,7 +141,7 @@ class BaseComponent(metaclass=ABCMeta):
     def maximize(
         self,
         X: NDArray[float64],
-        log_resp: NDArray[float64],
+        resp: NDArray[float64],
     ) -> None:
         print("What...?")
         pass

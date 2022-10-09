@@ -176,7 +176,7 @@ class SpaceTimeComponent(BaseComponent):
         self,
         age: float,
         X: NDArray[float64],
-        log_resp: NDArray[float64]
+        resp: NDArray[float64]
     ) -> float:
         """Calculate the loss (i.e. -log likelihood) of the
         data.
@@ -187,8 +187,8 @@ class SpaceTimeComponent(BaseComponent):
             The assumed age. This is the sole independent parameter.
         X : ndarray of shape (n_samples, n_features)
             Input data
-        log_resp : ndarray of shape (n_samples)
-            log of component responsibilities (membership probabilities)
+        resp : ndarray of shape (n_samples)
+            component responsibilities (membership probabilities)
 
         Returns
         -------
@@ -198,7 +198,7 @@ class SpaceTimeComponent(BaseComponent):
         """
         mean_now, cov_now = self._estimate_aged_gaussian_parameters(
             X,
-            np.exp(log_resp),
+            resp,
             age,
             self.reg_covar,
         )
@@ -215,12 +215,12 @@ class SpaceTimeComponent(BaseComponent):
             self.COVARIANCE_TYPE,
         ).squeeze()
 
-        return float(-np.sum(np.exp(log_resp) * log_prob))
+        return float(-np.sum(resp * log_prob))
 
     def maximize(
         self,
         X: NDArray[float64],
-        log_resp: NDArray[float64]
+        resp: NDArray[float64]
     ) -> None:
         """Find the best model parameters for the data
 
@@ -228,8 +228,8 @@ class SpaceTimeComponent(BaseComponent):
         ----------
         X : ndarray of shape (n_samples, n_features)
             Input data
-        log_resp : ndarray of shape (n_samples)
-            log of component responsibilities (membership probabilities)
+        resp : ndarray of shape (n_samples)
+            component responsibilities (membership probabilities)
 
         Notes
         -----
@@ -240,14 +240,14 @@ class SpaceTimeComponent(BaseComponent):
 
         res = minimize_scalar(
             self.loss,
-            args=(X, log_resp),
+            args=(X, resp),
             method=self.minimize_method,
         )
         self.age = res.x
 
         self.mean, self.covariance = self._estimate_aged_gaussian_parameters(
             X,
-            np.exp(log_resp),
+            resp,
             self.age,
             self.reg_covar,
         )

@@ -221,7 +221,7 @@ class SKLComponentMixture(SKLBaseMixture):
         self.weights_ /= self.weights_.sum()
 
         for i, component in enumerate(self.components_):
-            component.maximize(X=X, log_resp=log_resp[:, i])
+            component.maximize(X=X, resp=resp[:, i])
 
     def _estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
         """Estimate the log probability of each sample for each

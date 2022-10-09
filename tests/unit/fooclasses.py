@@ -52,7 +52,7 @@ class FooComponent(BaseComponent):
     def maximize(
         self,
         X: NDArray[float64],
-        log_resp: NDArray[float64]
+        resp: NDArray[float64]
     ) -> None:
         self.mean = np.ones(self.dim)
         self.covariance = np.eye(self.dim)

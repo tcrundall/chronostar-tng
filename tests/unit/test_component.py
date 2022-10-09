@@ -88,7 +88,7 @@ def test_usage() -> None:
         comp = CompClass()
 
         # a log_resp of 0 is a resp of 1 (i.e. full responsibility)
-        comp.maximize(data, log_resp=np.zeros(NSAMPLES))
+        comp.maximize(data, resp=np.ones(NSAMPLES))
 
         log_probs = comp.estimate_log_prob(DATA)
 

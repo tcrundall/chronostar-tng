@@ -27,7 +27,7 @@ class SpaceComponent(BaseComponent):
     def maximize(
         self,
         X: NDArray[float64],
-        log_resp: NDArray[float64]
+        resp: NDArray[float64]
     ) -> None:
         """Find the best model parameters for the data
 
@@ -35,8 +35,8 @@ class SpaceComponent(BaseComponent):
         ----------
         X : ndarray of shape (n_samples, n_features)
             Input data
-        log_resp : ndarray of shape (n_samples)
-            log of component responsibilities (membership probabilities)
+        resp : ndarray of shape (n_samples)
+            component responsibilities (membership probabilities)
 
         Notes
         -----
@@ -49,12 +49,12 @@ class SpaceComponent(BaseComponent):
         """
 
         nsamples = X.shape[0]
-        if len(log_resp.shape) == 1:
-            log_resp = log_resp[:, np.newaxis]
-        assert log_resp.shape == (nsamples, 1)
+        if len(resp.shape) == 1:
+            resp = resp[:, np.newaxis]
+        assert resp.shape == (nsamples, 1)
         _, means_, covariances_ = _estimate_gaussian_parameters(
             X,
-            np.exp(log_resp),
+            resp,
             self.reg_covar,
             self.COVARIANCE_TYPE,
         )
