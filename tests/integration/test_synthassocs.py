@@ -4,7 +4,7 @@ from pathlib import Path
 
 from ..context import chronostar     # noqa
 
-from chronostar.driver.driver import Driver
+from chronostar.driver import Driver
 from chronostar.component.spacetimecomponent import SpaceTimeComponent
 from chronostar.icpool.simpleicpool import SimpleICPool
 from chronostar.introducer.simpleintroducer import SimpleIntroducer

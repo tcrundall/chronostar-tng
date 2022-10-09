@@ -1,6 +1,6 @@
 import numpy as np
 from queue import Queue
-from typing import Optional, Union
+from typing import Callable, Optional, Union
 
 from ..base import (
     BaseComponent,
@@ -14,7 +14,7 @@ from ..base import (
 class SimpleICPool(BaseICPool):
     """Manager and populator of a pool of initial conditions
     """
-    function_parser = {}
+    function_parser: dict[str, Callable] = {}
     max_components = 100
 
     def __init__(self, *args, **kwargs) -> None:        # type: ignore

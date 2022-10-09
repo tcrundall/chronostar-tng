@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Callable, Union
 
 from ..base import BaseIntroducer, BaseComponent
 
@@ -10,7 +10,7 @@ class SimpleIntroducer(BaseIntroducer):
     """
 
     # Put any configurable functions and their strings here
-    function_parser = {}
+    function_parser: dict[str, Callable] = {}
 
     # Put configurable attributes here
 

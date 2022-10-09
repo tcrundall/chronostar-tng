@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import NamedTuple, Optional, Union, Type, Any
+from typing import Callable, NamedTuple, Optional, Union, Type, Any
 import numpy as np
 from numpy.typing import NDArray
 from numpy import float64
@@ -13,7 +13,7 @@ class ScoredMixture(NamedTuple):
 
 
 class BaseICPool(metaclass=ABCMeta):
-    function_parser = {}
+    function_parser: dict[str, Callable] = {}
 
     def __init__(
         self,
@@ -69,7 +69,8 @@ class BaseICPool(metaclass=ABCMeta):
 
 
 class BaseIntroducer(metaclass=ABCMeta):
-    function_parser = {}
+
+    function_parser: dict[str, Callable] = {}
 
     def __init__(
         self,
@@ -114,7 +115,8 @@ class BaseComponent(metaclass=ABCMeta):
     Capable of fitting itself to a set of samples and
     responsibilities (membership probabilities)
     """
-    function_parser = {}
+
+    function_parser: dict[str, Callable] = {}
 
     def __init__(self, params: Optional[tuple] = None) -> None:
         if params:
@@ -207,7 +209,7 @@ class BaseComponent(metaclass=ABCMeta):
 
 class BaseMixture(metaclass=ABCMeta):
 
-    function_parser = {}
+    function_parser: dict[str, Callable] = {}
 
     def __init__(
         self,

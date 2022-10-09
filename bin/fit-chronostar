@@ -25,7 +25,7 @@ from chronostar.base import (
     BaseIntroducer,
 )
 
-from chronostar.driver.driver import Driver
+from chronostar.driver import Driver
 
 
 DEFAULT_CONFIG_PARAMS = {

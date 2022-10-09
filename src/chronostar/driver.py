@@ -1,24 +1,24 @@
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Type, Union
+from typing import Any, Callable, Type, Union
 import yaml
 
 import numpy as np
 from numpy import float64
 from numpy.typing import NDArray
 
-from ..base import (
+from .base import (
     BaseComponent,
     BaseMixture,
     BaseICPool,
     BaseIntroducer,
 )
 
-from ..component.spacetimecomponent import SpaceTimeComponent
-from ..mixture.componentmixture import ComponentMixture
-from ..introducer.simpleintroducer import SimpleIntroducer
-from ..icpool.simpleicpool import SimpleICPool
-from ..datatools import replace_cov_with_sampling
+from .component.spacetimecomponent import SpaceTimeComponent
+from .mixture.componentmixture import ComponentMixture
+from .introducer.simpleintroducer import SimpleIntroducer
+from .icpool.simpleicpool import SimpleICPool
+from .datatools import replace_cov_with_sampling
 
 
 class Driver:
@@ -71,7 +71,7 @@ class Driver:
         self.introducer_class.configure(**config_params["introducer"])
 
     def configure(self, **kwargs) -> None:
-        function_parser = {}
+        function_parser: dict[str, Callable] = {}
 
         for param, val in kwargs.items():
             if hasattr(self, param):
@@ -157,7 +157,7 @@ class Driver:
             _description_
         """
         # We use a default dict to gracefully handle empty config file
-        config_params = defaultdict(dict)
+        config_params: dict[str, dict] = defaultdict(dict)
         with open(config_file, "r") as stream:
             try:
                 config_params.update(yaml.safe_load(stream))

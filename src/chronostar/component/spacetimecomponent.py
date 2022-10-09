@@ -9,7 +9,7 @@ from sklearn.mixture._gaussian_mixture import _estimate_log_gaussian_prob
 from sklearn.mixture._gaussian_mixture import _compute_precision_cholesky
 
 from ..base import BaseComponent
-from ..utils.utils import trace_epicyclic_orbit
+from ..traceorbit import trace_epicyclic_orbit
 from ..utils.transform import transform_covmatrix
 
 

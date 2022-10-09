@@ -4,7 +4,7 @@ import numpy as np
 
 from ..context import chronostar     # noqa
 
-from chronostar.driver.driver import Driver
+from chronostar.driver import Driver
 from chronostar.mixture.componentmixture import ComponentMixture
 from chronostar.icpool.simpleicpool import SimpleICPool
 from chronostar.introducer.simpleintroducer import SimpleIntroducer

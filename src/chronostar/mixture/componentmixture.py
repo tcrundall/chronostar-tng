@@ -1,4 +1,4 @@
-from typing import Any, Tuple
+from typing import Any, Callable, Tuple
 import numpy as np
 from numpy import float64
 from numpy.typing import NDArray
@@ -19,7 +19,7 @@ class ComponentMixture(BaseMixture):
         optionally with pre-initialised parameters
     """
 
-    function_parser = {}
+    function_parser: dict[str, Callable] = {}
 
     # Configurable class attributes
     tol: float = 1e-3
