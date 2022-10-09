@@ -14,6 +14,8 @@ from ..base import (
 class SimpleICPool(BaseICPool):
     """Manager and populator of a pool of initial conditions
     """
+    function_parser = {}
+    max_components = 100
 
     def __init__(self, *args, **kwargs) -> None:        # type: ignore
         super().__init__(*args, **kwargs)
@@ -30,23 +32,6 @@ class SimpleICPool(BaseICPool):
 
         self.first_pass = True
         self.generation = 0
-
-    @classmethod
-    def configure(cls, max_components=30, **kwargs) -> None:
-        """Set class level configuration parameters that will be
-        carried through to all instances.
-
-        Parameters
-        ----------
-        max_components : int
-            An upper limit on how many components can make up a
-            set of initial conditions, by default 30
-        """
-
-        cls.max_components = max_components
-
-        if kwargs:
-            print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
 
     def register_result(
         self,

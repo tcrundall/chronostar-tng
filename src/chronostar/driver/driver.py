@@ -1,4 +1,3 @@
-from collections import defaultdict
 from pathlib import Path
 from typing import Any, Type, Union
 import yaml
@@ -21,13 +20,12 @@ from ..icpool.simpleicpool import SimpleICPool
 from ..datatools import replace_cov_with_sampling
 
 
-DRIVER_DEFAULT_PARS = {
-    "approx_covariances": False,
-    "ndraws": 25,
-}
-
-
 class Driver:
+
+    # Configurable attrbutes
+    approx_covariances = False
+    n_draws = 25
+
     def __init__(
         self,
         config_file: Union[str, Path],
@@ -54,21 +52,33 @@ class Driver:
             A class derived from BaseComponent
         """
 
-        self.config_params = defaultdict(dict)
-
-        self.config_params["driver"].update(DRIVER_DEFAULT_PARS)
-
-        self.config_params.update(self.read_config_file(config_file))
+        config_params = self.read_config_file(config_file)
 
         self.component_class = component_class
         self.mixture_class = mixture_class
         self.icpool_class = icpool_class
         self.introducer_class = introducer_class
 
-        self.component_class.configure(**self.config_params["component"])
-        self.mixture_class.configure(**self.config_params["mixture"])
-        self.icpool_class.configure(**self.config_params["icpool"])
-        self.introducer_class.configure(**self.config_params["introducer"])
+        self.configure(**config_params["driver"])
+
+        self.component_class.configure(**config_params["component"])
+        self.mixture_class.configure(**config_params["mixture"])
+        self.icpool_class.configure(**config_params["icpool"])
+        self.introducer_class.configure(**config_params["introducer"])
+
+    def configure(self, **kwargs) -> None:
+        function_parser = {}
+
+        for param, val in kwargs.items():
+            if hasattr(self, param):
+                if val in function_parser:
+                    setattr(self, param, function_parser[val])
+                else:
+                    setattr(self, param, val)
+            else:
+                print(
+                    f"[CONFIG]:{self} unexpected config param: {param}={val}"
+                )
 
     def run(self, data: NDArray[float64], covariances=None) -> BaseMixture:
         """Run a fit on the input data
@@ -85,11 +95,11 @@ class Driver:
             retrievable by mixture.get_parameters()
         """
 
-        if self.config_params["driver"]["approx_covariances"]:
+        if self.approx_covariances:
             data = replace_cov_with_sampling(
                 data,
                 covariances,
-                n_draws=self.config_params["driver"]["n_draws"],
+                n_draws=self.n_draws,
             )
             # If membership used to initialise:
             # memb_probs = memb_probs.repeat(

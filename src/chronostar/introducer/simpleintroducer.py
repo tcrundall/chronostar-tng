@@ -8,17 +8,14 @@ class SimpleIntroducer(BaseIntroducer):
     previous sets and thereby generates new sets of initial
     conditions
     """
+
+    # Put any configurable functions and their strings here
+    function_parser = {}
+
+    # Put configurable attributes here
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-    @classmethod
-    def configure(cls, **kwargs):
-        """Set class level configuration parameters that will apply
-        to all instances
-        """
-
-        if kwargs:
-            print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
 
     def next_gen(
         self,

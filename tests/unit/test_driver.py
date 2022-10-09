@@ -11,15 +11,13 @@ from .fooclasses import DATA
 def test_construction() -> None:
     test_dir = Path(os.path.dirname(__file__))
     foo_configfile = test_dir / 'test_resources' / 'placeholder_configfile.yml'
-    driver = Driver(
+    driver = Driver(                    # noqa F841
         config_file=foo_configfile,
         mixture_class=FooMixture,
         icpool_class=FooICPool,
         introducer_class=FooIntroducer,
         component_class=FooComponent,
         )
-
-    assert isinstance(driver.config_params, dict)
 
 
 def test_run() -> None:

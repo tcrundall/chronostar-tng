@@ -13,6 +13,7 @@ class ScoredMixture(NamedTuple):
 
 
 class BaseICPool(metaclass=ABCMeta):
+    function_parser = {}
 
     def __init__(
         self,
@@ -34,9 +35,15 @@ class BaseICPool(metaclass=ABCMeta):
         self.registry: dict[Union[str, int], ScoredMixture] = {}
 
     @classmethod
-    @abstractmethod
-    def configure(cls, **kwargs):
-        pass
+    def configure(cls, **kwargs) -> None:
+        for param, val in kwargs.items():
+            if hasattr(cls, param):
+                if val in cls.function_parser:
+                    setattr(cls, param, cls.function_parser[val])
+                else:
+                    setattr(cls, param, val)
+            else:
+                print(f"[CONFIG]:{cls} unexpected config param: {param}={val}")
 
     @abstractmethod
     def has_next(self) -> bool:
@@ -62,6 +69,8 @@ class BaseICPool(metaclass=ABCMeta):
 
 
 class BaseIntroducer(metaclass=ABCMeta):
+    function_parser = {}
+
     def __init__(
         self,
         component_class: Type[BaseComponent],
@@ -76,9 +85,15 @@ class BaseIntroducer(metaclass=ABCMeta):
         self.component_class = component_class
 
     @classmethod
-    @abstractmethod
-    def configure(cls, **kwargs):
-        pass
+    def configure(cls, **kwargs) -> None:
+        for param, val in kwargs.items():
+            if hasattr(cls, param):
+                if val in cls.function_parser:
+                    setattr(cls, param, cls.function_parser[val])
+                else:
+                    setattr(cls, param, val)
+            else:
+                print(f"[CONFIG]:{cls} unexpected config param: {param}={val}")
 
     @abstractmethod
     def next_gen(
@@ -99,15 +114,22 @@ class BaseComponent(metaclass=ABCMeta):
     Capable of fitting itself to a set of samples and
     responsibilities (membership probabilities)
     """
+    function_parser = {}
 
     def __init__(self, params: Optional[tuple] = None) -> None:
         if params:
             self.set_parameters(params)
 
     @classmethod
-    @abstractmethod
-    def configure(cls, **kwargs):
-        pass
+    def configure(cls, **kwargs) -> None:
+        for param, val in kwargs.items():
+            if hasattr(cls, param):
+                if val in cls.function_parser:
+                    setattr(cls, param, cls.function_parser[val])
+                else:
+                    setattr(cls, param, val)
+            else:
+                print(f"[CONFIG]:{cls} unexpected config param: {param}={val}")
 
     @abstractmethod
     def estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
@@ -184,6 +206,9 @@ class BaseComponent(metaclass=ABCMeta):
 
 
 class BaseMixture(metaclass=ABCMeta):
+
+    function_parser = {}
+
     def __init__(
         self,
         init_weights: NDArray[float64],
@@ -193,9 +218,15 @@ class BaseMixture(metaclass=ABCMeta):
         self.init_weights = init_weights
 
     @classmethod
-    @abstractmethod
-    def configure(cls, **kwargs):
-        pass
+    def configure(cls, **kwargs) -> None:
+        for param, val in kwargs.items():
+            if hasattr(cls, param):
+                if val in cls.function_parser:
+                    setattr(cls, param, cls.function_parser[val])
+                else:
+                    setattr(cls, param, val)
+            else:
+                print(f"[CONFIG]:{cls} unexpected config param: {param}={val}")
 
     @abstractmethod
     def set_parameters(

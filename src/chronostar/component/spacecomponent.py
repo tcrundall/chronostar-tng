@@ -24,28 +24,6 @@ class SpaceComponent(BaseComponent):
     def __init__(self, params=None) -> None:
         super().__init__(params)
 
-    @classmethod
-    def configure(
-        cls,
-        reg_covar=1e-6,
-        **kwargs
-    ):
-        """Set class level configuration parameters that will be
-        carried through to all instances.
-
-        Parameters
-        ----------
-        reg_covar : float, optional
-            A regularization constant added to the diagonal elements
-            of covariance matrices to ensure invertability, by default
-            1e-6
-        """
-
-        cls.reg_covar = reg_covar
-
-        if kwargs:
-            print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
-
     def maximize(
         self,
         X: NDArray[float64],

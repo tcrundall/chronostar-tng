@@ -116,62 +116,17 @@ class SpaceTimeComponent(BaseComponent):
 
     COVARIANCE_TYPE = "full"     # an sklearn specific parameter. DON'T CHANGE!
 
+    # Use this to convert function name strings from config files into funcs
+    function_parser = {
+        'trace_epicyclic_orbit': trace_epicyclic_orbit,
+        'remove_pos_vel_correlations': remove_posvel_correlations,
+    }
+
     # Configurable attributes
     minimize_method: str = 'brent'
     reg_covar: float = 1e-6
     trace_orbit_func = trace_epicyclic_orbit
     morph_cov_func = remove_posvel_correlations
-
-    @classmethod
-    def configure(
-        cls,
-        # *,
-        # minimize_method='brent',
-        # reg_covar=1e-6,
-        # trace_orbit_func=trace_epicyclic_orbit,
-        # morph_cov_func=remove_posvel_correlations,
-        **kwargs
-    ) -> None:
-        r"""Set class level configuration parameters that will be
-        carried through to all instances.
-
-        Parameters
-        ----------
-        minimize_method : str, optional
-            method used by scipy.optimize.minimize_scalar for
-            optimizing the :meth:`loss` for best parameters,
-            by default 'brent'
-        reg_covar : float, optional
-            A regularization constant added to the diagonal elements
-            of covariance matrices to ensure invertability, by default
-            1e-6
-        trace_orbit_func : callable, optional
-            A function that traces an orbit from a starting point in
-            feature space through time by a certain age, by default
-            :func:`.trace_epicyclic_orbit`
-            Callable of form
-            f(start: [n_dim], age: float[, \*args]) -> end: [n_dim]
-        morph_cov_func : callable, optional
-            A function that applies birth-site assumptions to the
-            feature-space covariance matrix, by default
-            :func:`remove_posvel_correlations`
-            Callable of form
-            f(approx_birth_covariance: [n_dim, n_dim])
-            -> birth_covariance: [n_dim, n_dim]
-
-        Raises
-        ------
-        UserWarning
-            For unknown trace_orbit_func
-        UserWarning
-            For unknown morph_cov_func
-        """
-
-        for param, val in kwargs.items():
-            if hasattr(cls, param):
-                setattr(cls, param, val)
-            else:
-                print(f"[CONFIG]:{cls} unexpected config param: {param}={val}")
 
     def __init__(self, params=None):
         super().__init__(params)

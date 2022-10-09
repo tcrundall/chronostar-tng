@@ -1,3 +1,5 @@
+driver:
+  x: 10
 icpool:
   param1: 'param1'
   param2: 'param2'
