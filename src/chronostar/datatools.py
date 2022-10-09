@@ -28,13 +28,14 @@ def construct_covs_from_data(X, dim=6):
 
     # Fill in errors
     error_col_offset = dim
-    for data_col, (i, j) in enumerate(np.diag_indices(dim)):
-        sample_covs[:, i, j] = X[:, error_col_offset + data_col]**2
+    for i in range(dim):
+        sample_covs[:, i, i] = X[:, error_col_offset + i]**2
 
     # Fill in all covariances
     # Assume covariances begin after dim feature cols and dim error cols
     cov_col_offset = 2 * dim
-    for data_col, (i, j) in enumerate(np.triu_indices(dim, 1)):
+    indices = np.triu_indices(dim, 1)
+    for data_col, (i, j) in enumerate(zip(indices[0], indices[1])):
         sample_covs[:, i, j] = X[:, cov_col_offset + data_col]
         sample_covs[:, j, i] = X[:, cov_col_offset + data_col]
 
@@ -57,8 +58,12 @@ def replace_cov_with_sampling(
 
     new_data = np.empty((n_samples * n_draws, dim))
 
+    print("Sampling star covariances")
     for i, (mean, cov) in enumerate(zip(sample_means, sample_covs)):
+        if i % 1000 == 0:
+            print(f"Sampled {i/n_samples*100:5.1f}% of input", end='\r')
         new_data[i * n_draws:(i+1) * n_draws] = \
             np.random.multivariate_normal(mean, cov, size=n_draws)
+    print("\nDone")
 
     return new_data

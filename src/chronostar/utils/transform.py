@@ -81,7 +81,7 @@ def transform_covmatrix(
     loc,
     dim=6,
     h=1e-3,
-    args=None,
+    args=(),
 ):
     """
     Transforming a covariance matrix from one coordinate frame to another

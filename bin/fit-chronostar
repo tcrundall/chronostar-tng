@@ -90,6 +90,11 @@ def init_argparse() -> argparse.ArgumentParser:
         help="The data file, an (n_sample, n_feature) array stored as a "
         ".npy file.",
     )
+    parser.add_argument(
+        "--covs",
+        help="The covariance file, an (n_sample, n_feature, n_feature) "
+             "array stored as a .npy file.",
+    )
     # parser.add_argument(
     #     "membership",
     #     nargs='?',
@@ -132,6 +137,9 @@ if __name__ == '__main__':
 
     # Read in numpy array of data
     data = np.load(args.data)
+    covs = None
+    if args.covs:
+        covs = np.load(args.covs)
 
     # # Read in membership array
     # membership = None
@@ -162,7 +170,7 @@ if __name__ == '__main__':
     )
 
     # Run chronostar and get the best mixture
-    mixture = driver.run(data)
+    mixture = driver.run(data, covs)
 
     # Output result
     weights, components, *extra = mixture.get_parameters()

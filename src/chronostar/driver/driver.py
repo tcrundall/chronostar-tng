@@ -21,6 +21,12 @@ from ..icpool.simpleicpool import SimpleICPool
 from ..datatools import replace_cov_with_sampling
 
 
+DRIVER_DEFAULT_PARS = {
+    "approx_covariances": False,
+    "ndraws": 25,
+}
+
+
 class Driver:
     def __init__(
         self,
@@ -49,6 +55,8 @@ class Driver:
         """
 
         self.config_params = defaultdict(dict)
+
+        self.config_params["driver"].update(DRIVER_DEFAULT_PARS)
 
         self.config_params.update(self.read_config_file(config_file))
 

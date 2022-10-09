@@ -1,0 +1,136 @@
+#!/usr/bin/env python
+import argparse
+from astropy.table import Table
+import numpy as np
+
+from chronostar import datatools
+from chronostar.utils import coordinate, transform
+
+
+def convert_astro2cart(astr_mean, astr_cov):
+    """
+    Convert astrometry data (mean and covariance) into cartesian
+    coordinates, centred on the local standard of rest (Schoenrich 2010).
+
+    Parameters
+    ----------
+    astr_mean: [6] float array_like
+        The central estimate of a star's astrometry values. Provided in
+        the order:
+            ra [deg]
+            dec [deg]
+            parallax [mas]
+            pmra*cos(dec) [mas/yr]
+            pmdec [mas/yr]
+            radial velocity [km/s]
+    astr_cov: [6,6] float array_like
+        The covariance matrix of the measurments with columns (and rows)
+        in same order as `astr_mean`.
+
+    Returns
+    -------
+    xyzuvw_mean: [6] float array_like
+        The cartesian mean (XYZUVW)
+    xyzuvw_cov: [6,6] float array_like
+        The carteisan covariance matrix
+    """
+    xyzuvw_mean = coordinate.convert_astrometry2lsrxyzuvw(astr_mean)
+    xyzuvw_cov = transform.transform_covmatrix(
+            cov=astr_cov, trans_func=coordinate.convert_astrometry2lsrxyzuvw,
+            loc=astr_mean
+    )
+
+    return xyzuvw_mean, xyzuvw_cov
+
+
+def init_argparse() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Prepare data files for input into Chronostar"
+    )
+    # parser.add_argument("-c", "--config", help="The configuration file")
+    parser.add_argument(
+        "astrodata",
+        help="The astro data file, stored as a .fits file"
+    )
+
+    return parser
+
+
+if __name__ == '__main__':
+
+    parser = init_argparse()
+    args = parser.parse_args()
+
+    # Read in astropy table
+    t = Table.read(args.astrodata)
+
+    # Assume RVs are the only missing data
+    msk = np.where(~t['radial_velocity'].mask)
+
+    # Extract astrometry data, 6 measurements, 6 errors, 15 correlations
+    # Assume gaia formatting
+    astrodata = np.zeros((len(msk[0]), 6 + 6 + 15))
+
+    column_stems = [
+        'ra', 'dec', 'parallax', 'pmra', 'pmdec', 'radial_velocity'
+    ]
+    dim = len(column_stems)
+    # Insert measurements
+    for i, stem in enumerate(column_stems):
+        astrodata[:, i] = t[stem][msk]
+
+    # Insert errors
+    error_col_offset = dim
+    for i, stem in enumerate(column_stems):
+        error_col_name = f"{stem}_error"
+        astrodata[:, error_col_offset + i] = t[error_col_name][msk]
+
+    # Insert correlations
+    corr_col = 2 * dim
+    for i in range(len(column_stems)):
+        for j in range(i+1, len(column_stems)):
+            corr_col_name = f"{column_stems[i]}_{column_stems[j]}_corr"
+            if corr_col_name in t.keys():
+                astrodata[:, corr_col] = t[corr_col_name][msk]
+            corr_col += 1
+
+    # Insert covariances
+    corr_col = 2 * dim
+    for i in range(len(column_stems)):
+        for j in range(i+1, len(column_stems)):
+            corr_col_name = f"{column_stems[i]}_{column_stems[j]}_corr"
+            error_1 = f"{column_stems[i]}_error"
+            error_2 = f"{column_stems[j]}_error"
+            if corr_col_name in t.keys():
+                astrodata[:, corr_col] =\
+                    t[corr_col_name][msk] * t[error_1][msk] * t[error_2][msk]
+            corr_col += 1
+
+    # Convert astrometry data to cartesian (with covs?)
+    astro_means, astro_covs = datatools.construct_covs_from_data(astrodata)
+
+    assert not np.any(np.isnan(astro_means))
+    assert not np.any(np.isnan(astro_covs))
+
+    cart_means = np.empty(astro_means.shape)
+    cart_covs = np.empty(astro_covs.shape)
+
+    print("Converting to cartesian coordinates")
+    for i in range(len(msk[0])):
+        if i % 100 == 0:
+            print(f"Converted {i/len(msk[0])*100:5.1f}% of input", end='\r')
+        cart_means[i], cart_covs[i] = convert_astro2cart(
+            astro_means[i], astro_covs[i],
+        )
+    print("\nDone!")
+
+    # Store data in numpy arrays
+    np.save("data_means.npy", cart_means)
+    np.save("data_covs.npy", cart_covs)
+
+    # Store ids
+    np.save("ids.npy", t['source_id'][msk])
+
+    # Can retrieve rows with
+    # ids = np.load("ids.npy")
+    # masked_t = t[np.where(np.isin(t['source_id'], ids))]
