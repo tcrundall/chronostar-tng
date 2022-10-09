@@ -173,26 +173,6 @@ class SpaceTimeComponent(BaseComponent):
             else:
                 print(f"[CONFIG]:{cls} unexpected config param: {param}={val}")
 
-        # cls.minimize_method = minimize_method
-        # cls.reg_covar = reg_covar
-
-        # if isinstance(trace_orbit_func, Callable):
-        #     cls.trace_orbit_func = trace_orbit_func
-        # elif trace_orbit_func == 'epicyclic':
-        #     cls.trace_orbit_func = trace_epicyclic_orbit
-        # else:
-        #     raise UserWarning(f"{cls} config: Unknown {trace_orbit_func=}")
-
-        # if isinstance(morph_cov_func, Callable):
-        #     cls.morph_cov_func = morph_cov_func
-        # elif morph_cov_func == "elliptical":
-        #     cls.morph_cov_func = remove_posvel_correlations
-        # else:
-        #     raise UserWarning(f"{cls} config: Unknown {morph_cov_func=}")
-
-        # if kwargs:
-        #   print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
-
     def __init__(self, params=None):
         super().__init__(params)
 

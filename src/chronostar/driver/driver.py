@@ -18,6 +18,7 @@ from ..component.spacetimecomponent import SpaceTimeComponent
 from ..mixture.componentmixture import ComponentMixture
 from ..introducer.simpleintroducer import SimpleIntroducer
 from ..icpool.simpleicpool import SimpleICPool
+from ..datatools import replace_cov_with_sampling
 
 
 class Driver:
@@ -61,7 +62,7 @@ class Driver:
         self.icpool_class.configure(**self.config_params["icpool"])
         self.introducer_class.configure(**self.config_params["introducer"])
 
-    def run(self, data: NDArray[float64]) -> BaseMixture:
+    def run(self, data: NDArray[float64], covariances=None) -> BaseMixture:
         """Run a fit on the input data
 
         Parameters
@@ -75,6 +76,17 @@ class Driver:
             A mixture object containing the best fitting parameters,
             retrievable by mixture.get_parameters()
         """
+
+        if self.config_params["driver"]["approx_covariances"]:
+            data = replace_cov_with_sampling(
+                data,
+                covariances,
+                n_draws=self.config_params["driver"]["n_draws"],
+            )
+            # If membership used to initialise:
+            # memb_probs = memb_probs.repeat(
+            #       self.config_params["dirver"]["n_draws"], axis=0
+            #       )
 
         icpool = self.icpool_class(
             introducer_class=self.introducer_class,
@@ -92,6 +104,9 @@ class Driver:
             )
             m.fit(data)
             icpool.register_result(unique_id, m, -m.bic(data))
+
+        # If covariances were approximated, make sure to average over
+        # any returned membership probabilities
 
         # loop will end when icpool stops generating initial conditions
         return icpool.best_mixture
