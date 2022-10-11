@@ -61,7 +61,9 @@ class ComponentMixture(BaseMixture):
         X : NDArray[float64] of shape (n_samples, n_features)
             Input data
         """
-
+        print("--------------------------------------------------")
+        print(f"Fitting {len(self.get_components())}-comp mixture")
+        print("--------------------------------------------------")
         self.sklmixture.fit(X)
 
     def bic(self, X: NDArray[float64]) -> float:

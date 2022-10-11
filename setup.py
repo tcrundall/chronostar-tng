@@ -37,6 +37,7 @@ setup(
         'bin/fit-component',
         'bin/fit-mixture',
         'bin/fit-chronostar',
-        'bin/prepare-data'
+        'bin/prepare-data',
+        'bin/plot-features',
     ]
 )

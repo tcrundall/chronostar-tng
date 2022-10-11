@@ -1,0 +1,185 @@
+#!/usr/bin/env python
+
+import argparse
+from astropy.table import Table
+from pathlib import Path
+import matplotlib.pyplot as plt
+from matplotlib import cm
+import numpy as np
+
+
+def init_argparse() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Prepare data files for input into Chronostar"
+    )
+    # parser.add_argument("-c", "--config", help="The configuration file")
+    parser.add_argument(
+        "-f",
+        "--features",
+        help="Which planes in feature space to plot. Encoded as indices: "
+             "-p 0,1.0,2.0,3 would plot (feat_0 vs feat_1), (feat_0 vs feat_2)"
+             " and (feat_0 vs feat_3), with the first feat on the y-axis",
+        default="",
+    )
+    parser.add_argument(
+        "-p",
+        "--photom",
+        help="Whether to plot photometry. Requires astrodata to have columns"
+             " phot_g_mean_mag, g_rp and parallax",
+        action=argparse.BooleanOptionalAction,
+    )
+    parser.add_argument(
+        "-d",
+        "--astrodata",
+        help="The astro data file, stored as a .fits file",
+    )
+    parser.add_argument(
+        "-m",
+        "--means",
+        help="Means of data in feature space",
+        default="data_means.npy"
+    )
+    parser.add_argument(
+        "-z",
+        "--membership",
+        help="Membership probability of each sample to each component",
+        default="membership.npy"
+    )
+    parser.add_argument(
+        "--covs",
+        help="Covariances of data in feature space",
+        default="data_covs.npy",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        help="Output directory",
+        default=".",
+    )
+    parser.add_argument(
+        "-s",
+        "--sourceids",
+        help="An array of gaia source ids denoting which stars to plot",
+    )
+
+    return parser
+
+
+if __name__ == '__main__':
+    parser = init_argparse()
+    args = parser.parse_args()
+
+    # Ensure output diretory is valid
+    outdir = Path(args.output)
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    # Load in relevant data
+
+    membership = None
+    if Path(args.membership).is_file():
+        membership = np.load(Path(args.membership))
+    else:
+        print(f"No {args.membership=} file provided.")
+
+    data_means = None
+    if Path(args.means).is_file():
+        data_means = np.load(Path(args.means))
+    else:
+        print(f"No {args.means=} file provided.")
+
+    data_covs = None
+    if Path(args.covs).is_file():
+        data_covs = np.load(Path(args.covs))
+    else:
+        print(f"No {args.covs=} file provided.")
+
+    astro_data = None
+    if args.astrodata and Path(args.astrodata).is_file():
+        astro_data = Table.read(Path(args.astrodata))
+    else:
+        print(f"No {args.astrodata=} file provided.")
+
+    source_ids = None
+    if args.sourceids and Path(args.sourceids).is_file():
+        source_ids = np.load((Path(args.sourceids)))
+
+    # Plot photometry
+    if args.photom:
+        assert astro_data is not None
+        # Want to plot absolute magnitude against colour
+
+        # Absolute magnitude apparent magnitude - 5 × log_10(distance) + 5
+        # MAX_STARS = 10_000
+        distance = 1. / astro_data['parallax']
+        abs_mag = astro_data['phot_g_mean_mag'] - 5*np.log10(distance) + 5
+
+        fig, ax = plt.subplots()
+        if membership is None:
+            membership = np.ones((len(astro_data), 1))
+
+        n_comps = len(membership.T)
+        for comp_ix, comp_membs in enumerate(membership.T):
+            comp_weight = np.sum(comp_membs) / len(comp_membs)
+            # Scale each point size by number of members for component
+            # Apply colour based on 
+            cmp_msk = np.where(comp_membs > 0.5)
+            ax.scatter(
+                -astro_data['g_rp'],
+                abs_mag,
+                s=1/comp_weight,
+                color=cm.jet(comp_ix/n_comps),      # type: ignore
+                alpha=0.3,
+            )
+            ax.set_xlabel('G - R')
+            ax.set_ylabel('G Mag')
+
+        fig.savefig(str(outdir / 'photometry.png'))
+
+    if args.features:
+        plt.clf()
+        assert data_means is not None
+        # data_means = data_means[:100]
+
+        try:
+            feat_ixs = np.array(
+                [pair.split(',') for pair in args.features.split('.')],
+                dtype=int,
+            )
+        except ValueError:
+            raise UserWarning("Features provided incorrectly. See help")
+
+        n_subplots = len(feat_ixs)
+        n_cols = int(np.ceil(np.sqrt(n_subplots)))
+        n_rows = int(np.ceil(n_subplots / n_cols))
+
+        fig, axes = plt.subplots(n_rows, n_cols, squeeze=False)
+        axes = np.array(axes)
+
+        if membership is None:
+            membership = np.ones((len(data_means), 1))
+
+        # Plot each plane on an axis
+        for (y_feat, x_feat), ax in zip(feat_ixs, axes.reshape(-1)):
+            n_comps = len(membership.T)
+
+            # Plot each component's members separately
+            for comp_ix, comp_membs in enumerate(membership.T):
+                comp_weight = np.sum(comp_membs) / len(comp_membs)
+
+                # Infer membership probabilty > 50% as member
+                cmp_msk = np.where(comp_membs > 0.5)
+
+                # Scale each point size by number of members for component
+                ax.scatter(
+                    data_means[:, x_feat][cmp_msk],
+                    data_means[:, y_feat][cmp_msk],
+                    s=1/comp_weight,
+                    color=cm.jet(comp_ix/n_comps),
+                    alpha=0.5,
+                )
+                ax.set_xlabel(x_feat)
+                ax.set_ylabel(y_feat)
+
+        fig.set_size_inches(n_cols * 4.5, n_rows * 4)
+        fig.tight_layout()
+        fig.savefig(str(outdir / 'features.pdf'))

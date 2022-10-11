@@ -192,7 +192,9 @@ if __name__ == '__main__':
 
     # Output result
     weights, components, *extra = mixture.get_parameters()
+    memberships = mixture.estimate_membership_prob(data)
     np.save(savedir / "weights.npy", weights)
+    np.save(savedir / "memberships.npy", memberships)
     for i, component in enumerate(components):
         compdir = savedir / f"comp_{i:03}"
         if not compdir.is_dir():
@@ -200,7 +202,7 @@ if __name__ == '__main__':
 
         params = component.get_parameters()
         for j, param in enumerate(params):
-            outfile = compdir / f"param_{i}.npy"
+            outfile = compdir / f"param_{j}.npy"
             np.save(outfile, param)
 
     # Display some simple logging info to output
