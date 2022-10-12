@@ -30,10 +30,10 @@ def remove_posvel_correlations(
         An association birth-site's covariance with no pos-vel
         correlations.
     """
-
-    covariance[3:, :3] = 0.
-    covariance[:3, 3:] = 0.
-    return covariance
+    new_cov = np.array(covariance)
+    new_cov[3:, :3] = 0.
+    new_cov[:3, 3:] = 0.
+    return new_cov
 
 
 # def estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
@@ -83,6 +83,45 @@ def apply_age_constraints(
 
     # Get birth mean
     mean_birth = trace_orbit_func(mean[np.newaxis, :], -age)
+
+    """ Attempting to fix broken model...
+    aged_identity = transform_covmatrix(
+        cov=np.eye(6),
+        trans_func=trace_epicyclic_orbit,
+        loc=mean_birth,
+        args=(age,),
+    )
+    aged_identity_stds = np.sqrt(aged_identity[np.diag_indices(6)])
+
+    pos_vel_corrs = np.copy(aged_identity[:3, 3:])
+    pos_vel_corrs[0] /= aged_identity_stds[0]
+    pos_vel_corrs[1] /= aged_identity_stds[1]
+    pos_vel_corrs[2] /= aged_identity_stds[2]
+    pos_vel_corrs[:, 0] /= aged_identity_stds[3]
+    pos_vel_corrs[:, 1] /= aged_identity_stds[4]
+    pos_vel_corrs[:, 2] /= aged_identity_stds[5]
+
+    stdevs = np.sqrt(covariance[np.diag_indices(6)])
+
+    pos_vel_covs = np.copy(pos_vel_corrs)
+    pos_vel_covs[0] *= stdevs[0]
+    pos_vel_covs[1] *= stdevs[1]
+    pos_vel_covs[2] *= stdevs[2]
+    pos_vel_covs[:, 0] *= stdevs[3]
+    pos_vel_covs[:, 1] *= stdevs[4]
+    pos_vel_covs[:, 2] *= stdevs[5]
+
+    new_cov_aged = np.copy(covariance)
+    new_cov_aged[:3, 3:] = pos_vel_covs
+    new_cov_aged[3:, :3] = pos_vel_covs.T
+
+    new_cov_birth = transform_covmatrix(
+        cov=new_cov_aged,
+        trans_func=trace_orbit_func,
+        loc=mean,
+        args=(-age,),
+    )
+    """
 
     # Get approximate birth covariance matrix
     cov_birth_approx = transform_covmatrix(

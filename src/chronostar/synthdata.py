@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.chronostar.component.spacetimecomponent \
+from .component.spacetimecomponent \
     import apply_age_constraints
 
 

@@ -138,6 +138,7 @@ def trace_epicyclic_orbit(
 
     # Make sure numbers are floats, and reshape into 2d
     assert len(xyzuvw_start.shape) == 2
+    xyzuvw_start = np.array(xyzuvw_start)
     # xyzuvw_start = np.atleast_2d(xyzuvw_start)  # .astype(float))
 
     # Units: Velocities are in km/s, convert into pc/Myr

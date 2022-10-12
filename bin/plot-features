@@ -121,7 +121,7 @@ if __name__ == '__main__':
         for comp_ix, comp_membs in enumerate(membership.T):
             comp_weight = np.sum(comp_membs) / len(comp_membs)
             # Scale each point size by number of members for component
-            # Apply colour based on 
+            # Apply colour based on membership
             cmp_msk = np.where(comp_membs > 0.5)
             ax.scatter(
                 -astro_data['g_rp'],
@@ -174,7 +174,7 @@ if __name__ == '__main__':
                     data_means[:, x_feat][cmp_msk],
                     data_means[:, y_feat][cmp_msk],
                     s=1/comp_weight,
-                    color=cm.jet(comp_ix/n_comps),
+                    color=cm.jet(comp_ix/n_comps),      # type: ignore
                     alpha=0.5,
                 )
                 ax.set_xlabel(x_feat)

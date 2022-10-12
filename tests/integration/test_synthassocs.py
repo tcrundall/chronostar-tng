@@ -9,7 +9,7 @@ from chronostar.component.spacetimecomponent import SpaceTimeComponent
 from chronostar.icpool.simpleicpool import SimpleICPool
 from chronostar.introducer.simpleintroducer import SimpleIntroducer
 from chronostar.mixture.componentmixture import ComponentMixture
-from . import synthdata
+from chronostar import synthdata
 
 
 def test_twoassocs():
