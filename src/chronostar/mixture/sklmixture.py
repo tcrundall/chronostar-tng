@@ -193,7 +193,7 @@ class SKLComponentMixture(SKLBaseMixture):
 
         # We can expect `resp` to be initialized. So:
         for i, component in enumerate(self.components_):
-            component.maximize(X, np.log(resp[:, i]))
+            component.maximize(X, resp[:, i])
 
         # However, the components may already have their parameters set...
         # then we shouldn't even be here.

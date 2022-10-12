@@ -5,7 +5,8 @@ from pathlib import Path
 from ..context import chronostar     # noqa
 
 from chronostar.driver import Driver
-from chronostar.component.spacetimecomponent import SpaceTimeComponent
+from chronostar.component.spherespacetimecomponent import\
+    SphereSpaceTimeComponent
 from chronostar.icpool.simpleicpool import SimpleICPool
 from chronostar.introducer.simpleintroducer import SimpleIntroducer
 from chronostar.mixture.componentmixture import ComponentMixture
@@ -28,13 +29,13 @@ def test_twoassocs():
         mixture_class=ComponentMixture,
         icpool_class=SimpleICPool,
         introducer_class=SimpleIntroducer,
-        component_class=SpaceTimeComponent,
+        component_class=SphereSpaceTimeComponent,
     )
 
     best_mixture = driver.run(data=stars)
     params = best_mixture.get_parameters()
     weights = params[0]
-    components: list[SpaceTimeComponent] = params[1]
+    components: list[SphereSpaceTimeComponent] = params[1]
 
     nstars = len(stars)
     fitted_ages = [c.get_parameters()[2] for c in components]
@@ -106,14 +107,14 @@ def test_one_assoc_one_gaussian_background():
         mixture_class=ComponentMixture,
         icpool_class=SimpleICPool,
         introducer_class=SimpleIntroducer,
-        component_class=SpaceTimeComponent,
+        component_class=SphereSpaceTimeComponent,
     )
 
     best_mixture = driver.run(data=stars)
 
     params = best_mixture.get_parameters()
     weights = params[0]
-    components: list[SpaceTimeComponent] = params[1]
+    components: list[SphereSpaceTimeComponent] = params[1]
 
     nstars = len(stars)
     fitted_ages = [c.get_parameters()[2] for c in components]
@@ -125,7 +126,7 @@ def test_one_assoc_one_gaussian_background():
     assert np.isclose(assoc_nstars, fitted_assoc_weight*nstars, rtol=0.1)
     assert np.isclose(assoc_age, fitted_age, rtol=0.1)
 
-    return best_mixture, stars
+    return best_mixture, stars, driver
 
 
 def test_one_assoc_one_uniform_background():
@@ -177,14 +178,14 @@ def test_one_assoc_one_uniform_background():
         mixture_class=ComponentMixture,
         icpool_class=SimpleICPool,
         introducer_class=SimpleIntroducer,
-        component_class=SpaceTimeComponent,
+        component_class=SphereSpaceTimeComponent,
     )
 
     best_mixture = driver.run(data=stars)
 
     params = best_mixture.get_parameters()
     weights = params[0]
-    components: list[SpaceTimeComponent] = params[1]
+    components: list[SphereSpaceTimeComponent] = params[1]
 
     nstars = len(stars)
     fitted_ages = [c.get_parameters()[2] for c in components]
@@ -200,4 +201,5 @@ def test_one_assoc_one_uniform_background():
 
 if __name__ == '__main__':
     print("Fitting to the uniform one")
-    best_mixture, stars, *extra = test_twoassocs()
+    # best_mixture, stars, *extra = test_twoassocs()
+    res = test_one_assoc_one_gaussian_background()

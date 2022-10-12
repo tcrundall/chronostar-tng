@@ -1,17 +1,30 @@
 import numpy as np
+from numpy import float64
+from numpy.typing import NDArray
 
-from .component.spacetimecomponent \
-    import apply_age_constraints
+from chronostar.utils.transform import transform_covmatrix
+from .traceorbit import trace_epicyclic_orbit
 
 
-def generate_association(mean, covariance, age, nstars=100, rng=None):
-    aged_mean, aged_covariance = apply_age_constraints(
-        mean, covariance, age,
+def generate_association(
+    mean_now,
+    covariance_birth,
+    age,
+    nstars=100,
+    rng=None,
+) -> NDArray[float64]:
+    mean_birth = trace_epicyclic_orbit(mean_now[np.newaxis], -age)
+    covariance_aged = transform_covmatrix(
+        covariance_birth,
+        trace_epicyclic_orbit,
+        mean_birth,
+        args=(age,),
     )
+
     if rng is None:
         rng = np.random.default_rng()
     # import ipdb; ipdb.set_trace()
-    return rng.multivariate_normal(aged_mean, aged_covariance, size=nstars)
+    return rng.multivariate_normal(mean_now, covariance_aged, size=nstars)
 
 
 def generate_two_overlapping(

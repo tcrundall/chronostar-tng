@@ -4,7 +4,10 @@ from scipy.stats import multivariate_normal
 from ..context import chronostar    # noqa
 
 from chronostar.base import BaseComponent
-from chronostar.component.spacetimecomponent import SpaceTimeComponent
+# from chronostar.component.ellipspacetimecomponent import\
+#   EllipSpaceTimeComponent
+from chronostar.component.spherespacetimecomponent import\
+    SphereSpaceTimeComponent
 from chronostar.component.spacecomponent import SpaceComponent
 from .fooclasses import CONFIG_PARAMS, DATA, NSAMPLES
 
@@ -12,7 +15,8 @@ from .fooclasses import CONFIG_PARAMS, DATA, NSAMPLES
 # Component classes and default extra parameters
 COMPONENT_CLASSES: dict[type[BaseComponent], tuple] = {
     SpaceComponent: (),
-    SpaceTimeComponent: (1.,),
+    # EllipSpaceTimeComponent: (1.,),
+    SphereSpaceTimeComponent: (1.,),
 }
 
 

@@ -16,15 +16,15 @@ from chronostar.base import (
 )
 
 
-CONFIG_PARAMS = {
+CONFIG_PARAMS: dict = {
     'icpool': {'a': 1, 'b': 2, 'c': 3},
     'introducer': {'a': 1, 'b': 2, 'c': 3},
     'mixture': {'a': 1, 'b': 2, 'c': 3},
-    'component': {'a': 1, 'b': 2, 'c': 3},
+    'component': {'a': 1, 'b': 2, 'c': 3, 'reg_covar': 1e-3},
 }
 
 NSAMPLES, NFEATURES = 100, 6
-DATA = np.random.rand(NSAMPLES, NFEATURES)
+DATA = np.random.rand(NSAMPLES, NFEATURES) * 10.
 
 
 class FooComponent(BaseComponent):
