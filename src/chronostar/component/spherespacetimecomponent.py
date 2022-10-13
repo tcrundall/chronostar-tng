@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import Optional
 import numpy as np
 from numpy import float64
 from numpy.typing import NDArray
@@ -13,8 +15,10 @@ from ..traceorbit import trace_epicyclic_orbit
 from ..utils.transform import transform_covmatrix
 
 
-def construct_cov_from_params(cov_params: list[float]) -> NDArray[float64]:
-    dxyz, duvw = 1./np.array(cov_params)
+def construct_cov_from_params(
+    cov_params: NDArray[float64]
+) -> NDArray[float64]:
+    dxyz, duvw = cov_params
     cov = np.eye(6)
     cov[:3] *= dxyz**2
     cov[3:] *= duvw**2
@@ -27,62 +31,8 @@ def construct_params_from_cov(
     dxyz = np.power(np.prod(np.linalg.eigvals(covariance[:3, :3])), 1./6.)
     duvw = np.power(np.prod(np.linalg.eigvals(covariance[3:, 3:])), 1./6.)
     return np.hstack(
-        [1./dxyz, 1./duvw],
+        [dxyz, duvw],
     )
-
-
-def estimate_aged_gaussian_parameters(
-    X: NDArray,
-    resp: NDArray,
-    model_params,
-    construct_cov_func=construct_cov_from_params,
-    trace_orbit_func=trace_epicyclic_orbit,
-    reg_covar: float = 1e-5,
-) -> tuple[NDArray, NDArray]:
-    """Estimate gaussian parameters, taking into account
-    assumed age.
-
-    Parameters
-    ----------
-    X : ndarray of shape (n_samples, n_features)
-        Input data
-    resp : ndarray of shape (n_samples)
-        Component responsibilities (membership probabilities)
-    age : float
-        Assumed age of component
-    reg_covar : float
-        Regularization constant added to covariance diagonal
-        elements.
-
-    Returns
-    -------
-    tuple[NDArray[float64], NDArray[float64]]
-        The best fitting mean (n_features) and
-        covariance matrix (n_features, n_features)
-        consistent with `age`
-    """
-    age, *cov_params = model_params
-
-    nk = resp.sum() + 10 * np.finfo(resp.dtype).eps
-    mean_now = np.dot(resp.T, X) / nk
-
-    mean_birth = trace_orbit_func(
-        mean_now[np.newaxis, :],   # type: ignore
-        -age,
-    )
-
-    cov_birth = construct_cov_func(cov_params)
-
-    cov_now = transform_covmatrix(
-        cov_birth,
-        trace_orbit_func,
-        loc=mean_birth,
-        args=(age,),
-    )
-
-    cov_now[np.diag_indices(6)] += reg_covar
-
-    return mean_now, cov_now
 
 
 class SphereSpaceTimeComponent(BaseComponent):
@@ -101,17 +51,16 @@ class SphereSpaceTimeComponent(BaseComponent):
     }
 
     # Configurable attributes
-    minimize_method: str = 'Powell'
+    minimize_method: str = 'Nelder-Mead'
     reg_covar: float = 1e-6
     trace_orbit_func = staticmethod(trace_epicyclic_orbit)
     construct_cov_func = staticmethod(construct_cov_from_params)
 
-    def __init__(self, params=None):
-        self.params_set = False
+    def __init__(self, params: Optional[NDArray[float64]] = None):
         super().__init__(params)
 
     def cov_lnpriors(self, cov_params):
-        dxyz, duvw = 1./np.array(cov_params)
+        dxyz, duvw = cov_params
 
         if any([delta <= 0 for delta in [dxyz, duvw]]):
             return -np.inf
@@ -121,7 +70,7 @@ class SphereSpaceTimeComponent(BaseComponent):
 
     def loss(
         self,
-        model_params: list[float64],
+        model_params: NDArray[float64],
         X: NDArray[float64],
         resp: NDArray[float64]
     ) -> float:
@@ -143,20 +92,23 @@ class SphereSpaceTimeComponent(BaseComponent):
             Negative log likelihood of data given `age` and derived
             model parameters.
         """
-        age, *cov_params = model_params
+        mean_birth = model_params[:6]
+        cov_birth_params = model_params[6:-1]
+        age = model_params[-1]
 
-        lnprior = self.cov_lnpriors(cov_params)
+        lnprior = self.cov_lnpriors(cov_birth_params)
 
         if lnprior == -np.inf:
             return -lnprior
 
-        mean_now, cov_now = estimate_aged_gaussian_parameters(
-            X,
-            resp,
-            model_params,
-            self.construct_cov_func,
+        mean_now = self.trace_orbit_func(mean_birth[np.newaxis], age).squeeze()
+        cov_birth = construct_cov_from_params(cov_birth_params)
+
+        cov_now = transform_covmatrix(
+            cov_birth,
             self.trace_orbit_func,
-            reg_covar=self.reg_covar,
+            mean_birth,
+            args=(age,)
         )
 
         # Check we received a valid covariance matrix
@@ -179,12 +131,14 @@ class SphereSpaceTimeComponent(BaseComponent):
 
     def get_parameter_bounds(self):
         bound_map = {
+            'MEAN': (-2000., 2000.),
+            'STDEV': (0., 1000.,),
             'INV_STDEV': (0., np.inf),
             'CORR': (-1, 1),
             'AGE': (-200, 200),
         }
 
-        par_types = ['AGE'] + ['INV_STDEV'] * 2
+        par_types = 6*['MEAN'] + 2*['STDEV'] + ['AGE']
 
         bounds = np.array([bound_map[par] for par in par_types])
         opt_bounds = optimize.Bounds(lb=bounds.T[0], ub=bounds.T[1])
@@ -212,57 +166,61 @@ class SphereSpaceTimeComponent(BaseComponent):
         """
         # Choosing initial guess for optimize routine
 
-        # If we have already fit this component, then use it's
-        # previous parameters
-        if self.params_set:
-            fitted_birth_cov = transform_covmatrix(
-                self.covariance,
-                self.trace_orbit_func,
-                self.mean,
-                args=(self.age,)
-            )
-            cov_params_init_guess = construct_params_from_cov(fitted_birth_cov)
-            base_init_guess = np.hstack([self.age, cov_params_init_guess])
+        # If we have already fit this component, or this component
+        # was initialized with parameters previously, then use them
+        if self.parameters_set:
+            base_init_guess = self.parameters
 
+        # Otherwise, initialise based on the data, with age 0.
         else:
-            _, _, est_covariance = _estimate_gaussian_parameters(
+            _, est_means, est_covariances = _estimate_gaussian_parameters(
                 X,
                 resp[:, np.newaxis],
                 self.reg_covar,
                 self.COVARIANCE_TYPE,
             )
+            mean_params_init_guess = est_means.squeeze()
             cov_params_init_guess = construct_params_from_cov(
-                est_covariance[0]
+                est_covariances.squeeze()
             )
-            base_init_guess = np.hstack([0, cov_params_init_guess])
+            base_init_guess = np.hstack(
+                [mean_params_init_guess, cov_params_init_guess, 0.]
+            )
 
         bounds = self.get_parameter_bounds()
         all_results = []
-        for age_offset in [-20., -10., 0., 10., 20.]:
+
+        # TODO: consider only offsetting on first maximization?
+        # We should only need to force age offsets if this is the first
+        # time this component is being maximized. Otherwise it's previous
+        # parameter set should be close enough.
+        for age_offset in [0., 40., 120.]:
+            print(f"{age_offset=}")
+
+            # Offset initial guess age by a certain amount
+            ig_age = base_init_guess[-1] + age_offset
+
+            # Adjust initial guess mean by tracing back an extra amount
+            ig_mean = self.trace_orbit_func(
+                base_init_guess[:6][np.newaxis],
+                -age_offset
+            )
             init_guess = np.copy(base_init_guess)
-            init_guess[0] += age_offset
+            init_guess[:6] = ig_mean
+            init_guess[-1] = ig_age
             res = optimize.minimize(
                 self.loss,
                 x0=init_guess,
                 args=(X, resp),
-                method='Powell',
-                # method=self.minimize_method,
+                method=self.minimize_method,
                 bounds=bounds,
             )
+            print(res.fun, '\n', res.x)
             all_results.append(res)
         best_res = min(all_results, key=lambda x: x.fun)
         # self.age, *self.cov_params = res.x
 
-        mean, covariance = estimate_aged_gaussian_parameters(
-            X,
-            resp,
-            best_res.x,
-            self.construct_cov_func,
-            self.trace_orbit_func,
-            self.reg_covar,
-        )
-        age = best_res.x[0]
-        self.set_parameters((mean, covariance, age))
+        self.parameters = best_res.x
 
         if not np.all(np.linalg.eigvals(self.covariance) > 0):
             raise UserWarning("Cov not pos-def")
@@ -311,7 +269,7 @@ class SphereSpaceTimeComponent(BaseComponent):
 
     def set_parameters(
         self,
-        params,
+        params: NDArray[float64],
     ) -> None:
         """Set the internal parameters of the model.
 
@@ -320,7 +278,9 @@ class SphereSpaceTimeComponent(BaseComponent):
         params : (n_features), (n_features, n_features), float
             mean, covariance, age
         """
-        (self.mean, self.covariance, self.age) = params
+        self.parameters_set = True
+        self.parameters = params
+        # (self.mean, self.covariance, self.age) = params
 
         if not np.all(np.linalg.eigvals(self.covariance) > 0):
             raise UserWarning("Didn't provide a positive definite cov")
@@ -339,4 +299,63 @@ class SphereSpaceTimeComponent(BaseComponent):
         (n_features), (n_features, n_features), float
             mean, covariance, age
         """
-        return (self.mean, self.covariance, self.age)
+        return self.parameters
+
+    @property
+    def mean(self):
+        mean_birth = self.parameters[0:6]
+        mean_now = self.trace_orbit_func(
+            mean_birth[np.newaxis], self.age
+        ).squeeze()
+        return mean_now
+
+    @property
+    def covariance(self):
+        cov_params = self.parameters[6:-1]
+        cov_birth = construct_cov_from_params(cov_params)
+        mean_birth = self.parameters[0:6]
+        cov_now = transform_covmatrix(
+            cov_birth,
+            self.trace_orbit_func,
+            mean_birth,
+            args=(self.age,)
+        )
+        return cov_now
+
+    @property
+    def age(self) -> float:
+        return self.parameters[-1]
+
+    def split(
+        self
+    ) -> tuple[SphereSpaceTimeComponent, SphereSpaceTimeComponent]:
+
+        # Get primary axis (longest eigen vector)
+        eigvals, eigvecs = np.linalg.eigh(self.covariance)
+        prim_axis_length = np.sqrt(np.max(eigvals))
+        prim_axis = eigvecs[:, np.argmax(eigvals)]
+
+        # Offset the two new means along the primary axis
+        new_mean_1 = self.mean + prim_axis_length * prim_axis / 2.0
+        new_mean_2 = self.mean - prim_axis_length * prim_axis / 2.0
+
+        # Transform to birth
+        birth_mean_1 = self.trace_orbit_func(
+            new_mean_1[np.newaxis], -self.age
+        ).squeeze()
+        birth_mean_2 = self.trace_orbit_func(
+            new_mean_2[np.newaxis], -self.age
+        ).squeeze()
+
+        # Don't bother reshaping covariance matrix, it's really tricky in 7D
+
+        comp1 = self.__class__(np.hstack((
+            birth_mean_1,
+            self.parameters[6:],
+        )))
+        comp2 = self.__class__(np.hstack((
+            birth_mean_2,
+            self.parameters[6:],
+        )))
+
+        return comp1, comp2

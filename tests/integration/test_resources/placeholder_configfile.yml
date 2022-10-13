@@ -4,5 +4,6 @@ icpool: {}
 introducer: {}
 mixture:
   verbose: 1
+  init_params: 'random'
 component:
   minimize_method: 'Nelder-Mead'

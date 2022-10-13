@@ -34,7 +34,7 @@ class FooComponent(BaseComponent):
         super().__init__(params)
 
     @classmethod
-    def configure(cls, a=0, b=0, c=0, **kwargs):
+    def configure(cls, a=0, b=0, c=0, **kwargs) -> None:
         cls.a = a
         cls.b = b
         cls.c = c
@@ -54,20 +54,33 @@ class FooComponent(BaseComponent):
         X: NDArray[float64],
         resp: NDArray[float64]
     ) -> None:
-        self.mean = np.ones(self.dim)
-        self.covariance = np.eye(self.dim)
+        mean = np.ones(self.dim)
+        covariance = np.eye(self.dim)
+        self.set_parameters(
+            np.hstack((
+                mean, covariance.flatten(),
+            ))
+        )
 
-    def get_parameters(self) -> tuple:
-        return (self.mean, self.covariance)
+    def get_parameters(self) -> NDArray[float64]:
+        return np.hstack((self.mean, self.covariance.flatten()))
 
-    def set_parameters(self, params: tuple) -> None:
-        self.mean, self.covariance = params
+    def set_parameters(self, params: NDArray[float64]) -> None:
+        self.parameters = params
 
     def split(self) -> tuple[FooComponent, FooComponent]:
         """Split this component into two, returning the result"""
         c1 = FooComponent(self.get_parameters())
         c2 = FooComponent(self.get_parameters())
         return c1, c2
+
+    @property
+    def mean(self):
+        return self.parameters[:6]
+
+    @property
+    def covariance(self):
+        return self.parameters[6:].reshape(6, 6)
 
 
 class FooMixture(BaseMixture):

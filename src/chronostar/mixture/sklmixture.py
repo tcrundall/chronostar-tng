@@ -90,7 +90,11 @@ class SKLComponentMixture(SKLBaseMixture):
         # If components all have attributes, then assume they came from
         # previously converged fit, so hack some SKL parameters to
         # avoid reinitialization.
-        if all([hasattr(c, 'mean') for c in self.components_]):
+        # SKL only initializes parameters if not hasattr(self, "converged_")
+        # so we set converged here to avoid that
+        if all(c.parameters_set for c in self.components_):
+            print("Components came from previous fit, so skipping"
+                  " skl initialization")
             self.converged_ = False
             self.lower_bound_ = -np.inf
 
@@ -108,7 +112,6 @@ class SKLComponentMixture(SKLBaseMixture):
         X : NDArray[float64]
             data
         """
-
         pass
 
     def _initialize_parameters(self, X, random_state):
