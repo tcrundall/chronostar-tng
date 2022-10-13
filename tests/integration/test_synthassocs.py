@@ -94,7 +94,7 @@ def test_twoassocs():
         false_matches = np.sum(
             (true_membership_probs != np.round(fitted_memberships))[:, 0]
         )
-        assert false_matches < 0.05 * (nstars)
+        assert false_matches < 0.1 * (nstars)
 
     # If failed, assume component 1 mapped to association 2
     except AssertionError:
@@ -117,8 +117,8 @@ def test_one_assoc_one_gaussian_background():
     bg_stdev_pos = 1000.
     bg_stdev_vel = 30.
     bg_cov = np.eye(DIM)
-    bg_cov[:3] *= bg_stdev_pos
-    bg_cov[3:] *= bg_stdev_vel
+    bg_cov[:3] *= bg_stdev_pos**2
+    bg_cov[3:] *= bg_stdev_vel**2
 
     bg_age = 0.
     bg_nstars = 10_000
