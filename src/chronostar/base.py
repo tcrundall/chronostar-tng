@@ -175,7 +175,7 @@ class BaseComponent(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_parameters(self) -> tuple:
+    def get_parameters(self) -> NDArray[float64]:
         pass
 
     @abstractmethod

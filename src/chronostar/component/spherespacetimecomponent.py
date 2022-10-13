@@ -195,8 +195,6 @@ class SphereSpaceTimeComponent(BaseComponent):
         # time this component is being maximized. Otherwise it's previous
         # parameter set should be close enough.
         for age_offset in [0., 40., 120.]:
-            print(f"{age_offset=}")
-
             # Offset initial guess age by a certain amount
             ig_age = base_init_guess[-1] + age_offset
 
@@ -215,19 +213,18 @@ class SphereSpaceTimeComponent(BaseComponent):
                 method=self.minimize_method,
                 bounds=bounds,
             )
-            print(res.fun, '\n', res.x)
             all_results.append(res)
         best_res = min(all_results, key=lambda x: x.fun)
         # self.age, *self.cov_params = res.x
 
-        self.parameters = best_res.x
+        self.set_parameters(best_res.x)
+        print(f"age: {self.age}")
+        # if not np.all(np.linalg.eigvals(self.covariance) > 0):
+        #     raise UserWarning("Cov not pos-def")
 
-        if not np.all(np.linalg.eigvals(self.covariance) > 0):
-            raise UserWarning("Cov not pos-def")
-
-        self.precision_chol = _compute_precision_cholesky(
-            self.covariance[np.newaxis], self.COVARIANCE_TYPE
-        ).squeeze()
+        # self.precision_chol = _compute_precision_cholesky(
+        #     self.covariance[np.newaxis], self.COVARIANCE_TYPE
+        # ).squeeze()
 
     def estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
         """Calculate the log probability of each sample given

@@ -33,15 +33,6 @@ class FooComponent(BaseComponent):
     def __init__(self, params) -> None:        # type: ignore
         super().__init__(params)
 
-    @classmethod
-    def configure(cls, a=0, b=0, c=0, **kwargs) -> None:
-        cls.a = a
-        cls.b = b
-        cls.c = c
-
-        if kwargs:
-            print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
-
     @property
     def n_params(self) -> int:
         return 1

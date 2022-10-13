@@ -79,6 +79,7 @@ class SKLComponentMixture(SKLBaseMixture):
 
         self.components_: list[BaseComponent] = components_init
         self.init_resp: Optional[NDArray[float64]] = None
+        self.m_step_count = 0
 
         # Check if weights was used to provide membership responsibilities
         if len(weights_init.shape) == 2:
@@ -223,8 +224,13 @@ class SKLComponentMixture(SKLBaseMixture):
         self.weights_ = nk
         self.weights_ /= self.weights_.sum()
 
+        print(f"--- M_STEP {self.m_step_count:03} ---")
+        print(f"   - weights {self.weights_}")
         for i, component in enumerate(self.components_):
+            print(f"   - comp {i:02}")
             component.maximize(X=X, resp=resp[:, i])
+
+        self.m_step_count += 1
 
     def _estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
         """Estimate the log probability of each sample for each

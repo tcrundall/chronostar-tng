@@ -1,3 +1,5 @@
+from ..context import chronostar        # noqa
+
 import numpy as np
 from chronostar.component.spherespacetimecomponent import\
     SphereSpaceTimeComponent
