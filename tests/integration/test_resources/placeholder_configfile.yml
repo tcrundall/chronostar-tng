@@ -1,21 +1,10 @@
-driver:
-  x: 10
-icpool:
-  param1: 'param1'
-  param2: 'param2'
-  param3: 'param3'
-  list_param1:
-    - 1
-    - 2
-    - 3
-introducer:
-  param1: 'param1'    # explaining comment
+driver: {}
+icpool: {}
+introducer: {}
 mixture:
-  verbose: 1
-  a: 1
-  b: 2
-  c: 3
+  tol: 1.e-4
+  verbose: 2
+  verbose_interval: 1
+  init_params: 'random'
 component:
-  a: 1
-  b: 2
-  c: 3
+  minimize_method: 'Nelder-Mead'

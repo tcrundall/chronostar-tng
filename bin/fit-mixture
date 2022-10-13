@@ -32,9 +32,14 @@ DEFAULT_CONFIG_PARAMS = {
 
 
 def import_component(component) -> Type[BaseComponent]:
-    if component == 'SpaceTimeComponent':
-        from chronostar.component.spacetimecomponent import SpaceTimeComponent
-        return SpaceTimeComponent
+    if component == 'SphereSpaceTimeComponent':
+        from chronostar.component.spherespacetimecomponent import\
+            SphereSpaceTimeComponent
+        return SphereSpaceTimeComponent
+    elif component == 'EllipSpaceTimeComponent':
+        from chronostar.component.ellipspacetimecomponent import\
+            EllipSpaceTimeComponent
+        return EllipSpaceTimeComponent
     elif component == 'SpaceComponent':
         from chronostar.component.spacecomponent import SpaceComponent
         return SpaceComponent
@@ -156,6 +161,8 @@ if __name__ == '__main__':
 
     mixture = MixtureClass(init_weights, init_comps)
     mixture.fit(data)
+    memberships = mixture.estimate_membership_prob(data)
+    np.save(savedir / "memberships.npy", memberships)
 
     # Output result
     weights, components, *extra = mixture.get_parameters()
@@ -164,7 +171,7 @@ if __name__ == '__main__':
         compdir = savedir / f"comp_{i:03}"
         params = component.get_parameters()
         for j, param in enumerate(params):
-            outfile = compdir / f"param_{i}.npy"
+            outfile = compdir / f"param_{j}.npy"
             np.save(outfile, param)
 
     # Display some simple logging info to output

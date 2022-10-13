@@ -7,6 +7,7 @@ import numpy as np
 from numpy import float64
 from numpy.typing import NDArray
 
+
 from .base import (
     BaseComponent,
     BaseMixture,
@@ -14,7 +15,8 @@ from .base import (
     BaseIntroducer,
 )
 
-from .component.spacetimecomponent import SpaceTimeComponent
+from .component.spherespacetimecomponent import SphereSpaceTimeComponent
+# from .component.ellipspacetimecomponent import EllipSpaceTimeComponent
 from .mixture.componentmixture import ComponentMixture
 from .introducer.simpleintroducer import SimpleIntroducer
 from .icpool.simpleicpool import SimpleICPool
@@ -33,7 +35,7 @@ class Driver:
         mixture_class: Type[BaseMixture] = ComponentMixture,
         icpool_class: Type[BaseICPool] = SimpleICPool,
         introducer_class: Type[BaseIntroducer] = SimpleIntroducer,
-        component_class: Type[BaseComponent] = SpaceTimeComponent,
+        component_class: Type[BaseComponent] = SphereSpaceTimeComponent,
     ) -> None:
         """Top level class of Chronostar which drives the
         entire fitting process

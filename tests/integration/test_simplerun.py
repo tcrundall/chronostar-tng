@@ -8,7 +8,10 @@ from chronostar.driver import Driver
 from chronostar.mixture.componentmixture import ComponentMixture
 from chronostar.icpool.simpleicpool import SimpleICPool
 from chronostar.introducer.simpleintroducer import SimpleIntroducer
-from chronostar.component.spacetimecomponent import SpaceTimeComponent
+# from chronostar.component.ellipspacetimecomponent import\
+#   EllipSpaceTimeComponent
+from chronostar.component.spherespacetimecomponent import\
+    SphereSpaceTimeComponent
 from chronostar.component.spacecomponent import SpaceComponent
 
 
@@ -53,7 +56,7 @@ def test_simple_spacetimemixture_run():
         mixture_class=ComponentMixture,
         icpool_class=SimpleICPool,
         introducer_class=SimpleIntroducer,
-        component_class=SpaceTimeComponent,
+        component_class=SphereSpaceTimeComponent,
     )
 
     seed = 0

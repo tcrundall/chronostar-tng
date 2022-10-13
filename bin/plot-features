@@ -18,7 +18,7 @@ def init_argparse() -> argparse.ArgumentParser:
         "--features",
         help="Which planes in feature space to plot. Encoded as indices: "
              "-p 0,1.0,2.0,3 would plot (feat_0 vs feat_1), (feat_0 vs feat_2)"
-             " and (feat_0 vs feat_3), with the first feat on the y-axis",
+             " and (feat_0 vs feat_3), with the first feat on the x-axis",
         default="",
     )
     parser.add_argument(
@@ -61,6 +61,13 @@ def init_argparse() -> argparse.ArgumentParser:
         "--sourceids",
         help="An array of gaia source ids denoting which stars to plot",
     )
+    parser.add_argument(
+        "-l",
+        "--labels",
+        help="Labels for each feature, e.g. "
+             "'X [pc],Y [pc],Z [pc],U [km/s],V [km/s],W [km/s]'",
+        default='X [pc],Y [pc],Z [pc],U [km/s],V [km/s],W [km/s]',
+    )
 
     return parser
 
@@ -102,6 +109,8 @@ if __name__ == '__main__':
     source_ids = None
     if args.sourceids and Path(args.sourceids).is_file():
         source_ids = np.load((Path(args.sourceids)))
+
+    labels = args.labels.split(',')
 
     # Plot photometry
     if args.photom:
@@ -159,7 +168,7 @@ if __name__ == '__main__':
             membership = np.ones((len(data_means), 1))
 
         # Plot each plane on an axis
-        for (y_feat, x_feat), ax in zip(feat_ixs, axes.reshape(-1)):
+        for (x_feat, y_feat), ax in zip(feat_ixs, axes.reshape(-1)):
             n_comps = len(membership.T)
 
             # Plot each component's members separately
@@ -177,8 +186,8 @@ if __name__ == '__main__':
                     color=cm.jet(comp_ix/n_comps),      # type: ignore
                     alpha=0.5,
                 )
-                ax.set_xlabel(x_feat)
-                ax.set_ylabel(y_feat)
+                ax.set_xlabel(labels[x_feat])
+                ax.set_ylabel(labels[y_feat])
 
         fig.set_size_inches(n_cols * 4.5, n_rows * 4)
         fig.tight_layout()

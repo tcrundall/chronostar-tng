@@ -3,11 +3,7 @@
 
 name: Unit tests (py3.9)
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+on: [push]
 
 permissions:
   contents: read

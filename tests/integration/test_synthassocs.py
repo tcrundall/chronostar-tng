@@ -2,10 +2,13 @@ import numpy as np
 import os
 from pathlib import Path
 
+from chronostar.traceorbit import trace_epicyclic_orbit
+
 from ..context import chronostar     # noqa
 
 from chronostar.driver import Driver
-from chronostar.component.spacetimecomponent import SpaceTimeComponent
+from chronostar.component.spherespacetimecomponent import\
+    SphereSpaceTimeComponent
 from chronostar.icpool.simpleicpool import SimpleICPool
 from chronostar.introducer.simpleintroducer import SimpleIntroducer
 from chronostar.mixture.componentmixture import ComponentMixture
@@ -13,13 +16,57 @@ from chronostar import synthdata
 
 
 def test_twoassocs():
-    age1, age2 = 5., 10.
-    nstars1, nstars2 = 1_000, 2_000
-    stars = synthdata.generate_two_overlapping(age1, age2, nstars1, nstars2)
+    """
+    Generate two synthetic associations, then fit to them.
+    """
+    age_1, age_2 = 5., 10.
+    n_stars_1, n_stars_2 = 1_000, 2_000
 
-    true_membership_probs = np.zeros((nstars1 + nstars2, 2))
-    true_membership_probs[:nstars1, 0] = 1.
-    true_membership_probs[nstars1:, 1] = 1.
+    mean_now_1 = np.zeros(6)
+    mean_now_2 = np.array([5., 10., 20., 1., 2., 3])
+
+    mean_birth_1 = trace_epicyclic_orbit(
+        mean_now_1[np.newaxis],
+        -age_1,
+    )
+    mean_birth_2 = trace_epicyclic_orbit(
+        mean_now_2[np.newaxis],
+        -age_2,
+    )
+
+    birth_dxyz = 10.
+    birth_duvw = 3
+
+    true_comp_1 = SphereSpaceTimeComponent(
+        np.hstack((
+            mean_birth_1,
+            birth_dxyz,
+            birth_duvw,
+            age_1,
+        ))
+    )
+
+    true_comp_2 = SphereSpaceTimeComponent(
+        np.hstack((
+            mean_birth_2,
+            birth_dxyz,
+            birth_duvw,
+            age_2,
+        ))
+    )
+
+    rng = np.random.default_rng()
+    stars_1 = rng.multivariate_normal(
+        true_comp_1.mean, true_comp_1.covariance, size=n_stars_1
+    )
+    stars_2 = rng.multivariate_normal(
+        true_comp_2.mean, true_comp_2.covariance, size=n_stars_2
+    )
+    stars = np.vstack((stars_1, stars_2))
+
+    true_membership_probs = np.zeros((n_stars_1 + n_stars_2, 2))
+    true_membership_probs[:n_stars_1, 0] = 1.
+    true_membership_probs[n_stars_1:, 1] = 1.
 
     curr_dir = Path(os.path.dirname(__file__))
     config_file = curr_dir / 'test_resources' / 'placeholder_configfile.yml'
@@ -28,40 +75,40 @@ def test_twoassocs():
         mixture_class=ComponentMixture,
         icpool_class=SimpleICPool,
         introducer_class=SimpleIntroducer,
-        component_class=SpaceTimeComponent,
+        component_class=SphereSpaceTimeComponent,
     )
 
     best_mixture = driver.run(data=stars)
     params = best_mixture.get_parameters()
     weights = params[0]
-    components: list[SpaceTimeComponent] = params[1]
+    components: list[SphereSpaceTimeComponent] = params[1]
 
     nstars = len(stars)
-    fitted_ages = [c.get_parameters()[2] for c in components]
+    fitted_ages = [c.get_parameters()[-1] for c in components]
     fitted_memberships = best_mixture.estimate_membership_prob(X=stars)
 
     # First, assume component 1 mapped to association 1
     try:
-        assert np.allclose((nstars1, nstars2), weights*nstars, rtol=0.05)
-        assert np.allclose([age1, age2], fitted_ages, rtol=0.1)
+        assert np.allclose((n_stars_1, n_stars_2), weights*nstars, rtol=0.05)
+        assert np.allclose([age_1, age_2], fitted_ages, rtol=0.1)
         false_matches = np.sum(
             (true_membership_probs != np.round(fitted_memberships))[:, 0]
         )
-        assert false_matches < 0.05 * (nstars)
+        assert false_matches < 0.1 * (nstars)
 
     # If failed, assume component 1 mapped to association 2
     except AssertionError:
-        assert np.allclose((nstars2, nstars1), weights*nstars, rtol=0.05)
-        assert np.allclose([age2, age1], fitted_ages, rtol=0.1)
+        assert np.allclose((n_stars_2, n_stars_1), weights*nstars, rtol=0.05)
+        assert np.allclose([age_2, age_1], fitted_ages, rtol=0.1)
         false_matches = np.sum(
             (
                 true_membership_probs[:, :: -1]
                 != np.round(fitted_memberships)
              )[:, 0]
         )
-        assert false_matches < 0.05 * (nstars)
+        assert false_matches < 0.1 * (nstars)
 
-    return best_mixture, stars, (age1, age2), (nstars1, nstars2)
+    return best_mixture, stars, (age_1, age_2), (n_stars_1, n_stars_2)
 
 
 def test_one_assoc_one_gaussian_background():
@@ -70,8 +117,8 @@ def test_one_assoc_one_gaussian_background():
     bg_stdev_pos = 1000.
     bg_stdev_vel = 30.
     bg_cov = np.eye(DIM)
-    bg_cov[:3] *= bg_stdev_pos
-    bg_cov[3:] *= bg_stdev_vel
+    bg_cov[:3] *= bg_stdev_pos**2
+    bg_cov[3:] *= bg_stdev_vel**2
 
     bg_age = 0.
     bg_nstars = 10_000
@@ -106,26 +153,27 @@ def test_one_assoc_one_gaussian_background():
         mixture_class=ComponentMixture,
         icpool_class=SimpleICPool,
         introducer_class=SimpleIntroducer,
-        component_class=SpaceTimeComponent,
+        component_class=SphereSpaceTimeComponent,
     )
 
     best_mixture = driver.run(data=stars)
 
     params = best_mixture.get_parameters()
     weights = params[0]
-    components: list[SpaceTimeComponent] = params[1]
+    components: list[SphereSpaceTimeComponent] = params[1]
 
     nstars = len(stars)
-    fitted_ages = [c.get_parameters()[2] for c in components]
+    fitted_ages = [c.get_parameters()[-1] for c in components]
     assoc_ix = np.argmax(fitted_ages)
-    fitted_mean, fitted_cov, fitted_age = components[assoc_ix].get_parameters()
+    assoc_comp = components[assoc_ix]
+    # parameters = components[assoc_ix].get_parameters()
     fitted_assoc_weight = weights[assoc_ix]
 
     nstars = len(stars)
     assert np.isclose(assoc_nstars, fitted_assoc_weight*nstars, rtol=0.1)
-    assert np.isclose(assoc_age, fitted_age, rtol=0.1)
+    assert np.isclose(assoc_age, assoc_comp.age, rtol=0.1)
 
-    return best_mixture, stars
+    return best_mixture, stars, driver
 
 
 def test_one_assoc_one_uniform_background():
@@ -177,27 +225,28 @@ def test_one_assoc_one_uniform_background():
         mixture_class=ComponentMixture,
         icpool_class=SimpleICPool,
         introducer_class=SimpleIntroducer,
-        component_class=SpaceTimeComponent,
+        component_class=SphereSpaceTimeComponent,
     )
 
     best_mixture = driver.run(data=stars)
 
     params = best_mixture.get_parameters()
     weights = params[0]
-    components: list[SpaceTimeComponent] = params[1]
+    components: list[SphereSpaceTimeComponent] = params[1]
 
     nstars = len(stars)
-    fitted_ages = [c.get_parameters()[2] for c in components]
+    fitted_ages = [c.get_parameters()[-1] for c in components]
     assoc_ix = np.argmax(fitted_ages)
-    fitted_mean, fitted_cov, fitted_age = components[assoc_ix].get_parameters()
+    fitted_comp = components[assoc_ix]
     fitted_assoc_weight = weights[assoc_ix]
 
     nstars = len(stars)
     assert np.isclose(assoc_nstars, fitted_assoc_weight*nstars, rtol=0.1)
-    assert np.isclose(assoc_age, fitted_age, rtol=0.1)
+    assert np.isclose(assoc_age, fitted_comp.age, rtol=0.1)
     return best_mixture, stars
 
 
 if __name__ == '__main__':
     print("Fitting to the uniform one")
-    best_mixture, stars, *extra = test_twoassocs()
+    # best_mixture, stars, *extra = test_twoassocs()
+    res = test_one_assoc_one_gaussian_background()

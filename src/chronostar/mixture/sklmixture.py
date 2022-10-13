@@ -79,6 +79,7 @@ class SKLComponentMixture(SKLBaseMixture):
 
         self.components_: list[BaseComponent] = components_init
         self.init_resp: Optional[NDArray[float64]] = None
+        self.m_step_count = 0
 
         # Check if weights was used to provide membership responsibilities
         if len(weights_init.shape) == 2:
@@ -90,7 +91,11 @@ class SKLComponentMixture(SKLBaseMixture):
         # If components all have attributes, then assume they came from
         # previously converged fit, so hack some SKL parameters to
         # avoid reinitialization.
-        if all([hasattr(c, 'mean') for c in self.components_]):
+        # SKL only initializes parameters if not hasattr(self, "converged_")
+        # so we set converged here to avoid that
+        if all(c.parameters_set for c in self.components_):
+            print("Components came from previous fit, so skipping"
+                  " skl initialization")
             self.converged_ = False
             self.lower_bound_ = -np.inf
 
@@ -108,7 +113,6 @@ class SKLComponentMixture(SKLBaseMixture):
         X : NDArray[float64]
             data
         """
-
         pass
 
     def _initialize_parameters(self, X, random_state):
@@ -193,7 +197,7 @@ class SKLComponentMixture(SKLBaseMixture):
 
         # We can expect `resp` to be initialized. So:
         for i, component in enumerate(self.components_):
-            component.maximize(X, np.log(resp[:, i]))
+            component.maximize(X, resp[:, i])
 
         # However, the components may already have their parameters set...
         # then we shouldn't even be here.
@@ -220,8 +224,13 @@ class SKLComponentMixture(SKLBaseMixture):
         self.weights_ = nk
         self.weights_ /= self.weights_.sum()
 
+        print(f"--- M_STEP {self.m_step_count:03} ---")
+        print(f"   - weights {self.weights_}")
         for i, component in enumerate(self.components_):
+            print(f"   - comp {i:02}")
             component.maximize(X=X, resp=resp[:, i])
+
+        self.m_step_count += 1
 
     def _estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
         """Estimate the log probability of each sample for each

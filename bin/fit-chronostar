@@ -32,7 +32,7 @@ DEFAULT_CONFIG_PARAMS = {
     'modules': {
         'introducer': 'SimpleIntroducer',
         'icpool': 'SimpleICPool',
-        'component': 'SpaceTimeComponent',
+        'component': 'SphereSpaceTimeComponent',
         'mixture': 'ComponentMixture'
     },
     'icpool': {},
@@ -62,9 +62,14 @@ def import_introducer(introducer) -> Type[BaseIntroducer]:
 
 
 def import_component(component) -> Type[BaseComponent]:
-    if component == 'SpaceTimeComponent':
-        from chronostar.component.spacetimecomponent import SpaceTimeComponent
-        return SpaceTimeComponent
+    if component == 'SphereSpaceTimeComponent':
+        from chronostar.component.spherespacetimecomponent import\
+            SphereSpaceTimeComponent
+        return SphereSpaceTimeComponent
+    if component == 'EllipSpaceTimeComponent':
+        from chronostar.component.ellipspacetimecomponent import\
+            EllipSpaceTimeComponent
+        return EllipSpaceTimeComponent
     elif component == 'SpaceComponent':
         from chronostar.component.spacecomponent import SpaceComponent
         return SpaceComponent

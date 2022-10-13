@@ -137,7 +137,8 @@ def trace_epicyclic_orbit(
     #     time = np.array(time)
 
     # Make sure numbers are floats, and reshape into 2d
-    assert len(xyzuvw_start.shape) == 2
+    xyzuvw_start = np.atleast_2d(xyzuvw_start)
+    # assert len(xyzuvw_start.shape) == 2
     xyzuvw_start = np.array(xyzuvw_start)
     # xyzuvw_start = np.atleast_2d(xyzuvw_start)  # .astype(float))
 
@@ -157,5 +158,5 @@ def trace_epicyclic_orbit(
     xyzuvw_new[:, 3:] /= 1.0227121650537077
 
     # Remove empty dimensions
-    return xyzuvw_new
+    return xyzuvw_new.squeeze()
     # return np.squeeze(xyzuvw_new)

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import numpy as np
 from numpy import float64
 from numpy.typing import NDArray
@@ -59,11 +60,11 @@ class SpaceComponent(BaseComponent):
             self.COVARIANCE_TYPE,
         )
 
-        self.mean = means_.squeeze()
-        self.covariance = covariances_.squeeze()
-        self.precision_chol = _compute_precision_cholesky(
-            self.covariance[np.newaxis], self.COVARIANCE_TYPE
-        ).squeeze()
+        self.set_parameters(
+            np.hstack((means_.flatten(), covariances_.flatten()))
+        )
+
+        print("maximizing", end='\r')
 
     def estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
         """Calculate the log probability of each sample given
@@ -105,7 +106,7 @@ class SpaceComponent(BaseComponent):
         cov_params = n_features * (n_features + 1) / 2.0
         return int(mean_params + cov_params)
 
-    def set_parameters(self, params: tuple) -> None:
+    def set_parameters(self, params: NDArray[float64]) -> None:
         """Set the internal parameters of the model.
 
         Parameters
@@ -113,13 +114,14 @@ class SpaceComponent(BaseComponent):
         params : (n_features), (n_features, n_features)
             mean, covariance
         """
+        self.parameters_set = True
+        self.parameters = params
 
-        self.mean, self.covariance = params
         self.precision_chol = _compute_precision_cholesky(
             self.covariance[np.newaxis], self.COVARIANCE_TYPE
         ).squeeze()
 
-    def get_parameters(self) -> tuple:
+    def get_parameters(self) -> NDArray[float64]:
         """Get the internal parameters of the model
 
         Returns
@@ -128,4 +130,45 @@ class SpaceComponent(BaseComponent):
             mean, covariance
         """
 
-        return self.mean, self.covariance
+        return self.parameters
+
+    @property
+    def mean(self) -> NDArray[float64]:
+        return self.parameters[:6]
+
+    @property
+    def covariance(self) -> NDArray[float64]:
+        return self.parameters[6:].reshape(6, 6)
+
+    def split(self) -> tuple[SpaceComponent, SpaceComponent]:
+        # Get primary axis (longest eigen vector)
+        eigvals, eigvecs = np.linalg.eigh(self.covariance)
+        prim_axis_length = np.sqrt(np.max(eigvals))
+        prim_axis = eigvecs[:, np.argmax(eigvals)]
+
+        new_mean_1 = self.mean + prim_axis_length * prim_axis / 2.0
+        new_mean_2 = self.mean - prim_axis_length * prim_axis / 2.0
+
+        ###########################################################
+        # Reconstruct covariance matrix but with halved prim axis #
+        ###########################################################
+        # Follows M . V = V . D
+        #   where V := [v1, v2, ... vn]  (Matrix of eigvecs)
+        #     and D is diagonal matrix where diagonals are eigvals
+        new_eigvals = np.copy(eigvals)
+        new_eigvals[np.argmax(eigvals)] /= 4.0      # eigvals are std**2
+
+        D = np.eye(6) * new_eigvals
+        new_covariance = np.dot(eigvecs, np.dot(D, eigvecs.T))
+
+        comp1 = self.__class__(np.hstack((
+            new_mean_1,
+            new_covariance.flatten(),
+        )))
+        assert hasattr(comp1, 'precision_chol')
+        comp2 = self.__class__(np.hstack((
+            new_mean_2,
+            new_covariance.flatten(),
+        )))
+
+        return comp1, comp2
