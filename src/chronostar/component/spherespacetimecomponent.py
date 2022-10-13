@@ -107,6 +107,7 @@ class SphereSpaceTimeComponent(BaseComponent):
     construct_cov_func = staticmethod(construct_cov_from_params)
 
     def __init__(self, params=None):
+        self.params_set = False
         super().__init__(params)
 
     def cov_lnpriors(self, cov_params):
@@ -147,7 +148,7 @@ class SphereSpaceTimeComponent(BaseComponent):
         lnprior = self.cov_lnpriors(cov_params)
 
         if lnprior == -np.inf:
-            return lnprior
+            return -lnprior
 
         mean_now, cov_now = estimate_aged_gaussian_parameters(
             X,
@@ -160,7 +161,7 @@ class SphereSpaceTimeComponent(BaseComponent):
 
         # Check we received a valid covariance matrix
         if not np.all(np.linalg.eigvals(cov_now) > 0):
-            return -np.inf
+            return np.inf
 
         prec_now_chol = _compute_precision_cholesky(
             cov_now[np.newaxis],
@@ -174,7 +175,20 @@ class SphereSpaceTimeComponent(BaseComponent):
             self.COVARIANCE_TYPE,
         ).squeeze()
 
-        return lnprior + float(-np.sum(resp * log_prob))
+        return -float(lnprior + np.sum(resp * log_prob))
+
+    def get_parameter_bounds(self):
+        bound_map = {
+            'INV_STDEV': (0., np.inf),
+            'CORR': (-1, 1),
+            'AGE': (-200, 200),
+        }
+
+        par_types = ['AGE'] + ['INV_STDEV'] * 2
+
+        bounds = np.array([bound_map[par] for par in par_types])
+        opt_bounds = optimize.Bounds(lb=bounds.T[0], ub=bounds.T[1])
+        return opt_bounds
 
     def maximize(
         self,
@@ -196,33 +210,59 @@ class SphereSpaceTimeComponent(BaseComponent):
         and infers an appropriate mean and covariance based on the
         best age and the data.
         """
-        _, _, est_covariance = _estimate_gaussian_parameters(
-            X,
-            resp[:, np.newaxis],
-            self.reg_covar,
-            self.COVARIANCE_TYPE,
-        )
-        cov_params_init_guess = construct_params_from_cov(est_covariance[0])
+        # Choosing initial guess for optimize routine
 
-        init_guess = np.hstack([0, cov_params_init_guess])
+        # If we have already fit this component, then use it's
+        # previous parameters
+        if self.params_set:
+            fitted_birth_cov = transform_covmatrix(
+                self.covariance,
+                self.trace_orbit_func,
+                self.mean,
+                args=(self.age,)
+            )
+            cov_params_init_guess = construct_params_from_cov(fitted_birth_cov)
+            base_init_guess = np.hstack([self.age, cov_params_init_guess])
 
-        res = optimize.minimize(
-            self.loss,
-            x0=init_guess,
-            args=(X, resp),
-            method='Nelder-Mead',
-            # method=self.minimize_method,
-        )
-        self.age, *self.cov_params = res.x
+        else:
+            _, _, est_covariance = _estimate_gaussian_parameters(
+                X,
+                resp[:, np.newaxis],
+                self.reg_covar,
+                self.COVARIANCE_TYPE,
+            )
+            cov_params_init_guess = construct_params_from_cov(
+                est_covariance[0]
+            )
+            base_init_guess = np.hstack([0, cov_params_init_guess])
 
-        self.mean, self.covariance = estimate_aged_gaussian_parameters(
+        bounds = self.get_parameter_bounds()
+        all_results = []
+        for age_offset in [-20., -10., 0., 10., 20.]:
+            init_guess = np.copy(base_init_guess)
+            init_guess[0] += age_offset
+            res = optimize.minimize(
+                self.loss,
+                x0=init_guess,
+                args=(X, resp),
+                method='Powell',
+                # method=self.minimize_method,
+                bounds=bounds,
+            )
+            all_results.append(res)
+        best_res = min(all_results, key=lambda x: x.fun)
+        # self.age, *self.cov_params = res.x
+
+        mean, covariance = estimate_aged_gaussian_parameters(
             X,
             resp,
-            res.x,
+            best_res.x,
             self.construct_cov_func,
             self.trace_orbit_func,
             self.reg_covar,
         )
+        age = best_res.x[0]
+        self.set_parameters((mean, covariance, age))
 
         if not np.all(np.linalg.eigvals(self.covariance) > 0):
             raise UserWarning("Cov not pos-def")
@@ -288,6 +328,8 @@ class SphereSpaceTimeComponent(BaseComponent):
         self.precision_chol = _compute_precision_cholesky(
             self.covariance[np.newaxis], self.COVARIANCE_TYPE,
         ).squeeze()
+
+        self.params_set = True
 
     def get_parameters(self):
         """Get the internal parameters of the model
