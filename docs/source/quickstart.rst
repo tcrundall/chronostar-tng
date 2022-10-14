@@ -39,12 +39,13 @@ An empty config file is valid. An example :code:`config.yml` file is:
 
    # define which classes to import
    modules:
-      component: "SpaceTimeComponent"  # A 6D Gaussian with age
+      # A 6D Gaussian with age and spherical birth covariance
+      component: "SphereSpaceTimeComponent"
 
    # any configuration parameters specific to the component class
    component:
-      minimize_method: "brent"  # The scipy.optimize method
-      reg_covar: 1.e-5          # Covariance matrix regularization constant
+      minimize_method: "Nelder-Mead"  # The scipy.optimize method
+      reg_covar: 1.e-6                # Covariance matrix regularization constant
 
    # Specifics for the actual run
    run:
@@ -89,13 +90,24 @@ configuration parameters along with those for the mixture:
 
    mixture:
       max_iter: 100     # Max number of EM iterations
-      tol: 1e-3         # Tolerance for convergence
+      tol: 1e-4         # Tolerance for convergence
+
+      # How a fresh mixture is initialized:
+      #  - 'init_resp': use input membership probabilities (using `init_weights`)
+      #  - 'random': memberships are initialized randomly
+      #  - 'kmeans': memberships are initialized using kmeans
+      #  - 'k-means++': use the k-means++ method to initialize
+      init_params: 'random'
+      # Get SKLearn to print messages. 0 - nothing, 1 - a little, 2 - a lot
+      verbose: 1
+      # how many iterations to wait between SKLearn print messages
+      verbose_interval: 10
+
 
    component:
       reg_covar: 1.e-5
-      minimize_method: 'golden'
+      minimize_method: 'Nelder-Mead'
       trace_orbit_func: 'epicyclic'
-      morph_cov_func: 'elliptical'     # The assumptions placed on birth-site covariance
 
    run:
       savedir: "result"
@@ -133,9 +145,11 @@ An example config file is:
 
    component:
       reg_covar: 1.e-5
-      minimize_method: 'golden'
+      # Unnecessary parameters will be ignored, e.g. the following two
+      # parameters are for SphereSpaceTimeComponent, SpaceComponent will
+      # print a warning, then continue
+      minimize_method: 'Nelder-Mead'
       trace_orbit_func: 'epicyclic'
-      morph_cov_func: 'elliptical'
    
    # introducer:     # A title may be missing
 

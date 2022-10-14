@@ -24,14 +24,14 @@ You can install chronostar from source so that it is importable from everywhere,
 
    python -m pip install .
 
-Now that all depedencies are installed, you can run all the tests. Unit tests should take less than 10 seconds. Integration tests less than 30 seconds.
+Now that all depedencies are installed, you can run all the tests. Unit tests should take less than 10 seconds. Integration tests take up to an hour.
 
 .. code::
 
     pytest tests/unit
     pytest tests/integration
 
-You should now be able to import :code:`chronostar` and have access to the command line tools:
+You should now be able to import :code:`chronostar`:
 
 .. code::
 
@@ -40,7 +40,11 @@ You should now be able to import :code:`chronostar` and have access to the comma
     /path/to/env/lib/python3.9/site-packages/chronostar/__init__.py
     >>> from chronostar.component.spacetimecomponent import SpaceTimeComponent
 
-For developers of chronostar, make sure this isn't clashing with any local version of chronostar hiding in your :code:`PYTHONPATH`.
+.. note::
+
+   For developers of chronostar, make sure this isn't clashing with any local version of chronostar hiding in your :code:`PYTHONPATH`.
+
+You should also have access to the command line tools:
 
 .. code::
 
