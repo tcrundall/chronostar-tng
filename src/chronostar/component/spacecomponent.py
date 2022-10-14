@@ -15,6 +15,19 @@ class SpaceComponent(BaseComponent):
 
     Capable of fitting itself to a set of samples and
     responsibilities (membership probabilities)
+
+    Parameters
+    ----------
+    params : ndarray of shape (42), optional
+        Model parameters, the mean and covariance of a 6D
+        Gaussian, flattened into a 1D array like so:
+        ``np.hstack((mean, covariance.flatten()))``
+
+    Attributes
+    ----------
+    reg_covar : float, default 1.e-6
+        A regularisation constant added to the diagonals
+        of the covariance matrix, configurable
     """
 
     COVARIANCE_TYPE = "full"
@@ -30,7 +43,11 @@ class SpaceComponent(BaseComponent):
         X: NDArray[float64],
         resp: NDArray[float64]
     ) -> None:
-        """Find the best model parameters for the data
+        """Find the best model parameters for the data and stores them
+        in ``self.parameters``.
+
+        You may access the parameters via the properties ``mean`` and
+        ``covariance``.
 
         Parameters
         ----------
@@ -114,9 +131,13 @@ class SpaceComponent(BaseComponent):
         params : (n_features), (n_features, n_features)
             mean, covariance
         """
-        self.parameters_set = True
-        self.parameters = params
 
+        # Set this flag so we know whether parameters are available
+        # This is used in :class:`sklmixture` to determine whether
+        # or not components need to be automatically initialized
+        self.parameters_set = True
+
+        self.parameters = params
         self.precision_chol = _compute_precision_cholesky(
             self.covariance[np.newaxis], self.COVARIANCE_TYPE
         ).squeeze()
@@ -134,13 +155,45 @@ class SpaceComponent(BaseComponent):
 
     @property
     def mean(self) -> NDArray[float64]:
+        """Get the mean, as encoded in internal parameters
+
+        Returns
+        -------
+        NDArray[float64] of shape(6)
+            The central mean of the parameterised 6D Gaussian
+        """
         return self.parameters[:6]
 
     @property
     def covariance(self) -> NDArray[float64]:
+        """Get the covariance, as encoded in internal parameters
+
+        Returns
+        -------
+        NDArray[float64] of shape(6, 6)
+            The central covariance of the parameterised 6D Gaussian
+        """
         return self.parameters[6:].reshape(6, 6)
 
     def split(self) -> tuple[SpaceComponent, SpaceComponent]:
+        """Split this component into two new comps along the largest
+        phase-space dimension
+
+        This method finds the primary axis (i.e. largest eigen vector)
+        and generates two components with means offset in either
+        direction of the primary axis.
+
+        The two new covariances are shrunk in the direction of the
+        primary axis such that the two new ellipsoids formed by one
+        standard deviation span the original ellipsoid formed by one
+        standard deviation.
+
+        Returns
+        -------
+        tuple[SpaceComponent, SpaceComponent]
+            Two new components with offset mean and shrunken
+            covariance
+        """
         # Get primary axis (longest eigen vector)
         eigvals, eigvecs = np.linalg.eigh(self.covariance)
         prim_axis_length = np.sqrt(np.max(eigvals))

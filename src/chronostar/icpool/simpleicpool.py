@@ -13,6 +13,12 @@ from ..base import (
 
 class SimpleICPool(BaseICPool):
     """Manager and populator of a pool of initial conditions
+
+    Attributes
+    ----------
+    max_components : int, default 100
+        The max components in an initial condition provided by
+        `SimpleICPOol`, configurable
     """
     function_parser: dict[str, Callable] = {}
     max_components = 100
@@ -55,7 +61,8 @@ class SimpleICPool(BaseICPool):
         self.registry[unique_id] = ScoredMixture(mixture, score)
 
     def try_populate_queue(self) -> None:
-
+        """Attempt to populate the queue of initial conditions
+        """
         # If this is our first pass, let our introducer provide starting point
         if self.first_pass:
             print("Letting introducer generate first IC")
@@ -93,6 +100,13 @@ class SimpleICPool(BaseICPool):
                 self.queue.put((ix, init_conditions))
 
     def has_next(self) -> bool:
+        """Return True if (after populating if needed) queue is non-empty
+
+        Returns
+        -------
+        bool
+            True if queue is non-empty
+        """
         if not self.queue.empty():
             return True
 
@@ -100,6 +114,13 @@ class SimpleICPool(BaseICPool):
         return not self.queue.empty()
 
     def get_next(self) -> tuple[int, list[BaseComponent]]:
+        """Get the next initial condition set from queue
+
+        Returns
+        -------
+        tuple[int, list[BaseComponent]]
+            (unique_id, initial condition set)
+        """
         return self.queue.get()
 
     @property

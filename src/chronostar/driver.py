@@ -16,18 +16,30 @@ from .base import (
 )
 
 from .component.spherespacetimecomponent import SphereSpaceTimeComponent
-# from .component.ellipspacetimecomponent import EllipSpaceTimeComponent
 from .mixture.componentmixture import ComponentMixture
 from .introducer.simpleintroducer import SimpleIntroducer
 from .icpool.simpleicpool import SimpleICPool
-from .datatools import replace_cov_with_sampling
 
 
 class Driver:
+    """Top level class of Chronostar which drives the
+    entire fitting process
 
-    # Configurable attrbutes
-    approx_covariances = False
-    n_draws = 25
+    Parameters
+    ----------
+    config_file : Union[str, Path]
+        A yaml configuration file with sections mixture, icpool,
+        introducer and component.
+    mixture_class : Type[BaseMixture], default :class:`ComponentMixture`
+        A class derived from BaseMixture
+    icpool_class : Type[BaseICPool], default :class:`SimpleICPool`
+        A class derived from BaseICPool
+    introducer_class : Type[BaseIntroducer], default :class:`SimpleIntroducer`
+        A class derived from BaseIntroducer
+    component_class : Type[BaseComponent], default :class:`SphereSpaceTimeComponent`
+        A class derived from BaseComponent
+
+    """
 
     def __init__(
         self,
@@ -37,24 +49,6 @@ class Driver:
         introducer_class: Type[BaseIntroducer] = SimpleIntroducer,
         component_class: Type[BaseComponent] = SphereSpaceTimeComponent,
     ) -> None:
-        """Top level class of Chronostar which drives the
-        entire fitting process
-
-        Parameters
-        ----------
-        config_file : Union[str, Path]
-            A yaml configuration file with sections mixture, icpool,
-            introducer and component.
-        mixture_class : Type[BaseMixture]
-            A class derived from BaseMixture
-        icpool_class : Type[BaseICPool]
-            A class derived from BaseICPool
-        introducer_class : Type[BaseIntroducer]
-            A class derived from BaseIntroducer
-        component_class : Type[BaseComponent]
-            A class derived from BaseComponent
-        """
-
         if isinstance(config_file, dict):
             config_params = config_file
         else:
@@ -101,22 +95,13 @@ class Driver:
             retrievable by mixture.get_parameters()
         """
 
-        if self.approx_covariances:
-            data = replace_cov_with_sampling(
-                data,
-                covariances,
-                n_draws=self.n_draws,
-            )
-            # If membership used to initialise:
-            # memb_probs = memb_probs.repeat(
-            #       self.config_params["dirver"]["n_draws"], axis=0
-            #       )
-
         icpool = self.icpool_class(
             introducer_class=self.introducer_class,
             component_class=self.component_class,
         )
 
+        # icpool maintains an internal queue of sets of initial conditions
+        # iterate through, fitting to each set, and registering the result
         while icpool.has_next():
             unique_id, init_conds = icpool.get_next()
 
@@ -128,9 +113,6 @@ class Driver:
             )
             m.fit(data)
             icpool.register_result(unique_id, m, -m.bic(data))
-
-        # If covariances were approximated, make sure to average over
-        # any returned membership probabilities
 
         # loop will end when icpool stops generating initial conditions
         return icpool.best_mixture

@@ -1,3 +1,6 @@
+"""
+Module for tracing orbits using the epicyclic approximation
+"""
 import numpy as np
 # from numba import jit
 
@@ -119,23 +122,6 @@ def trace_epicyclic_orbit(
         [pc, pc, pc, km/s, km/s, km/s] - the traced orbit with positions
         and velocities
     """
-    # if single_age:
-    #     # replace 0 with some tiny number
-    #     try:
-    #         if time == 0.:
-    #             time = 1e-15
-    #         # time = np.array([0., time])
-    #     except ValueError as err:
-    #         if not err.args:
-    #             err.args = ('',)
-    #         err.args = err.args + ('WARNING: comparing array to float? '
-    #                                'Did you leave single_age as True?',)
-    #         raise
-
-    # else:
-    #     raise UserWarning('Multi age orbit integation no longer supported')
-    #     time = np.array(time)
-
     # Make sure numbers are floats, and reshape into 2d
     xyzuvw_start = np.atleast_2d(xyzuvw_start)
     # assert len(xyzuvw_start.shape) == 2
@@ -159,4 +145,3 @@ def trace_epicyclic_orbit(
 
     # Remove empty dimensions
     return xyzuvw_new.squeeze()
-    # return np.squeeze(xyzuvw_new)

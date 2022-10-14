@@ -17,7 +17,10 @@ class SKLComponentMixture(SKLBaseMixture):
     ----------
     weights_init : NDArray[float64] of shape (n_components)
         Initial weights of each component, ideally normalized
-        to sum to 1
+        to sum to 1. If array is 2 dimensional, the
+        init_weights are taken to be initial membership probabilities.
+        If this is the case, you must configure
+        `init_params='init_resp'`
     components_init : list[BaseComponent]
         Component objects which will be maximised to the data,
         optionally with pre-initialised parameters
@@ -85,6 +88,10 @@ class SKLComponentMixture(SKLBaseMixture):
         if len(weights_init.shape) == 2:
             self.init_resp = weights_init
             self.weights_ = weights_init.sum(axis=0)
+            if self.init_params != 'init_resp':
+                print("Warning! You provided membership responsibilities"
+                      f" but {self.init_params=}. Should be 'init_resp'"
+                      " otherwise init membership responsibilities are ignored")
         else:
             self.weights_ = weights_init
 
@@ -94,7 +101,7 @@ class SKLComponentMixture(SKLBaseMixture):
         # SKL only initializes parameters if not hasattr(self, "converged_")
         # so we set converged here to avoid that
         if all(c.parameters_set for c in self.components_):
-            print("Components came from previous fit, so skipping"
+            print("All components have set parameters, so skipping"
                   " skl initialization")
             self.converged_ = False
             self.lower_bound_ = -np.inf
@@ -102,9 +109,6 @@ class SKLComponentMixture(SKLBaseMixture):
         if kwargs:
             print("Extra arguments provided...")
 
-    ##################################################
-    #     Methods implemented by GaussianMixture     #
-    ##################################################
     def _check_parameters(self, X: NDArray[float64]) -> None:
         """Override to do nothing
 

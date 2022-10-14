@@ -1,3 +1,7 @@
+"""
+Used for testing only.
+A couple of functions helpful for generating synthetic data sets.
+"""
 import numpy as np
 from numpy import float64
 from numpy.typing import NDArray

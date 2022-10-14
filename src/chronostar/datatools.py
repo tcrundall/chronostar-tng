@@ -14,10 +14,13 @@ def construct_covs_from_data(X, dim=6):
     Notes
     -----
     Structure of data is assumed to be:
-    X, Y, Z, U, V, W, DX, DY, DZ, DU, DV, DW,
-    XY_cov, XZ_cov, XU_cov, XV_cov, XW_cov,
-            YZ_cov, YU_cov, YV_cov, ...
-    etc.
+    .. code::
+
+        X, Y, Z, U, V, W, DX, DY, DZ, DU, DV, DW,
+        XY_cov, XZ_cov, XU_cov, XV_cov, XW_cov,
+                YZ_cov, YU_cov, YV_cov, ...
+        etc.
+
     """
     n_samples = len(X)
 

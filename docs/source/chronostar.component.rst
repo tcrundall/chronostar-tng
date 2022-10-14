@@ -9,15 +9,13 @@ chronostar.component.spacecomponent module
 
 .. automodule:: chronostar.component.spacecomponent
    :members:
-   :undoc-members:
    :show-inheritance:
 
-chronostar.component.spacetimecomponent module
-----------------------------------------------
+chronostar.component.spherespacetimecomponent module
+----------------------------------------------------
 
-.. automodule:: chronostar.component.spacetimecomponent
+.. automodule:: chronostar.component.spherespacetimecomponent
    :members:
-   :undoc-members:
    :show-inheritance:
 
 Module contents
@@ -25,5 +23,4 @@ Module contents
 
 .. automodule:: chronostar.component
    :members:
-   :undoc-members:
    :show-inheritance:

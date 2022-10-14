@@ -1,5 +1,5 @@
-chronostar
-==========
+src
+===
 
 .. toctree::
    :maxdepth: 4
