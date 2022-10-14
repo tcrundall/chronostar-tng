@@ -66,10 +66,6 @@ def import_component(component) -> Type[BaseComponent]:
         from chronostar.component.spherespacetimecomponent import\
             SphereSpaceTimeComponent
         return SphereSpaceTimeComponent
-    if component == 'EllipSpaceTimeComponent':
-        from chronostar.component.ellipspacetimecomponent import\
-            EllipSpaceTimeComponent
-        return EllipSpaceTimeComponent
     elif component == 'SpaceComponent':
         from chronostar.component.spacecomponent import SpaceComponent
         return SpaceComponent

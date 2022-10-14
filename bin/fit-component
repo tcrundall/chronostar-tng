@@ -25,8 +25,9 @@ DEFAULT_CONFIG_PARAMS = {
 
 def import_component(component):
     if component == 'SpaceTimeComponent':
-        from chronostar.component.spacetimecomponent import SpaceTimeComponent
-        return SpaceTimeComponent
+        from chronostar.component.spherespacetimecomponent import\
+            SphereSpaceTimeComponent
+        return SphereSpaceTimeComponent
     elif component == 'SpaceComponent':
         from chronostar.component.spacecomponent import SpaceComponent
         return SpaceComponent

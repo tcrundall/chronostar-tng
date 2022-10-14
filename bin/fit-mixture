@@ -20,7 +20,7 @@ from chronostar.base import BaseComponent, BaseMixture
 
 DEFAULT_CONFIG_PARAMS = {
     'modules': {
-        'component': 'SpaceTimeComponent',
+        'component': 'SphereSpaceTimeComponent',
         'mixture': 'ComponentMixture'
     },
     'component': {},
@@ -36,10 +36,6 @@ def import_component(component) -> Type[BaseComponent]:
         from chronostar.component.spherespacetimecomponent import\
             SphereSpaceTimeComponent
         return SphereSpaceTimeComponent
-    elif component == 'EllipSpaceTimeComponent':
-        from chronostar.component.ellipspacetimecomponent import\
-            EllipSpaceTimeComponent
-        return EllipSpaceTimeComponent
     elif component == 'SpaceComponent':
         from chronostar.component.spacecomponent import SpaceComponent
         return SpaceComponent

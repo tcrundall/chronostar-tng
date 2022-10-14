@@ -1,3 +1,8 @@
+.. role:: bash(code)
+   :language: bash
+
+.. role:: py(code)
+   :language: python
 
 Quickstart
 ----------
@@ -6,7 +11,8 @@ and :code:`fit-chronostar`. Each of these tools serve as entry points to differe
 levels of complexity.
 
 If you'd prefer to stay in python, sample scripts are explained in
-:doc:`Scripts <scripts>`.
+:doc:`Scripts <scripts>`, or you may peruse the pre-written provided scripts
+on `github <https://github.com/tcrundall/chronostar-tng/tree/main/bin>`_.
 
 Each command  assumes you have a data as numpy array of shape
 :code:`(n_samples, n_features)` stored as a :code:`.npy` file.
@@ -74,10 +80,12 @@ Similarly, one can provide a config file:
 
    $ fit-mixture -c /path/to/config.yml 5 path/to/data.npy
 
-.. note::
+One can also provide a membership probability file. Make sure the dimensions
+match (n_stars, n_components)
 
-   Currently there is no implementation for initialising a mixture
-   with membership probabilities. This is on the todo list.
+.. code:: bash
+
+   $ fit-mixture -c path/to/config.yml 5 path/to/data.npy path/to/membprobs.npy
 
 Since a mixture model utilises components, one can provide component
 configuration parameters along with those for the mixture:
@@ -93,7 +101,7 @@ configuration parameters along with those for the mixture:
       tol: 1e-4         # Tolerance for convergence
 
       # How a fresh mixture is initialized:
-      #  - 'init_resp': use input membership probabilities (using `init_weights`)
+      #  - 'init_resp': use input membership probabilities
       #  - 'random': memberships are initialized randomly
       #  - 'kmeans': memberships are initialized using kmeans
       #  - 'k-means++': use the k-means++ method to initialize
@@ -102,7 +110,6 @@ configuration parameters along with those for the mixture:
       verbose: 1
       # how many iterations to wait between SKLearn print messages
       verbose_interval: 10
-
 
    component:
       reg_covar: 1.e-5
@@ -120,11 +127,6 @@ data, then progressively introduces more components, fitting
 more complex mixtures, until extra components cease improving
 the fit.
 
-.. role:: bash(code)
-   :language: bash
-
-Here is some example :bash:`a = b + c`
-
 .. code::
 
    $ fit-chronostar -c path/to/config.yml path/to/data.npy
@@ -141,7 +143,7 @@ An example config file is:
 
    mixture:
       max_iter: 100     # Max number of EM iterations
-      tol: 1e-3         # Tolerance for convergence
+      tol: 1e-4         # Tolerance for convergence
 
    component:
       reg_covar: 1.e-5
