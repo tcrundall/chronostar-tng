@@ -9,7 +9,8 @@ Fitting a component
     import numpy as np
     import yaml
 
-    from chronostar.component.spacetimecomponent import SpaceTimeComponent
+    from chronostar.component.spherespacetimecomponent import SphereSpaceTimeComponent
+    from chronostar.component.spherespacetimecomponent import construct_params_from_cov
 
     # prepare your data array, e.g. by loading from file
     data = np.load('path/to/data.npy')
@@ -23,38 +24,46 @@ Fitting a component
         config_params = yaml.safe_load(stream)
 
     # But you may build your config dictionary however you like
-    # Before usage, the SpaceTimeComponent class must be configured
-    # Here are three different options
+    # Before usage, the SpaceTimeComponent class may be configured
+    # Here are two examples
 
     # With config parameter dictionary
-    SpaceTimeComponent.configure(**config_params)
+    SphereSpaceTimeComponent.configure(**config_params)
 
     # With explicit parameter setting
-    SpaceTimeComponent.configure(
-        minimize_method='brent',
+    SphereSpaceTimeComponent.configure(
+        minimize_method='Nelder-Mead',
         trace_orbit_func=some_func_you_imported,
         )
 
-    # Or with no configuration
-    SpaceTimeComponent.configure()
-
     # Now we can instantiate the class and perform the fit
-    comp = SpaceTimeComponent()
-    comp.maximize(data, np.log(memb_probs))
+    comp = SphereSpaceTimeComponent()
+    comp.maximize(data, memb_probs)
 
-    # The best fitting parameters can be accessed as a tuple
+    # The best fitting parameters can be accessed as an array
     params = comp.get_parameters()
+    birth_mean = params[:6]
+    birth_dxyz = params[6]
+    birth_duvw = params[7]
+    age = params[8]
 
-    # In the case of SpaceTimeComponent, the parameters are:
-    mean, covariance, age = params
+    # In the case of SphereSpaceTimeComponent, the derived parameters are:
+    current_day_mean = comp.mean
+    current_day_covariance = comp.covariance
+    age = comp.age
 
     # But this varies depending on the implementation of Component
 
-.. note::
+Example config.yaml file
+^^^^^^^^^^^^^^^^^
 
-    Currently maximize accepts the log of :code:`memb_probs`. I plan
-    to change that to be just :code:`memb_probs`. I must remember
-    to update docs accordingly.
+.. code-block:: yaml
+
+    component:
+        minimize_method: 'Nelder-Mead'
+        reg_covar: 1e-6
+        trace_orbit_func: 'epicyclic'
+
 
 Fitting a Mixture
 -----------------
@@ -64,7 +73,7 @@ Fitting a Mixture
     import numpy as np
     import yaml
 
-    from chronostar.component.spacetimecomponent import SpaceTimeComponent
+    from chronostar.component.spacetimecomponent import SphereSpaceTimeComponent
     from chronostar.mixture.componentmixture import ComponentMixture
 
     # prepare your data array, e.g. by loading from file
@@ -77,33 +86,57 @@ Fitting a Mixture
     # An example yaml file is shown below
 
     # With config parameter dictionary
-    SpaceTimeComponent.configure(**config_params["component"])
+    SphereSpaceTimeComponent.configure(**config_params["component"])
     ComponentMixture.configure(**config_params["mixture"])
 
+    # --------------------------------------------------
     # Set up initial conditions
-    # In an ideal world, we would be able to initialise with membership
-    # probabilites. Alas, that isn't yet implemented. Instead you must
-    # set initial weights (amplitudes) and set the parameters of each
-    # component. Or you can let things be initialised randomly by the
-    # mixture class.
+    # --------------------------------------------------
+    # initial conditions can be set by
+    #   (1) membership probabilities,
+    #   (2) by component parameters
+    #   (3) by sklearn methods
+
+    # 1. -----------------------------------------------
+    # Initialising by membership probabilities:
+
+    # Load in an array of shape (n_stars, n_components)
+    init_weights = np.load('path/to/membership.npy')
+    n_stars, n_comps = init_weights.shape
+
+    # Construct list of raw components
+    init_comps = [SphereSpaceTimeComponent() for _ in range(n_comps)]
+
+    # Initialise mixture
+    mixture = ComponentMixture(init_weights, init_comps)
+
+    # Run the fit
+    mixture.fit(data)
+
+    # Access results
+    weights, components = mixture.get_parameters()
+    membership_probs = mixture.estimate_membership_probs(data)
+
+    # 2. --------------------------------------------------
+    # Initialising by components
+
+    # This is less straight forward, especially since time components
+    # are parameterised by their bith-mean and -covariance. Typically
+    # this approach would only be used if you have the output of a previous
+    # fit. Of course you could take current day means, expected ages, trace
+    # those means back, and take a guess at their birth covs.
 
     # Say we know of 4 components with stellar counts 100, 300, 400, 500,
+    n_comps = 4
     init_weights = np.array([100., 300., 400., 500.])
     init_weights /= np.sum(init_weights)
 
-    # We initialise components
-    init_comps = [SpaceTimeComponent() for _ in range(4)]
-    means = [
-        #X   Y   Z   U   V   W
-        [0., 0., 0., 0., 0., 0.],       # comp 1
-        [1., 1., 1., 1., 1., 1.],       # comp 2...
-        [2., 2., 2., 2., 2., 2.],
-        [3., 3., 3., 3., 3., 3.],
-    ]
-    covs = [np.eye(6) for _ in range(4)]
-
-    for c, mean, cov in zip(init_comps, means, covs):
-        c.set_parameters((mean, cov, 0.))
+    # With birth means, birth covs and ages:
+    init_comps = []
+    for i in range(n_comps):
+        # Load in the parameters stored as a one dimensional array
+        comp_pars = np.load(f'path/to/prev/result/comp_{i:03}/pars.npy')
+        init_comps.append(SphereSpaceTimeComponent(comp_pars))
 
     # Now we can instantiate the class and perform the fit
     mixture = ComponentMixture(init_weights, init_comps)
@@ -111,6 +144,7 @@ Fitting a Mixture
 
     # Get the fitted weights and components 
     weights, components = mixture.get_parameters()
+    membership_probs = mixture.estimate_membership_probs(data)
 
     # Do with this information what you wish
     print(weights)
@@ -118,22 +152,60 @@ Fitting a Mixture
         for param in c.get_parameters:
             print(param)
 
+    # 3. --------------------------------------------------
+    # Letting sklearn initialise things
+
+    n_comps = 4
+    init_weights = np.ones(len(n_comps)) / n_comps
+
+    init_comps = [SphereSpaceTimeComponent() for _ in range(n_comps)]
+
+    # Notice that we gave the components no parameters
+    # Components will therefore have the attribute .parameters_set = False
+    # ComponentMixture will detect this and prime SKLMixture to 
+    # run one of its initialisation routines, as determined by `init_params`
+    # in the config file
+
+    mixture = ComponentMixture(init_weights, init_comps)
+    mixture.fit(data)
+
+    weights, components = mixture.get_parameters()
+    membership_probs = mixture.estimate_membership_probs(data)
+
+
 Example config.yml file
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: yaml
 
-    mixture: {}
+    mixture:
+        tol: 1.e-4
+        verbose: 2
+        verbose_interval: 1
+
+        # (1) Set this if initialising with membership probs!
+        init_params: 'init_resp'
+        # --------------------------------------------------
+        # (2) If initialising with components, init_params is ignored
+        # --------------------------------------------------
+        # (3) If letting sklearn initialise the fit, pick a method
+        init_params: 'kmeans'
 
     component:
         reg_covar: 1.e-5
-        minimize_method: 'golden'
+        minimize_method: 'Nelder-Mead'
         trace_orbit_func: 'epicyclic'
-        morph_cov_func: 'elliptical'
 
 
 Fit Chronostar
 --------------
+
+Running full chronostar is the simplest script of them all, because
+the :class:`Driver` handles everything. The default classes used are
+:class:`SphereSpaceTimeComponent`, :class:`ComponentMixture`, 
+:class:`SimpleICPool` and :class:`SimpleIntroducer`.
+If you wish to use an alternative (either included in Chronostar or
+a custom class of your own) simply import it and pass it to the :class:`Driver`.
 
 .. code-block:: python
 
@@ -167,3 +239,25 @@ Fit Chronostar
             print(f"  -- param {j} --")
             print(param)
 
+Example config.yml file
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: yaml
+
+    driver: {}
+
+    icpool:
+        max_components: 100
+
+    mixture:
+        tol: 1.e-4
+        verbose: 2
+        verbose_interval: 1
+        # Initialisation mode isn't relevant, since chronostar
+        # typically begins with a one component fit
+        # So lets just avoid choosing anything that might lead to
+        # unnecessary computation (i.e. avoid 'kmeans')
+        init_params: 'random'
+
+    component:
+        reg_covar: 1.e-5

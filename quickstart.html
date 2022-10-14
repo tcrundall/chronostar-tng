@@ -209,9 +209,20 @@
 and <code class="code docutils literal notranslate"><span class="pre">fit-chronostar</span></code>. Each of these tools serve as entry points to different
 levels of complexity.</p>
 <p>If you’d prefer to stay in python, sample scripts are explained in
-<a class="reference internal" href="scripts.html"><span class="doc">Scripts</span></a>.</p>
+<a class="reference internal" href="scripts.html"><span class="doc">Scripts</span></a>, or you may peruse the pre-written provided scripts
+on <a class="reference external" href="https://github.com/tcrundall/chronostar-tng/tree/main/bin">github</a>.</p>
 <p>Each command  assumes you have a data as numpy array of shape
 <code class="code docutils literal notranslate"><span class="pre">(n_samples,</span> <span class="pre">n_features)</span></code> stored as a <code class="code docutils literal notranslate"><span class="pre">.npy</span></code> file.</p>
+<div class="section" id="data-preparation">
+<h2>Data preparation<a class="headerlink" href="#data-preparation" title="Permalink to this heading">#</a></h2>
+<p>Chronostar’s front end expects data to be in a 2D array of shape
+<cite>(n_samples, n_features)</cite>. For current implementations, this translates to
+a <cite>(n_stars, 6)</cite> array where the 6 columns are <cite>XYZUVW</cite>.</p>
+<p>A CLI tool is under development to assist users in this, but it isn’t ready yet.</p>
+<p>If you’re using a subset of a Gaia fits file, we recommend saving an array of the source ids for the stars actually used,
+as this will prove useful mapping Chronostar results back to the fits table and is explicitly used
+by <cite>plot-features</cite>.</p>
+</div>
 <div class="section" id="fitting-a-component">
 <h2>Fitting a component<a class="headerlink" href="#fitting-a-component" title="Permalink to this heading">#</a></h2>
 <p>This is for fitting a single component (e.g. a 6-D Gaussian) to the data.</p>
@@ -231,12 +242,13 @@ and stored in a <code class="code docutils literal notranslate"><span class="pre
 <p>An empty config file is valid. An example <code class="code docutils literal notranslate"><span class="pre">config.yml</span></code> file is:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># define which classes to import</span>
 <span class="n">modules</span><span class="p">:</span>
-   <span class="n">component</span><span class="p">:</span> <span class="s2">&quot;SpaceTimeComponent&quot;</span>  <span class="c1"># A 6D Gaussian with age</span>
+   <span class="c1"># A 6D Gaussian with age and spherical birth covariance</span>
+   <span class="n">component</span><span class="p">:</span> <span class="s2">&quot;SphereSpaceTimeComponent&quot;</span>
 
 <span class="c1"># any configuration parameters specific to the component class</span>
 <span class="n">component</span><span class="p">:</span>
-   <span class="n">minimize_method</span><span class="p">:</span> <span class="s2">&quot;brent&quot;</span>  <span class="c1"># The scipy.optimize method</span>
-   <span class="n">reg_covar</span><span class="p">:</span> <span class="mf">1.e-5</span>          <span class="c1"># Covariance matrix regularization constant</span>
+   <span class="n">minimize_method</span><span class="p">:</span> <span class="s2">&quot;Nelder-Mead&quot;</span>  <span class="c1"># The scipy.optimize method</span>
+   <span class="n">reg_covar</span><span class="p">:</span> <span class="mf">1.e-6</span>                <span class="c1"># Covariance matrix regularization constant</span>
 
 <span class="c1"># Specifics for the actual run</span>
 <span class="n">run</span><span class="p">:</span>
@@ -260,10 +272,10 @@ notation, or <code class="code docutils literal notranslate"><span class="pre">y
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fit-mixture -c /path/to/config.yml 5 path/to/data.npy
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Currently there is no implementation for initialising a mixture
-with membership probabilities. This is on the todo list.</p>
+<p>One can also provide a membership probability file. Make sure the dimensions
+match (n_stars, n_components)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ fit-mixture -c path/to/config.yml <span class="m">5</span> path/to/data.npy path/to/membprobs.npy
+</pre></div>
 </div>
 <p>Since a mixture model utilises components, one can provide component
 configuration parameters along with those for the mixture:</p>
@@ -273,13 +285,23 @@ configuration parameters along with those for the mixture:</p>
 
 <span class="n">mixture</span><span class="p">:</span>
    <span class="n">max_iter</span><span class="p">:</span> <span class="mi">100</span>     <span class="c1"># Max number of EM iterations</span>
-   <span class="n">tol</span><span class="p">:</span> <span class="mf">1e-3</span>         <span class="c1"># Tolerance for convergence</span>
+   <span class="n">tol</span><span class="p">:</span> <span class="mf">1e-4</span>         <span class="c1"># Tolerance for convergence</span>
+
+   <span class="c1"># How a fresh mixture is initialized:</span>
+   <span class="c1">#  - &#39;init_resp&#39;: use input membership probabilities</span>
+   <span class="c1">#  - &#39;random&#39;: memberships are initialized randomly</span>
+   <span class="c1">#  - &#39;kmeans&#39;: memberships are initialized using kmeans</span>
+   <span class="c1">#  - &#39;k-means++&#39;: use the k-means++ method to initialize</span>
+   <span class="n">init_params</span><span class="p">:</span> <span class="s1">&#39;random&#39;</span>
+   <span class="c1"># Get SKLearn to print messages. 0 - nothing, 1 - a little, 2 - a lot</span>
+   <span class="n">verbose</span><span class="p">:</span> <span class="mi">1</span>
+   <span class="c1"># how many iterations to wait between SKLearn print messages</span>
+   <span class="n">verbose_interval</span><span class="p">:</span> <span class="mi">10</span>
 
 <span class="n">component</span><span class="p">:</span>
    <span class="n">reg_covar</span><span class="p">:</span> <span class="mf">1.e-5</span>
-   <span class="n">minimize_method</span><span class="p">:</span> <span class="s1">&#39;golden&#39;</span>
+   <span class="n">minimize_method</span><span class="p">:</span> <span class="s1">&#39;Nelder-Mead&#39;</span>
    <span class="n">trace_orbit_func</span><span class="p">:</span> <span class="s1">&#39;epicyclic&#39;</span>
-   <span class="n">morph_cov_func</span><span class="p">:</span> <span class="s1">&#39;elliptical&#39;</span>     <span class="c1"># The assumptions placed on birth-site covariance</span>
 
 <span class="n">run</span><span class="p">:</span>
    <span class="n">savedir</span><span class="p">:</span> <span class="s2">&quot;result&quot;</span>
@@ -293,7 +315,6 @@ Chronostar begins with fitting a single component to the
 data, then progressively introduces more components, fitting
 more complex mixtures, until extra components cease improving
 the fit.</p>
-<p>Here is some example <code class="code highlight bash docutils literal highlight-bash"><span class="nv">a</span> <span class="o">=</span> b + c</code></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fit-chronostar -c path/to/config.yml path/to/data.npy
 </pre></div>
 </div>
@@ -306,13 +327,15 @@ the fit.</p>
 
 <span class="n">mixture</span><span class="p">:</span>
    <span class="n">max_iter</span><span class="p">:</span> <span class="mi">100</span>     <span class="c1"># Max number of EM iterations</span>
-   <span class="n">tol</span><span class="p">:</span> <span class="mf">1e-3</span>         <span class="c1"># Tolerance for convergence</span>
+   <span class="n">tol</span><span class="p">:</span> <span class="mf">1e-4</span>         <span class="c1"># Tolerance for convergence</span>
 
 <span class="n">component</span><span class="p">:</span>
    <span class="n">reg_covar</span><span class="p">:</span> <span class="mf">1.e-5</span>
-   <span class="n">minimize_method</span><span class="p">:</span> <span class="s1">&#39;golden&#39;</span>
+   <span class="c1"># Unnecessary parameters will be ignored, e.g. the following two</span>
+   <span class="c1"># parameters are for SphereSpaceTimeComponent, SpaceComponent will</span>
+   <span class="c1"># print a warning, then continue</span>
+   <span class="n">minimize_method</span><span class="p">:</span> <span class="s1">&#39;Nelder-Mead&#39;</span>
    <span class="n">trace_orbit_func</span><span class="p">:</span> <span class="s1">&#39;epicyclic&#39;</span>
-   <span class="n">morph_cov_func</span><span class="p">:</span> <span class="s1">&#39;elliptical&#39;</span>
 
 <span class="c1"># introducer:     # A title may be missing</span>
 
@@ -321,6 +344,25 @@ the fit.</p>
 <span class="n">run</span><span class="p">:</span>
    <span class="n">savedir</span><span class="p">:</span> <span class="s2">&quot;result&quot;</span>
 </pre></div>
+</div>
+</div>
+<div class="section" id="plotting">
+<h2>Plotting<a class="headerlink" href="#plotting" title="Permalink to this heading">#</a></h2>
+<p>A CLI tool for plotting is provided. It has two key functions so far. One is to plot features against features. Another is to plot CMDs. In both instances points are coloured by membership.</p>
+<div class="section" id="features">
+<h3>Features<a class="headerlink" href="#features" title="Permalink to this heading">#</a></h3>
+<p>Here is an example of plotting 6 phase-space planes (‘XY, XZ, YZ, XU, YV, ZW’) and saving the plot in a directory <cite>plots</cite>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span><span class="o">-</span><span class="n">features</span> <span class="o">-</span><span class="n">f</span> <span class="s1">&#39;0,1.0,2.1,2.0,3.1,4.2,5&#39;</span> <span class="o">-</span><span class="n">m</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">data</span><span class="o">.</span><span class="n">npy</span> <span class="o">-</span><span class="n">z</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">membership_probs</span><span class="o">.</span><span class="n">npy</span> <span class="o">-</span><span class="n">o</span> <span class="n">plots</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="cmd">
+<h3>CMD<a class="headerlink" href="#cmd" title="Permalink to this heading">#</a></h3>
+<p>Here is an example of plotting a CMD. Since the fits file likely featured rows with incomplete data, there will likely not be a one to one mapping from the membership probability table to the astrometry table. Hence <cite>source_ids.npy</cite> is used. <cite>source_ids.npy</cite> should be of shape <cite>(n_stars)</cite>
+and has the gaia source id of each star in <cite>membership_probs.npy</cite>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span><span class="o">-</span><span class="n">features</span> <span class="o">--</span><span class="n">photom</span> <span class="o">-</span><span class="n">d</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">gaia</span><span class="o">/</span><span class="n">data</span><span class="o">.</span><span class="n">fits</span> <span class="o">-</span><span class="n">z</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">membership_probs</span><span class="o">.</span><span class="n">npy</span> <span class="o">-</span><span class="n">s</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">source_ids</span><span class="o">.</span><span class="n">npy</span>
+</pre></div>
+</div>
 </div>
 </div>
 </div>
@@ -383,9 +425,15 @@ the fit.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Quickstart</a><ul>
+<li><a class="reference internal" href="#data-preparation">Data preparation</a></li>
 <li><a class="reference internal" href="#fitting-a-component">Fitting a component</a></li>
 <li><a class="reference internal" href="#fitting-a-mixture">Fitting a mixture</a></li>
 <li><a class="reference internal" href="#finding-the-best-mixture">Finding the best mixture</a></li>
+<li><a class="reference internal" href="#plotting">Plotting</a><ul>
+<li><a class="reference internal" href="#features">Features</a></li>
+<li><a class="reference internal" href="#cmd">CMD</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

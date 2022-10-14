@@ -210,7 +210,8 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 
-<span class="kn">from</span> <span class="nn">chronostar.component.spacetimecomponent</span> <span class="kn">import</span> <span class="n">SpaceTimeComponent</span>
+<span class="kn">from</span> <span class="nn">chronostar.component.spherespacetimecomponent</span> <span class="kn">import</span> <span class="n">SphereSpaceTimeComponent</span>
+<span class="kn">from</span> <span class="nn">chronostar.component.spherespacetimecomponent</span> <span class="kn">import</span> <span class="n">construct_params_from_cov</span>
 
 <span class="c1"># prepare your data array, e.g. by loading from file</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;path/to/data.npy&#39;</span><span class="p">)</span>
@@ -224,39 +225,45 @@
     <span class="n">config_params</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
 
 <span class="c1"># But you may build your config dictionary however you like</span>
-<span class="c1"># Before usage, the SpaceTimeComponent class must be configured</span>
-<span class="c1"># Here are three different options</span>
+<span class="c1"># Before usage, the SpaceTimeComponent class may be configured</span>
+<span class="c1"># Here are two examples</span>
 
 <span class="c1"># With config parameter dictionary</span>
-<span class="n">SpaceTimeComponent</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="o">**</span><span class="n">config_params</span><span class="p">)</span>
+<span class="n">SphereSpaceTimeComponent</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="o">**</span><span class="n">config_params</span><span class="p">)</span>
 
 <span class="c1"># With explicit parameter setting</span>
-<span class="n">SpaceTimeComponent</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span>
-    <span class="n">minimize_method</span><span class="o">=</span><span class="s1">&#39;brent&#39;</span><span class="p">,</span>
+<span class="n">SphereSpaceTimeComponent</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span>
+    <span class="n">minimize_method</span><span class="o">=</span><span class="s1">&#39;Nelder-Mead&#39;</span><span class="p">,</span>
     <span class="n">trace_orbit_func</span><span class="o">=</span><span class="n">some_func_you_imported</span><span class="p">,</span>
     <span class="p">)</span>
 
-<span class="c1"># Or with no configuration</span>
-<span class="n">SpaceTimeComponent</span><span class="o">.</span><span class="n">configure</span><span class="p">()</span>
-
 <span class="c1"># Now we can instantiate the class and perform the fit</span>
-<span class="n">comp</span> <span class="o">=</span> <span class="n">SpaceTimeComponent</span><span class="p">()</span>
-<span class="n">comp</span><span class="o">.</span><span class="n">maximize</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">memb_probs</span><span class="p">))</span>
+<span class="n">comp</span> <span class="o">=</span> <span class="n">SphereSpaceTimeComponent</span><span class="p">()</span>
+<span class="n">comp</span><span class="o">.</span><span class="n">maximize</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">memb_probs</span><span class="p">)</span>
 
-<span class="c1"># The best fitting parameters can be accessed as a tuple</span>
+<span class="c1"># The best fitting parameters can be accessed as an array</span>
 <span class="n">params</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">get_parameters</span><span class="p">()</span>
+<span class="n">birth_mean</span> <span class="o">=</span> <span class="n">params</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span>
+<span class="n">birth_dxyz</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+<span class="n">birth_duvw</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
+<span class="n">age</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span>
 
-<span class="c1"># In the case of SpaceTimeComponent, the parameters are:</span>
-<span class="n">mean</span><span class="p">,</span> <span class="n">covariance</span><span class="p">,</span> <span class="n">age</span> <span class="o">=</span> <span class="n">params</span>
+<span class="c1"># In the case of SphereSpaceTimeComponent, the derived parameters are:</span>
+<span class="n">current_day_mean</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">mean</span>
+<span class="n">current_day_covariance</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">covariance</span>
+<span class="n">age</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">age</span>
 
 <span class="c1"># But this varies depending on the implementation of Component</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Currently maximize accepts the log of <code class="code docutils literal notranslate"><span class="pre">memb_probs</span></code>. I plan
-to change that to be just <code class="code docutils literal notranslate"><span class="pre">memb_probs</span></code>. I must remember
-to update docs accordingly.</p>
+<div class="section" id="example-config-yaml-file">
+<h3>Example config.yaml file<a class="headerlink" href="#example-config-yaml-file" title="Permalink to this heading">#</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">component</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">minimize_method</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Nelder-Mead&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">reg_covar</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1e-6</span><span class="w"></span>
+<span class="w">    </span><span class="nt">trace_orbit_func</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;epicyclic&#39;</span><span class="w"></span>
+</pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="fitting-a-mixture">
@@ -264,7 +271,7 @@ to update docs accordingly.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 
-<span class="kn">from</span> <span class="nn">chronostar.component.spacetimecomponent</span> <span class="kn">import</span> <span class="n">SpaceTimeComponent</span>
+<span class="kn">from</span> <span class="nn">chronostar.component.spacetimecomponent</span> <span class="kn">import</span> <span class="n">SphereSpaceTimeComponent</span>
 <span class="kn">from</span> <span class="nn">chronostar.mixture.componentmixture</span> <span class="kn">import</span> <span class="n">ComponentMixture</span>
 
 <span class="c1"># prepare your data array, e.g. by loading from file</span>
@@ -277,33 +284,57 @@ to update docs accordingly.</p>
 <span class="c1"># An example yaml file is shown below</span>
 
 <span class="c1"># With config parameter dictionary</span>
-<span class="n">SpaceTimeComponent</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="o">**</span><span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;component&quot;</span><span class="p">])</span>
+<span class="n">SphereSpaceTimeComponent</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="o">**</span><span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;component&quot;</span><span class="p">])</span>
 <span class="n">ComponentMixture</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="o">**</span><span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;mixture&quot;</span><span class="p">])</span>
 
+<span class="c1"># --------------------------------------------------</span>
 <span class="c1"># Set up initial conditions</span>
-<span class="c1"># In an ideal world, we would be able to initialise with membership</span>
-<span class="c1"># probabilites. Alas, that isn&#39;t yet implemented. Instead you must</span>
-<span class="c1"># set initial weights (amplitudes) and set the parameters of each</span>
-<span class="c1"># component. Or you can let things be initialised randomly by the</span>
-<span class="c1"># mixture class.</span>
+<span class="c1"># --------------------------------------------------</span>
+<span class="c1"># initial conditions can be set by</span>
+<span class="c1">#   (1) membership probabilities,</span>
+<span class="c1">#   (2) by component parameters</span>
+<span class="c1">#   (3) by sklearn methods</span>
+
+<span class="c1"># 1. -----------------------------------------------</span>
+<span class="c1"># Initialising by membership probabilities:</span>
+
+<span class="c1"># Load in an array of shape (n_stars, n_components)</span>
+<span class="n">init_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;path/to/membership.npy&#39;</span><span class="p">)</span>
+<span class="n">n_stars</span><span class="p">,</span> <span class="n">n_comps</span> <span class="o">=</span> <span class="n">init_weights</span><span class="o">.</span><span class="n">shape</span>
+
+<span class="c1"># Construct list of raw components</span>
+<span class="n">init_comps</span> <span class="o">=</span> <span class="p">[</span><span class="n">SphereSpaceTimeComponent</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_comps</span><span class="p">)]</span>
+
+<span class="c1"># Initialise mixture</span>
+<span class="n">mixture</span> <span class="o">=</span> <span class="n">ComponentMixture</span><span class="p">(</span><span class="n">init_weights</span><span class="p">,</span> <span class="n">init_comps</span><span class="p">)</span>
+
+<span class="c1"># Run the fit</span>
+<span class="n">mixture</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># Access results</span>
+<span class="n">weights</span><span class="p">,</span> <span class="n">components</span> <span class="o">=</span> <span class="n">mixture</span><span class="o">.</span><span class="n">get_parameters</span><span class="p">()</span>
+<span class="n">membership_probs</span> <span class="o">=</span> <span class="n">mixture</span><span class="o">.</span><span class="n">estimate_membership_probs</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># 2. --------------------------------------------------</span>
+<span class="c1"># Initialising by components</span>
+
+<span class="c1"># This is less straight forward, especially since time components</span>
+<span class="c1"># are parameterised by their bith-mean and -covariance. Typically</span>
+<span class="c1"># this approach would only be used if you have the output of a previous</span>
+<span class="c1"># fit. Of course you could take current day means, expected ages, trace</span>
+<span class="c1"># those means back, and take a guess at their birth covs.</span>
 
 <span class="c1"># Say we know of 4 components with stellar counts 100, 300, 400, 500,</span>
+<span class="n">n_comps</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">init_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">100.</span><span class="p">,</span> <span class="mf">300.</span><span class="p">,</span> <span class="mf">400.</span><span class="p">,</span> <span class="mf">500.</span><span class="p">])</span>
 <span class="n">init_weights</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">init_weights</span><span class="p">)</span>
 
-<span class="c1"># We initialise components</span>
-<span class="n">init_comps</span> <span class="o">=</span> <span class="p">[</span><span class="n">SpaceTimeComponent</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
-<span class="n">means</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="c1">#X   Y   Z   U   V   W</span>
-    <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span>       <span class="c1"># comp 1</span>
-    <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>       <span class="c1"># comp 2...</span>
-    <span class="p">[</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">],</span>
-    <span class="p">[</span><span class="mf">3.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">],</span>
-<span class="p">]</span>
-<span class="n">covs</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
-
-<span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">cov</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">init_comps</span><span class="p">,</span> <span class="n">means</span><span class="p">,</span> <span class="n">covs</span><span class="p">):</span>
-    <span class="n">c</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">((</span><span class="n">mean</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="mf">0.</span><span class="p">))</span>
+<span class="c1"># With birth means, birth covs and ages:</span>
+<span class="n">init_comps</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_comps</span><span class="p">):</span>
+    <span class="c1"># Load in the parameters stored as a one dimensional array</span>
+    <span class="n">comp_pars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;path/to/prev/result/comp_</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s1">03</span><span class="si">}</span><span class="s1">/pars.npy&#39;</span><span class="p">)</span>
+    <span class="n">init_comps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SphereSpaceTimeComponent</span><span class="p">(</span><span class="n">comp_pars</span><span class="p">))</span>
 
 <span class="c1"># Now we can instantiate the class and perform the fit</span>
 <span class="n">mixture</span> <span class="o">=</span> <span class="n">ComponentMixture</span><span class="p">(</span><span class="n">init_weights</span><span class="p">,</span> <span class="n">init_comps</span><span class="p">)</span>
@@ -311,29 +342,66 @@ to update docs accordingly.</p>
 
 <span class="c1"># Get the fitted weights and components</span>
 <span class="n">weights</span><span class="p">,</span> <span class="n">components</span> <span class="o">=</span> <span class="n">mixture</span><span class="o">.</span><span class="n">get_parameters</span><span class="p">()</span>
+<span class="n">membership_probs</span> <span class="o">=</span> <span class="n">mixture</span><span class="o">.</span><span class="n">estimate_membership_probs</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
 <span class="c1"># Do with this information what you wish</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">components</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">get_parameters</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+
+<span class="c1"># 3. --------------------------------------------------</span>
+<span class="c1"># Letting sklearn initialise things</span>
+
+<span class="n">n_comps</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">init_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">n_comps</span><span class="p">))</span> <span class="o">/</span> <span class="n">n_comps</span>
+
+<span class="n">init_comps</span> <span class="o">=</span> <span class="p">[</span><span class="n">SphereSpaceTimeComponent</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_comps</span><span class="p">)]</span>
+
+<span class="c1"># Notice that we gave the components no parameters</span>
+<span class="c1"># Components will therefore have the attribute .parameters_set = False</span>
+<span class="c1"># ComponentMixture will detect this and prime SKLMixture to</span>
+<span class="c1"># run one of its initialisation routines, as determined by `init_params`</span>
+<span class="c1"># in the config file</span>
+
+<span class="n">mixture</span> <span class="o">=</span> <span class="n">ComponentMixture</span><span class="p">(</span><span class="n">init_weights</span><span class="p">,</span> <span class="n">init_comps</span><span class="p">)</span>
+<span class="n">mixture</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="n">weights</span><span class="p">,</span> <span class="n">components</span> <span class="o">=</span> <span class="n">mixture</span><span class="o">.</span><span class="n">get_parameters</span><span class="p">()</span>
+<span class="n">membership_probs</span> <span class="o">=</span> <span class="n">mixture</span><span class="o">.</span><span class="n">estimate_membership_probs</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="section" id="example-config-yml-file">
 <h3>Example config.yml file<a class="headerlink" href="#example-config-yml-file" title="Permalink to this heading">#</a></h3>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">mixture</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">mixture</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">tol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.e-4</span><span class="w"></span>
+<span class="w">    </span><span class="nt">verbose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w"></span>
+<span class="w">    </span><span class="nt">verbose_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1"># (1) Set this if initialising with membership probs!</span><span class="w"></span>
+<span class="w">    </span><span class="nt">init_params</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;init_resp&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="c1"># --------------------------------------------------</span><span class="w"></span>
+<span class="w">    </span><span class="c1"># (2) If initialising with components, init_params is ignored</span><span class="w"></span>
+<span class="w">    </span><span class="c1"># --------------------------------------------------</span><span class="w"></span>
+<span class="w">    </span><span class="c1"># (3) If letting sklearn initialise the fit, pick a method</span><span class="w"></span>
+<span class="w">    </span><span class="nt">init_params</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;kmeans&#39;</span><span class="w"></span>
 
 <span class="nt">component</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">reg_covar</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.e-5</span><span class="w"></span>
-<span class="w">    </span><span class="nt">minimize_method</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;golden&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">minimize_method</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Nelder-Mead&#39;</span><span class="w"></span>
 <span class="w">    </span><span class="nt">trace_orbit_func</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;epicyclic&#39;</span><span class="w"></span>
-<span class="w">    </span><span class="nt">morph_cov_func</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;elliptical&#39;</span><span class="w"></span>
 </pre></div>
 </div>
 </div>
 </div>
 <div class="section" id="fit-chronostar">
 <h2>Fit Chronostar<a class="headerlink" href="#fit-chronostar" title="Permalink to this heading">#</a></h2>
+<p>Running full chronostar is the simplest script of them all, because
+the <code class="xref py py-class docutils literal notranslate"><span class="pre">Driver</span></code> handles everything. The default classes used are
+<code class="xref py py-class docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ComponentMixture</span></code>,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleICPool</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleIntroducer</span></code>.
+If you wish to use an alternative (either included in Chronostar or
+a custom class of your own) simply import it and pass it to the <code class="xref py py-class docutils literal notranslate"><span class="pre">Driver</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 
@@ -364,6 +432,28 @@ to update docs accordingly.</p>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  -- param </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2"> --&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
 </pre></div>
+</div>
+<div class="section" id="id1">
+<h3>Example config.yml file<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span><span class="w"></span>
+
+<span class="nt">icpool</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">max_components</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span><span class="w"></span>
+
+<span class="nt">mixture</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">tol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.e-4</span><span class="w"></span>
+<span class="w">    </span><span class="nt">verbose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w"></span>
+<span class="w">    </span><span class="nt">verbose_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="c1"># Initialisation mode isn&#39;t relevant, since chronostar</span><span class="w"></span>
+<span class="w">    </span><span class="c1"># typically begins with a one component fit</span><span class="w"></span>
+<span class="w">    </span><span class="c1"># So lets just avoid choosing anything that might lead to</span><span class="w"></span>
+<span class="w">    </span><span class="c1"># unnecessary computation (i.e. avoid &#39;kmeans&#39;)</span><span class="w"></span>
+<span class="w">    </span><span class="nt">init_params</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;random&#39;</span><span class="w"></span>
+
+<span class="nt">component</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">reg_covar</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.e-5</span><span class="w"></span>
+</pre></div>
+</div>
 </div>
 </div>
 </div>
@@ -426,12 +516,18 @@ to update docs accordingly.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Scripts</a><ul>
-<li><a class="reference internal" href="#fitting-a-component">Fitting a component</a></li>
+<li><a class="reference internal" href="#fitting-a-component">Fitting a component</a><ul>
+<li><a class="reference internal" href="#example-config-yaml-file">Example config.yaml file</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#fitting-a-mixture">Fitting a Mixture</a><ul>
 <li><a class="reference internal" href="#example-config-yml-file">Example config.yml file</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#fit-chronostar">Fit Chronostar</a></li>
+<li><a class="reference internal" href="#fit-chronostar">Fit Chronostar</a><ul>
+<li><a class="reference internal" href="#id1">Example config.yml file</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
