@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="chronostar package" href="chronostar.html" /><link rel="prev" title="Scripts" href="scripts.html" />
 
     <meta name="generator" content="sphinx-5.2.3, furo 2022.09.29"/>
-        <title>chronostar - chronostar-tng 1.0 documentation</title>
+        <title>src - chronostar-tng 1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
@@ -161,7 +161,6 @@
 <li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="chronostar.html">chronostar package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="chronostar.component.html">chronostar.component package</a></li>
-<li class="toctree-l3"><a class="reference internal" href="chronostar.driver.html">chronostar.driver package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="chronostar.icpool.html">chronostar.icpool package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="chronostar.introducer.html">chronostar.introducer package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="chronostar.mixture.html">chronostar.mixture package</a></li>
@@ -204,8 +203,8 @@
           </label>
         </div>
         <article role="main">
-          <div class="section" id="chronostar">
-<h1>chronostar<a class="headerlink" href="#chronostar" title="Permalink to this heading">#</a></h1>
+          <div class="section" id="src">
+<h1>src<a class="headerlink" href="#src" title="Permalink to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="chronostar.html">chronostar package</a><ul>
@@ -213,14 +212,8 @@
 <li class="toctree-l3"><a class="reference internal" href="chronostar.component.html">chronostar.component package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="chronostar.component.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="chronostar.component.html#chronostar-component-spacecomponent-module">chronostar.component.spacecomponent module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="chronostar.component.html#chronostar-component-spacetimecomponent-module">chronostar.component.spacetimecomponent module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="chronostar.component.html#chronostar-component-spherespacetimecomponent-module">chronostar.component.spherespacetimecomponent module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="chronostar.component.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="chronostar.driver.html">chronostar.driver package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="chronostar.driver.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="chronostar.driver.html#chronostar-driver-driver-module">chronostar.driver.driver module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="chronostar.driver.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="chronostar.icpool.html">chronostar.icpool package</a><ul>
@@ -244,8 +237,8 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="chronostar.utils.html">chronostar.utils package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="chronostar.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="chronostar.utils.html#chronostar-utils-coordinate-module">chronostar.utils.coordinate module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="chronostar.utils.html#chronostar-utils-transform-module">chronostar.utils.transform module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="chronostar.utils.html#chronostar-utils-utils-module">chronostar.utils.utils module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="chronostar.utils.html#module-contents">Module contents</a></li>
 </ul>
 </li>
@@ -253,6 +246,10 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="chronostar.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="chronostar.html#chronostar-base-module">chronostar.base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chronostar.html#chronostar-datatools-module">chronostar.datatools module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chronostar.html#chronostar-driver-module">chronostar.driver module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chronostar.html#chronostar-synthdata-module">chronostar.synthdata module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chronostar.html#chronostar-traceorbit-module">chronostar.traceorbit module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="chronostar.html#module-contents">Module contents</a></li>
 </ul>
 </li>

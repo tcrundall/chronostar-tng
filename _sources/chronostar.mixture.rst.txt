@@ -9,7 +9,6 @@ chronostar.mixture.componentmixture module
 
 .. automodule:: chronostar.mixture.componentmixture
    :members:
-   :undoc-members:
    :show-inheritance:
 
 chronostar.mixture.sklmixture module
@@ -17,7 +16,6 @@ chronostar.mixture.sklmixture module
 
 .. automodule:: chronostar.mixture.sklmixture
    :members:
-   :undoc-members:
    :show-inheritance:
 
 Module contents
@@ -25,5 +23,4 @@ Module contents
 
 .. automodule:: chronostar.mixture
    :members:
-   :undoc-members:
    :show-inheritance:
