@@ -130,7 +130,3 @@ if __name__ == '__main__':
 
     # Store ids
     np.save("ids.npy", t['source_id'][msk])
-
-    # Can retrieve rows with
-    # ids = np.load("ids.npy")
-    # masked_t = t[np.where(np.isin(t['source_id'], ids))]

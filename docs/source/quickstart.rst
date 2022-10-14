@@ -17,6 +17,18 @@ on `github <https://github.com/tcrundall/chronostar-tng/tree/main/bin>`_.
 Each command  assumes you have a data as numpy array of shape
 :code:`(n_samples, n_features)` stored as a :code:`.npy` file.
 
+Data preparation
+^^^^^^^^^^^^^^^^
+Chronostar's front end expects data to be in a 2D array of shape
+`(n_samples, n_features)`. For current implementations, this translates to
+a `(n_stars, 6)` array where the 6 columns are `XYZUVW`.
+
+A CLI tool is under development to assist users in this, but it isn't ready yet.
+
+If you're using a subset of a Gaia fits file, we recommend saving an array of the source ids for the stars actually used,
+as this will prove useful mapping Chronostar results back to the fits table and is explicitly used
+by `plot-features`.
+
 Fitting a component
 ^^^^^^^^^^^^^^^^^^^
 This is for fitting a single component (e.g. a 6-D Gaussian) to the data.
@@ -159,3 +171,25 @@ An example config file is:
 
    run:
       savedir: "result"
+
+Plotting
+^^^^^^^^
+A CLI tool for plotting is provided. It has two key functions so far. One is to plot features against features. Another is to plot CMDs. In both instances points are coloured by membership.
+
+Features
+++++++++
+Here is an example of plotting 6 phase-space planes ('XY, XZ, YZ, XU, YV, ZW') and saving the plot in a directory `plots`.
+
+.. code::
+
+   plot-features -f '0,1.0,2.1,2.0,3.1,4.2,5' -m path/to/data.npy -z path/to/membership_probs.npy -o plots
+
+CMD
++++
+Here is an example of plotting a CMD. Since the fits file likely featured rows with incomplete data, there will likely not be a one to one mapping from the membership probability table to the astrometry table. Hence `source_ids.npy` is used. `source_ids.npy` should be of shape `(n_stars)`
+and has the gaia source id of each star in `membership_probs.npy`.
+
+.. code::
+
+   plot-features --photom -d path/to/gaia/data.fits -z path/to/membership_probs.npy -s path/to/source_ids.npy
+
