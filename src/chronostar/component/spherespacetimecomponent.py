@@ -129,6 +129,7 @@ class SphereSpaceTimeComponent(BaseComponent):
 
     def __init__(self, params: Optional[NDArray[float64]] = None) -> None:
         super().__init__(params)
+        self.maximize_iter = 0
 
     def cov_lnpriors(self, cov_params) -> float:
         """Apply priors to covariance parameters
@@ -300,7 +301,6 @@ class SphereSpaceTimeComponent(BaseComponent):
             # was initialized with parameters previously, then use them
             if self.parameters_set:
                 base_init_guess = self.parameters
-                age_offsets = [0.]
 
             # Otherwise, initialise based on the data, with age 0.
             else:
@@ -317,8 +317,12 @@ class SphereSpaceTimeComponent(BaseComponent):
                 base_init_guess = np.hstack(
                     [mean_params_init_guess, cov_params_init_guess, 0.]
                 )
-                # Provide a set of different ages to try
+
+            # Every 10 iterations, check for age offsets
+            if self.maximize_iter % 20 == 0:
                 age_offsets = [0., 40., 80., 120., 160., 200.]
+            else:
+                age_offsets = [0.]
 
             # --------------------------------------------------
             # Perform minimization with 3 separate age offsets
@@ -359,6 +363,8 @@ class SphereSpaceTimeComponent(BaseComponent):
             # attributes, e.g. :attr:`precision_chol`
             self.set_parameters(best_res.x)
             print(f"age: {self.age:.3f}")
+
+            self.maximize_iter += 1
 
     def estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
         """Calculate the log probability of each sample given
