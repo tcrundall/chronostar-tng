@@ -23,11 +23,11 @@ standard of rest (`XYZUVW`).
 
 In any directory you can call:
 ```
->>> fit-component path/to/data.npy [path/to/memberships.npy]
->>> fit-mixture NCOMPONENTS path/to/data.npy
+>>> fit-component path/to/data.npy [path/to/comp_memberships.npy]
+>>> fit-mixture NCOMPONENTS path/to/data.npy [path/to/mixture_memberships.npy]
     or
 >>> fit-chronostar path/to/data.npy
 ```
 
-Where `memberships.npy` is a stored numpy array of shape `(n_stars)` with
-entries between `0` and `1`.
+Where `comp_memberships.npy` is a stored numpy array of shape `(n_stars)` with
+entries between `0` and `1`, and `mixture_memberships.npy` has shape `(n_stars, n_comps)`.
