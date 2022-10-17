@@ -5,6 +5,7 @@ from numpy import float64
 from numpy.typing import NDArray
 # from scipy.optimize import minimize_scalar
 from scipy import optimize
+from threadpoolctl import threadpool_limits
 
 from sklearn.mixture._gaussian_mixture import _estimate_gaussian_parameters
 from sklearn.mixture._gaussian_mixture import _estimate_log_gaussian_prob
@@ -95,6 +96,9 @@ class SphereSpaceTimeComponent(BaseComponent):
         - 'Nelder-Mead' (recommended)
         - 'Powell' (not receommended)
 
+    nthreads : int, optional
+        Manually restrict how many threads openMP tries to use when
+        executing optimized numpy functions, configurable
     trace_orbit_func: Callable: f(start_loc, time), default :func:`trace_epicyclic_orbit`
         A function that traces a position by `time` Myr. Positive `time`
         traces forward, negative `time` backwards
@@ -114,6 +118,8 @@ class SphereSpaceTimeComponent(BaseComponent):
     # Configurable attributes
     minimize_method: str = 'Nelder-Mead'
     reg_covar: float = 1e-6
+    slow_for_test: bool = False
+    nthreads = None
 
     # We declare this as a staticmethod so that we can call
     # `self.trace_orbit_func` without passing an instance of `self` as
@@ -178,6 +184,12 @@ class SphereSpaceTimeComponent(BaseComponent):
             Negative log likelihood of data given `age` and derived
             model parameters.
         """
+        if self.slow_for_test:
+            for i in range(100):
+                my_arr1 = np.random.rand(100, 100)
+                my_arr2 = np.random.rand(100, 100)
+                np.dot(my_arr1, my_arr2)
+            print('.', end='')
 
         # Extract and label sets of params
         mean_birth = model_params[:6]
@@ -284,69 +296,70 @@ class SphereSpaceTimeComponent(BaseComponent):
         same solution despite ending up in the vicinity of each other. So
         perhaps multiple runs can improve the fit?
         """
-        # --------------------------------------------------
-        # Choosing initial guess for optimize routine
-        # --------------------------------------------------
+        with threadpool_limits(self.nthreads, user_api='openmp'):
+            # --------------------------------------------------
+            # Choosing initial guess for optimize routine
+            # --------------------------------------------------
 
-        # If we have already fit this component, or this component
-        # was initialized with parameters previously, then use them
-        if self.parameters_set:
-            base_init_guess = self.parameters
+            # If we have already fit this component, or this component
+            # was initialized with parameters previously, then use them
+            if self.parameters_set:
+                base_init_guess = self.parameters
 
-        # Otherwise, initialise based on the data, with age 0.
-        else:
-            _, est_means, est_covariances = _estimate_gaussian_parameters(
-                X,
-                resp[:, np.newaxis],
-                self.reg_covar,
-                self.COVARIANCE_TYPE,
-            )
-            mean_params_init_guess = est_means.squeeze()
-            cov_params_init_guess = construct_params_from_cov(
-                est_covariances.squeeze()
-            )
-            base_init_guess = np.hstack(
-                [mean_params_init_guess, cov_params_init_guess, 0.]
-            )
+            # Otherwise, initialise based on the data, with age 0.
+            else:
+                _, est_means, est_covariances = _estimate_gaussian_parameters(
+                    X,
+                    resp[:, np.newaxis],
+                    self.reg_covar,
+                    self.COVARIANCE_TYPE,
+                )
+                mean_params_init_guess = est_means.squeeze()
+                cov_params_init_guess = construct_params_from_cov(
+                    est_covariances.squeeze()
+                )
+                base_init_guess = np.hstack(
+                    [mean_params_init_guess, cov_params_init_guess, 0.]
+                )
 
-        # --------------------------------------------------
-        # Perform minimization with 3 separate age offsets
-        # --------------------------------------------------
+            # --------------------------------------------------
+            # Perform minimization with 3 separate age offsets
+            # --------------------------------------------------
 
-        # TODO: consider only offsetting on first maximization?
-        # We should only need to force age offsets if this is the first
-        # time this component is being maximized. Otherwise it's previous
-        # parameter set should be close enough.
-        bounds = self.get_parameter_bounds()
-        all_results = []
-        for age_offset in [0., 40., 120.]:
-            # Offset initial guess age by a certain amount
-            ig_age = base_init_guess[-1] + age_offset
+            # TODO: consider only offsetting on first maximization?
+            # We should only need to force age offsets if this is the first
+            # time this component is being maximized. Otherwise it's previous
+            # parameter set should be close enough.
+            bounds = self.get_parameter_bounds()
+            all_results = []
+            for age_offset in [0., 40., 120.]:
+                # Offset initial guess age by a certain amount
+                ig_age = base_init_guess[-1] + age_offset
 
-            # Adjust initial guess mean by tracing back an extra amount
-            ig_mean = self.trace_orbit_func(
-                base_init_guess[:6][np.newaxis],
-                -age_offset
-            )
-            init_guess = np.copy(base_init_guess)
-            init_guess[:6] = ig_mean
-            init_guess[-1] = ig_age
-            res = optimize.minimize(
-                self.loss,
-                x0=init_guess,
-                args=(X, resp),
-                method=self.minimize_method,
-                bounds=bounds,
-            )
-            all_results.append(res)
+                # Adjust initial guess mean by tracing back an extra amount
+                ig_mean = self.trace_orbit_func(
+                    base_init_guess[:6][np.newaxis],
+                    -age_offset
+                )
+                init_guess = np.copy(base_init_guess)
+                init_guess[:6] = ig_mean
+                init_guess[-1] = ig_age
+                res = optimize.minimize(
+                    self.loss,
+                    x0=init_guess,
+                    args=(X, resp),
+                    method=self.minimize_method,
+                    bounds=bounds,
+                )
+                all_results.append(res)
 
-        # Take the best minimization result
-        best_res = min(all_results, key=lambda x: x.fun)
+            # Take the best minimization result
+            best_res = min(all_results, key=lambda x: x.fun)
 
-        # We use the setter method because it handles any derived
-        # attributes, e.g. :attr:`precision_chol`
-        self.set_parameters(best_res.x)
-        print(f"age: {self.age}")
+            # We use the setter method because it handles any derived
+            # attributes, e.g. :attr:`precision_chol`
+            self.set_parameters(best_res.x)
+            print(f"age: {self.age:.3f}")
 
     def estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
         """Calculate the log probability of each sample given

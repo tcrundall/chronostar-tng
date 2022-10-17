@@ -3,32 +3,34 @@
 Command line tool that takes a data set and a config file
 and performs a fit and outputs (somehow) the results.
 """
+import numpy as np
 import argparse
 from collections import defaultdict
 import copy
-import numpy as np
 import os
 from pathlib import Path
 import yaml
+from threadpoolctl import threadpool_limits
 
 
 DEFAULT_CONFIG_PARAMS = {
-    'modules': {
-        'component': 'SpaceTimeComponent',
+    "modules": {
+        "component": "SpaceTimeComponent",
     },
-    'component': {},
-    'run': {
-        'savedir': 'output',
+    "component": {},
+    "run": {
+        "savedir": "output",
+        "nthreads": 1,
     }
 }
 
 
 def import_component(component):
-    if component == 'SpaceTimeComponent':
+    if component == "SphereSpaceTimeComponent":
         from chronostar.component.spherespacetimecomponent import\
             SphereSpaceTimeComponent
         return SphereSpaceTimeComponent
-    elif component == 'SpaceComponent':
+    elif component == "SpaceComponent":
         from chronostar.component.spacecomponent import SpaceComponent
         return SpaceComponent
     else:
@@ -48,7 +50,7 @@ def init_argparse() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "membership",
-        nargs='?',
+        nargs="?",
         default=None,
         help="Optional file of membership probabilities, an "
         "(nsamples) array, stored as a .npy file.",
@@ -65,9 +67,9 @@ def parse_config(config_file):
     # Read in config file
     if args.config:
         acceptable_keys = [
-            'modules',
-            'component',
-            'run',
+            "modules",
+            "component",
+            "run",
         ]
         with open(args.config, "r") as stream:
             try:
@@ -84,7 +86,7 @@ def parse_config(config_file):
     return config_params
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Parse command line arguments
     parser = init_argparse()
     args = parser.parse_args()
@@ -92,7 +94,7 @@ if __name__ == '__main__':
     config_params = parse_config(args.config)
 
     # Set up save directory (before we waste time on computation)
-    savedir = Path(config_params['run']['savedir'])
+    savedir = Path(config_params["run"]["savedir"])
     if not savedir.is_dir():
         os.mkdir(savedir)
 
@@ -111,15 +113,16 @@ if __name__ == '__main__':
     )
 
     # Maximise component
-    CompClass.configure(**config_params['component'])
+    CompClass.configure(**config_params["component"])
     component = CompClass()
-    component.maximize(data, np.log(membership))
+
+    with threadpool_limits(limits=config_params["run"]["nthreads"], user_api="openmp"):
+        component.maximize(data, np.log(membership))
 
     # Output result
     params = component.get_parameters()
-    for i, param in enumerate(params):
-        outfile = savedir / f"param_{i}.npy"
-        np.save(outfile, param)
+    outfile = savedir / "params.npy"
+    np.save(outfile, params)
 
     # Display some simple logging info to output
     # (obviously should be substituted for some form of logging later)
@@ -127,6 +130,5 @@ if __name__ == '__main__':
     print("----- RESULTS -----")
     print("-------------------")
     np.set_printoptions(suppress=True)
-    for i, param in enumerate(params):
-        print(f"  - param {i}")
-        print(params[i])
+    print("  - params")
+    print(params)

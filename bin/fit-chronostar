@@ -15,6 +15,7 @@ import copy
 import numpy as np
 import os
 from pathlib import Path
+from threadpoolctl import threadpool_limits
 from typing import Type
 import yaml
 
@@ -41,6 +42,7 @@ DEFAULT_CONFIG_PARAMS = {
     'mixture': {},
     'run': {
         'savedir': 'output',
+        'nthreads': 1,
     }
 }
 
@@ -189,7 +191,8 @@ if __name__ == '__main__':
     )
 
     # Run chronostar and get the best mixture
-    mixture = driver.run(data, covs)
+    with threadpool_limits(config_params["run"]["nthreads"], user_api='openmp'):
+        mixture = driver.run(data, covs)
 
     # Output result
     weights, components, *extra = mixture.get_parameters()
@@ -202,9 +205,8 @@ if __name__ == '__main__':
             os.mkdir(compdir)
 
         params = component.get_parameters()
-        for j, param in enumerate(params):
-            outfile = compdir / f"param_{j}.npy"
-            np.save(outfile, param)
+        outfile = compdir / "params.npy"
+        np.save(outfile, params)
 
     # Display some simple logging info to output
     # (obviously should be substituted for some form of logging later)
@@ -215,6 +217,4 @@ if __name__ == '__main__':
     for i, (weight, comp) in enumerate(zip(weights, components)):
         print(f"--- component {i} ---")
         print(f" weight: {weight}")
-        for j, param in enumerate(comp.get_parameters()):
-            print(f"    - param {j}")
-            print(param)
+        print(f" params: \n{comp.get_parameters()}")

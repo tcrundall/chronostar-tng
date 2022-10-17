@@ -109,6 +109,8 @@ class ComponentMixture(BaseMixture):
         print("--------------------------------------------------")
         print(f"Fitting {len(self.get_components())}-comp mixture")
         print("--------------------------------------------------")
+
+        # with parallel_backend('threading', n_jobs=1):
         self.sklmixture.fit(X)
 
     def bic(self, X: NDArray[float64]) -> float:
