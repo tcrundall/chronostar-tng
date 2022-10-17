@@ -8,6 +8,7 @@ dependencies:
   - scipy
   - pip
   - python=3.9
+  - numba
   - pyyaml
   - astropy
   - flake8

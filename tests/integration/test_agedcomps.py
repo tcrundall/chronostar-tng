@@ -29,10 +29,10 @@ def test_sphereSTC():
     # ages = [150., 175., 200.]
 
     fitted_comps = []
+    SphereSpaceTimeComponent.configure(nthreads=1)
     for true_age in ages:
         print(f"----- {true_age=} -----")
         true_params = np.hstack((true_mean, true_dxyz, true_duvw, true_age))
-
         true_comp = SphereSpaceTimeComponent(true_params)
 
         np.random.seed(0)

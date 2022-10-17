@@ -8,10 +8,12 @@ forward (or backward) through the Galactic potential.
 """
 
 import numpy as np
-from numba import jit
+# from numba import jit
+from numba import njit
 
 
-@jit(nopython=True)
+# @jit(nopython=True)
+@njit(parallel=True, cache=True)
 def calc_jacobian(trans_func, loc, dim=6, h=1e-3, args=()):
     """
     Calculate the Jacobian of the coordinate transfromation `trans_func` about
@@ -79,7 +81,8 @@ def calc_jacobian(trans_func, loc, dim=6, h=1e-3, args=()):
     return jac, final_pos[-1]
 
 
-@jit(nopython=True)
+# @jit(nopython=True)
+@njit(cache=True)
 def transform_covmatrix(
     cov,
     trans_func,

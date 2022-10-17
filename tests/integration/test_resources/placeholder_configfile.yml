@@ -8,3 +8,4 @@ mixture:
   init_params: 'random'
 component:
   minimize_method: 'Nelder-Mead'
+  nthreads: 1

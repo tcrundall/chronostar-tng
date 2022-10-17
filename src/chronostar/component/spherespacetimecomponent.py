@@ -5,6 +5,7 @@ from numpy import float64
 from numpy.typing import NDArray
 from scipy import optimize
 from threadpoolctl import threadpool_limits
+import numba
 
 from sklearn.mixture._gaussian_mixture import _estimate_gaussian_parameters
 from sklearn.mixture._gaussian_mixture import _estimate_log_gaussian_prob
@@ -117,8 +118,7 @@ class SphereSpaceTimeComponent(BaseComponent):
     # Configurable attributes
     minimize_method: str = 'Nelder-Mead'
     reg_covar: float = 1e-6
-    slow_for_test: bool = False
-    nthreads = None
+    nthreads: Optional[int] = None
 
     # We declare this as a staticmethod so that we can call
     # `self.trace_orbit_func` without passing an instance of `self` as
@@ -184,13 +184,6 @@ class SphereSpaceTimeComponent(BaseComponent):
             Negative log likelihood of data given `age` and derived
             model parameters.
         """
-        if self.slow_for_test:
-            for i in range(100):
-                my_arr1 = np.random.rand(100, 100)
-                my_arr2 = np.random.rand(100, 100)
-                np.dot(my_arr1, my_arr2)
-            print('.', end='')
-
         # Extract and label sets of params
         mean_birth = model_params[:6]
         cov_birth_params = model_params[6:-1]
@@ -293,7 +286,12 @@ class SphereSpaceTimeComponent(BaseComponent):
         same solution despite ending up in the vicinity of each other. So
         perhaps multiple runs can improve the fit?
         """
+        # Set OMP_NUM_THREADS = self.nthreads
         with threadpool_limits(self.nthreads, user_api='openmp'):
+            # Numba potentially uses different layers, so set here too
+            numba.set_num_threads(self.nthreads)
+            print(f'[SphereComp.maximize] {self.nthreads=}')
+
             # --------------------------------------------------
             # Choosing initial guess for optimize routine
             # --------------------------------------------------

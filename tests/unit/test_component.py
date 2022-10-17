@@ -107,4 +107,4 @@ def test_usage() -> None:
 
 
 if __name__ == '__main__':
-    pass
+    test_simpleusage()

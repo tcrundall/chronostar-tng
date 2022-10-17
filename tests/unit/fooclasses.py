@@ -20,7 +20,13 @@ CONFIG_PARAMS: dict = {
     'icpool': {'a': 1, 'b': 2, 'c': 3},
     'introducer': {'a': 1, 'b': 2, 'c': 3},
     'mixture': {'a': 1, 'b': 2, 'c': 3},
-    'component': {'a': 1, 'b': 2, 'c': 3, 'reg_covar': 1e-3},
+    'component': {
+        'reg_covar': 1e-3,
+        'nthreads': 1,
+    },
+    'run': {
+        'nthreads': 1,
+    }
 }
 
 NSAMPLES, NFEATURES = 100, 6
@@ -152,6 +158,9 @@ class FooICPool(BaseICPool):
 
     def get_next(self):
         return self.queue.pop()
+
+    def provide_start(self, init_conds):
+        self.queue.append(init_conds)
 
     def register_result(
         self,

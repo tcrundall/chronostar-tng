@@ -129,6 +129,10 @@ class SimpleICPool(BaseICPool):
         """
         return self.queue.get()
 
+    def provide_start(self, init_conds):
+        self.queue.put((0, init_conds))
+        self.first_pass = False
+
     @property
     def best_mixture(self) -> BaseMixture:
         """Get the mixture with the best score

@@ -1,7 +1,9 @@
 from __future__ import annotations
+from typing import Optional
 import numpy as np
 from numpy import float64
 from numpy.typing import NDArray
+from threadpoolctl import threadpool_limits
 
 from sklearn.mixture._gaussian_mixture import _compute_precision_cholesky
 from sklearn.mixture._gaussian_mixture import _estimate_log_gaussian_prob
@@ -34,6 +36,7 @@ class SpaceComponent(BaseComponent):
 
     # Configurable attributes
     reg_covar: float = 1e-6
+    nthreads: Optional[int] = None
 
     def __init__(self, params=None) -> None:
         super().__init__(params)
@@ -65,23 +68,21 @@ class SpaceComponent(BaseComponent):
         ----------
         TODO: Cite the authors of code which was used as inspiration
         """
+        with threadpool_limits(self.nthreads, user_api='openmp'):
+            nsamples = X.shape[0]
+            if len(resp.shape) == 1:
+                resp = resp[:, np.newaxis]
+            assert resp.shape == (nsamples, 1)
+            _, means_, covariances_ = _estimate_gaussian_parameters(
+                X,
+                resp,
+                self.reg_covar,
+                self.COVARIANCE_TYPE,
+            )
 
-        nsamples = X.shape[0]
-        if len(resp.shape) == 1:
-            resp = resp[:, np.newaxis]
-        assert resp.shape == (nsamples, 1)
-        _, means_, covariances_ = _estimate_gaussian_parameters(
-            X,
-            resp,
-            self.reg_covar,
-            self.COVARIANCE_TYPE,
-        )
-
-        self.set_parameters(
-            np.hstack((means_.flatten(), covariances_.flatten()))
-        )
-
-        print("maximizing", end='\r')
+            self.set_parameters(
+                np.hstack((means_.flatten(), covariances_.flatten()))
+            )
 
     def estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
         """Calculate the log probability of each sample given

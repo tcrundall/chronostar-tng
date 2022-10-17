@@ -28,11 +28,12 @@ def test_twoassocs():
     mean_birth_1 = trace_epicyclic_orbit(
         mean_now_1[np.newaxis],
         -age_1,
-    )
+    ).squeeze()
+
     mean_birth_2 = trace_epicyclic_orbit(
         mean_now_2[np.newaxis],
         -age_2,
-    )
+    ).squeeze()
 
     birth_dxyz = 10.
     birth_duvw = 3
@@ -248,5 +249,5 @@ def test_one_assoc_one_uniform_background():
 
 if __name__ == '__main__':
     print("Fitting to the uniform one")
-    # best_mixture, stars, *extra = test_twoassocs()
-    res = test_one_assoc_one_gaussian_background()
+    best_mixture, stars, *extra = test_twoassocs()
+    # res = test_one_assoc_one_gaussian_background()

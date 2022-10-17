@@ -80,7 +80,12 @@ class Driver:
                     f"[CONFIG]:{self} unexpected config param: {param}={val}"
                 )
 
-    def run(self, data: NDArray[float64], covariances=None) -> BaseMixture:
+    def run(
+        self,
+        data: NDArray[float64],
+        covariances=None,
+        first_init_conds=None
+    ) -> BaseMixture:
         """Run a fit on the input data
 
         Parameters
@@ -100,10 +105,15 @@ class Driver:
             component_class=self.component_class,
         )
 
+        if first_init_conds is not None:
+            print(f"[DRIVER] {first_init_conds[0].parameters_set=}")
+            icpool.provide_start(first_init_conds)
+
         # icpool maintains an internal queue of sets of initial conditions
         # iterate through, fitting to each set, and registering the result
         while icpool.has_next():
             unique_id, init_conds = icpool.get_next()
+            print(f"[DRIVER] {init_conds[0].parameters_set=}")
 
             ncomps = len(init_conds)
             init_weights = np.ones(ncomps)/ncomps
@@ -150,9 +160,11 @@ class Driver:
 
         # Fail loudly if config file improperly structured
         acceptable_keys = [
-            'driver', 'icpool', 'component', 'introducer', 'mixture',
+            'driver', 'icpool', 'component', 'introducer', 'mixture', 'run',
         ]
         for key in config_params:
+            if key == 'run':
+                print(f"[CONFIG] {key=} is ignored by driver")
             if key not in acceptable_keys:
                 raise UserWarning(f"[CONFIG] {key} not recognised!")
 

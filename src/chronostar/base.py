@@ -82,6 +82,10 @@ class BaseICPool(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def provide_start(self, init_conds):
+        pass
+
+    @abstractmethod
     def register_result(
         self,
         unique_id: Union[str, int],

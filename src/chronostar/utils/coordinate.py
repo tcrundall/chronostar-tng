@@ -8,7 +8,7 @@ TODO: Update docstrings to reflect the removal of astropy
 
 import logging
 import numpy as np
-from numba import jit
+from numba import njit
 
 # a_o = 192.8595 * un.degree
 # b_ncp = d_o = 27.1283 * un.degree
@@ -614,7 +614,8 @@ def convert_many_lsrxyzuvw2astrometry(xyzuvw_lsrs):
     return astros
 
 
-@jit(nopython=True)
+# @jit(nopython=True)
+@njit(parallel=True, cache=True)
 def convert_cart2curvilin(data, ro=8., vo=220.):
     """
     MZ (2020 - 01 - 17)
@@ -668,7 +669,8 @@ def convert_cart2curvilin(data, ro=8., vo=220.):
     return curvilin_coordinates.T
 
 
-@jit(nopython=True)
+# @jit(nopython=True)
+@njit(parallel=True, cache=True)
 def convert_curvilin2cart(data, ro=8., vo=220.,
                           lsr_centered=True):
     """
