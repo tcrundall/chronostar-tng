@@ -18,7 +18,7 @@ def generate_association(
     rng=None,
 ) -> NDArray[float64]:
     mean_birth = trace_epicyclic_orbit(mean_now[np.newaxis], -age)
-    covariance_aged = transform_covmatrix(
+    covariance_aged, _ = transform_covmatrix(
         covariance_birth,
         trace_epicyclic_orbit,
         mean_birth,

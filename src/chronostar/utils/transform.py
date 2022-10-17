@@ -8,10 +8,10 @@ forward (or backward) through the Galactic potential.
 """
 
 import numpy as np
-# from numba import jit
+from numba import jit
 
 
-# @jit(nopython=True)
+@jit(nopython=True)
 def calc_jacobian(trans_func, loc, dim=6, h=1e-3, args=()):
     """
     Calculate the Jacobian of the coordinate transfromation `trans_func` about
@@ -40,8 +40,10 @@ def calc_jacobian(trans_func, loc, dim=6, h=1e-3, args=()):
 
     Returns
     -------
-    jac : [dim,dim] float array
+    [dim,dim] float array
         A jacobian matrix
+    [dim] float array
+        Transformed location
 
     Notes
     -----
@@ -56,7 +58,7 @@ def calc_jacobian(trans_func, loc, dim=6, h=1e-3, args=()):
     # Even with epicyclic, this constitutes 90% of chronostar work
     # so, we pass all 12 required positions to the trans_func as
     # one array, to exploit numpy's faster array operations
-    start_pos = np.zeros((2*dim, dim))
+    start_pos = np.zeros((2*dim + 1, dim))
     for i in range(dim):
         offset = np.zeros(dim)
         offset[i] = h
@@ -65,16 +67,19 @@ def calc_jacobian(trans_func, loc, dim=6, h=1e-3, args=()):
         start_pos[2*i] = loc_pl
         start_pos[2*i + 1] = loc_mi
 
+    # Also transform the location
+    start_pos[-1] = loc
+
     final_pos = trans_func(start_pos, *args)
     # final_pos = trans_func(start_pos, 1.)
 
     for i in range(dim):
         jac[:, i] = (final_pos[2*i] - final_pos[2*i + 1]) / (2*h)
 
-    return jac
+    return jac, final_pos[-1]
 
 
-# @jit(nopython=True)
+@jit(nopython=True)
 def transform_covmatrix(
     cov,
     trans_func,
@@ -109,9 +114,11 @@ def transform_covmatrix(
 
     Returns
     -------
-    conv_cov : [dim,dim] float array
+    [dim,dim] float array
         The transformed covariance matrix
+    [dim] float array
+        The transformed location
     """
 
-    jac = calc_jacobian(trans_func, loc, dim=dim, h=h, args=args)
-    return np.dot(jac, np.dot(cov, jac.T))
+    jac, final_loc = calc_jacobian(trans_func, loc, dim=dim, h=h, args=args)
+    return np.dot(jac, np.dot(cov, jac.T)), final_loc

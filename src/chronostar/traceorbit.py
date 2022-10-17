@@ -2,12 +2,12 @@
 Module for tracing orbits using the epicyclic approximation
 """
 import numpy as np
-# from numba import jit
+from numba import jit
 
 from .utils.coordinate import convert_curvilin2cart, convert_cart2curvilin
 
 
-# @jit(nopython=True)
+@jit(nopython=True)
 def epicyclic_approx(data, times=None, sA=0.89, sB=1.15, sR=1.21):
     r"""
     MZ (2020 - 01 - 17)
@@ -85,7 +85,7 @@ def epicyclic_approx(data, times=None, sA=0.89, sB=1.15, sR=1.21):
     return new_position
 
 
-# @jit(nopython=True)
+@jit(nopython=True)
 def trace_epicyclic_orbit(
     xyzuvw_start,
     time=None,
@@ -122,14 +122,11 @@ def trace_epicyclic_orbit(
         [pc, pc, pc, km/s, km/s, km/s] - the traced orbit with positions
         and velocities
     """
-    # Make sure numbers are floats, and reshape into 2d
-    xyzuvw_start = np.atleast_2d(xyzuvw_start)
-    # assert len(xyzuvw_start.shape) == 2
-    xyzuvw_start = np.array(xyzuvw_start)
-    # xyzuvw_start = np.atleast_2d(xyzuvw_start)  # .astype(float))
+    # In order for Jit to work, we remove all array shape checks
 
     # Units: Velocities are in km/s, convert into pc/Myr
-    xyzuvw_start[:, 3:] = xyzuvw_start[:, 3:] * 1.0227121650537077  # pc/Myr
+    # This is fine to do inplace, because we undo it at end of function
+    xyzuvw_start[:, 3:] *= 1.0227121650537077  # pc/Myr
 
     # Transform to curvilinear
     curvilin = convert_cart2curvilin(xyzuvw_start, ro=ro, vo=vo)
@@ -143,5 +140,7 @@ def trace_epicyclic_orbit(
     # Units: Transform velocities from pc/Myr back to km/s
     xyzuvw_new[:, 3:] /= 1.0227121650537077
 
-    # Remove empty dimensions
-    return xyzuvw_new.squeeze()
+    # Undo inplace conversion
+    xyzuvw_start[:, 3:] /= 1.0227121650537077  # pc/Myr
+
+    return xyzuvw_new

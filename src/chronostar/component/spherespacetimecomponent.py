@@ -3,7 +3,6 @@ from typing import Optional
 import numpy as np
 from numpy import float64
 from numpy.typing import NDArray
-# from scipy.optimize import minimize_scalar
 from scipy import optimize
 from threadpoolctl import threadpool_limits
 
@@ -126,6 +125,7 @@ class SphereSpaceTimeComponent(BaseComponent):
     # an argument
     #: :noindex:
     trace_orbit_func = staticmethod(trace_epicyclic_orbit)
+    #: :noindex:
 
     def __init__(self, params: Optional[NDArray[float64]] = None) -> None:
         super().__init__(params)
@@ -201,12 +201,9 @@ class SphereSpaceTimeComponent(BaseComponent):
         if lnprior == -np.inf:
             return -lnprior
 
-        # Get current day mean
-        mean_now = self.trace_orbit_func(mean_birth[np.newaxis], age).squeeze()
-
-        # Get current day covariance
+        # Get current day covariance and mean
         cov_birth = construct_cov_from_params(cov_birth_params)
-        cov_now = transform_covmatrix(
+        cov_now, mean_now = transform_covmatrix(
             cov_birth,
             self.trace_orbit_func,
             mean_birth,
@@ -305,6 +302,7 @@ class SphereSpaceTimeComponent(BaseComponent):
             # was initialized with parameters previously, then use them
             if self.parameters_set:
                 base_init_guess = self.parameters
+                age_offsets = [0.]
 
             # Otherwise, initialise based on the data, with age 0.
             else:
@@ -321,6 +319,8 @@ class SphereSpaceTimeComponent(BaseComponent):
                 base_init_guess = np.hstack(
                     [mean_params_init_guess, cov_params_init_guess, 0.]
                 )
+                # Provide a set of different ages to try
+                age_offsets = [0., 40., 80., 120., 160., 200.]
 
             # --------------------------------------------------
             # Perform minimization with 3 separate age offsets
@@ -332,7 +332,7 @@ class SphereSpaceTimeComponent(BaseComponent):
             # parameter set should be close enough.
             bounds = self.get_parameter_bounds()
             all_results = []
-            for age_offset in [0., 40., 120.]:
+            for age_offset in age_offsets:
                 # Offset initial guess age by a certain amount
                 ig_age = base_init_guess[-1] + age_offset
 
@@ -344,6 +344,7 @@ class SphereSpaceTimeComponent(BaseComponent):
                 init_guess = np.copy(base_init_guess)
                 init_guess[:6] = ig_mean
                 init_guess[-1] = ig_age
+
                 res = optimize.minimize(
                     self.loss,
                     x0=init_guess,
@@ -460,7 +461,7 @@ class SphereSpaceTimeComponent(BaseComponent):
         cov_params = self.parameters[6:-1]
         cov_birth = construct_cov_from_params(cov_params)
         mean_birth = self.parameters[0:6]
-        cov_now = transform_covmatrix(
+        cov_now, _ = transform_covmatrix(
             cov_birth,
             self.trace_orbit_func,
             mean_birth,

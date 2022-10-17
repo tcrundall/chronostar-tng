@@ -97,7 +97,13 @@ class SimpleICPool(BaseICPool):
             for ix, init_conditions in enumerate(
                 self.introducer.next_gen(list(best_mixture.get_components()))
             ):
-                self.queue.put((ix, init_conditions))
+                print(f"Length {len(init_conditions)} ~ {self.max_components=}")
+                if len(init_conditions) <= self.max_components:
+                    self.queue.put((ix, init_conditions))
+                else:
+                    print(f"[SimpleICPool]:"
+                          f"Discarded IC, "
+                          f"{len(init_conditions)} > {self.max_components=}")
 
     def has_next(self) -> bool:
         """Return True if (after populating if needed) queue is non-empty
