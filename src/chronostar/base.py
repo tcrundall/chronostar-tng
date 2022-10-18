@@ -19,6 +19,22 @@ class ScoredMixture(NamedTuple):
     """
     mixture: BaseMixture
     score: float
+    label: str
+
+
+class InitialCondition(NamedTuple):
+    """Simple named tuple for pairing an informative label with
+    a list of initial components
+
+    Parameters
+    ----------
+    label : str or int
+        unique identifer combined with extra information
+    components : list[BaseComponent]
+        A list of components that can initialise a mixture fit
+    """
+    label: str
+    components: tuple[BaseComponent, ...]
 
 
 class BaseICPool(metaclass=ABCMeta):
@@ -70,7 +86,7 @@ class BaseICPool(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_next(self) -> tuple[Union[str, int], list[BaseComponent]]:
+    def get_next(self) -> InitialCondition:
         """Pop the next initial conditions of internal queue and
         return it with a unique identifier
 
@@ -82,13 +98,13 @@ class BaseICPool(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def provide_start(self, init_conds):
+    def provide_start(self, init_conds: InitialCondition) -> None:
         pass
 
     @abstractmethod
     def register_result(
         self,
-        unique_id: Union[str, int],
+        unique_id: str,
         mixture: BaseMixture,
         score: float
     ) -> None:
@@ -157,11 +173,11 @@ class BaseIntroducer(metaclass=ABCMeta):
     def next_gen(
         self,
         prev_comp_sets: Union[
-            list[list[BaseComponent]],
-            list[BaseComponent],
+            list[InitialCondition],
+            InitialCondition,
             None
         ],
-    ) -> list[list[BaseComponent]]:
+    ) -> list[InitialCondition]:
         """Generate the next "generation" of runs, as sets of
         initial conditions
 
@@ -286,7 +302,7 @@ class BaseMixture(metaclass=ABCMeta):
     def __init__(
         self,
         init_weights: NDArray[float64],
-        init_comps: list[BaseComponent],
+        init_comps: tuple[BaseComponent, ...],
     ) -> None:
         self.init_comps = init_comps
         self.init_weights = init_weights
@@ -307,7 +323,7 @@ class BaseMixture(metaclass=ABCMeta):
     @abstractmethod
     def set_parameters(
         self,
-        params: tuple[NDArray[float64], list[BaseComponent]],
+        params: tuple[NDArray[float64], tuple[BaseComponent, ...]],
     ) -> None:
         pass
 
@@ -324,7 +340,7 @@ class BaseMixture(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_components(self) -> list[BaseComponent]:
+    def get_components(self) -> tuple[BaseComponent, ...]:
         pass
 
     @abstractmethod

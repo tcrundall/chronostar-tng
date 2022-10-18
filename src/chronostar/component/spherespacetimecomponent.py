@@ -290,7 +290,8 @@ class SphereSpaceTimeComponent(BaseComponent):
         # Set OMP_NUM_THREADS = self.nthreads
         with threadpool_limits(self.nthreads, user_api='openmp'):
             # Numba potentially uses different layers, so set here too
-            numba.set_num_threads(self.nthreads)
+            if self.nthreads is not None:
+                numba.set_num_threads(self.nthreads)
             print(f'[SphereComp.maximize] {self.nthreads=}')
 
             # --------------------------------------------------

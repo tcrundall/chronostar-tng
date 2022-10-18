@@ -1,2 +1,12 @@
 sphinx_autodoc_typehints
 furo
+pyyaml
+pathlib
+scikit-learn
+numpy
+scipy
+astropy
+pytest
+pathlib
+matplotlib
+numba

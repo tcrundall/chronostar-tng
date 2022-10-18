@@ -7,7 +7,6 @@ import numpy as np
 from numpy import float64
 from numpy.typing import NDArray
 
-
 from .base import (
     BaseComponent,
     BaseMixture,
@@ -112,17 +111,18 @@ class Driver:
         # icpool maintains an internal queue of sets of initial conditions
         # iterate through, fitting to each set, and registering the result
         while icpool.has_next():
-            unique_id, init_conds = icpool.get_next()
-            print(f"[DRIVER] {init_conds[0].parameters_set=}")
+            label, init_comps = icpool.get_next()
+            print(f"[DRIVER] Fitting {label}")
+            print(f"[DRIVER] {init_comps[0].parameters_set=}")
 
-            ncomps = len(init_conds)
+            ncomps = len(init_comps)
             init_weights = np.ones(ncomps)/ncomps
             m = self.mixture_class(
                 init_weights,
-                init_conds,
+                init_comps,
             )
             m.fit(data)
-            icpool.register_result(unique_id, m, -m.bic(data))
+            icpool.register_result(label, m, -m.bic(data))
 
         # loop will end when icpool stops generating initial conditions
         return icpool.best_mixture

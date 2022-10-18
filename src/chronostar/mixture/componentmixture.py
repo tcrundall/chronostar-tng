@@ -80,7 +80,7 @@ class ComponentMixture(BaseMixture):
     def __init__(
         self,
         init_weights: NDArray[float64],
-        init_components: list[BaseComponent],
+        init_components: tuple[BaseComponent, ...],
     ) -> None:
 
         # Can handle extra parameters if I want...
@@ -131,7 +131,7 @@ class ComponentMixture(BaseMixture):
 
     def set_parameters(
         self,
-        params: Tuple[NDArray[float64], list[BaseComponent]],
+        params: Tuple[NDArray[float64], tuple[BaseComponent, ...]],
     ) -> None:
         """Set the parameters that characterise the mixture
 
@@ -143,7 +143,7 @@ class ComponentMixture(BaseMixture):
 
         self.sklmixture._set_parameters(params)
 
-    def get_parameters(self) -> tuple[NDArray[float64], list[BaseComponent]]:
+    def get_parameters(self) -> tuple[NDArray[float64], tuple[BaseComponent, ...]]:
         """Get the parameters that characterise the mixture
 
         Returns
@@ -154,7 +154,7 @@ class ComponentMixture(BaseMixture):
 
         return self.sklmixture._get_parameters()
 
-    def get_components(self) -> list[BaseComponent]:
+    def get_components(self) -> tuple[BaseComponent, ...]:
         """Get the list of components fitted to the data
 
         Returns

@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 from numpy.typing import NDArray
 from numpy import float64
-from typing import Any, Union
+from typing import Any, Optional, Union
 
 from ..context import chronostar     # noqa
 
@@ -13,6 +13,7 @@ from chronostar.base import (
     BaseICPool,
     BaseIntroducer,
     ScoredMixture,
+    InitialCondition,
 )
 
 
@@ -36,7 +37,10 @@ DATA = np.random.rand(NSAMPLES, NFEATURES) * 10.
 class FooComponent(BaseComponent):
     dim = 6
 
-    def __init__(self, params) -> None:        # type: ignore
+    def __init__(
+        self,
+        params: Optional[NDArray[float64]],
+    ) -> None:
         super().__init__(params)
 
     @property
@@ -72,11 +76,11 @@ class FooComponent(BaseComponent):
         return c1, c2
 
     @property
-    def mean(self):
+    def mean(self) -> NDArray[float64]:
         return self.parameters[:6]
 
     @property
-    def covariance(self):
+    def covariance(self) -> NDArray[float64]:
         return self.parameters[6:].reshape(6, 6)
 
 
@@ -91,12 +95,12 @@ class FooMixture(BaseMixture):
         if kwargs:
             print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
 
-    def get_parameters(self) -> tuple[NDArray[float64], list[BaseComponent]]:
+    def get_parameters(self) -> tuple[NDArray[float64], tuple[BaseComponent, ...]]:
         return (self.weights, self.comps)
 
     def set_parameters(
         self,
-        params: tuple[NDArray[float64], list[BaseComponent]],
+        params: tuple[NDArray[float64], tuple[BaseComponent, ...]],
     ) -> None:
         self.weights, self.comps = params
 
@@ -110,7 +114,7 @@ class FooMixture(BaseMixture):
         """
         return -((len(self.comps) - 5)**2)
 
-    def get_components(self) -> list[BaseComponent]:
+    def get_components(self) -> tuple[BaseComponent, ...]:
         return self.get_parameters()[1]
 
     def estimate_membership_prob(
@@ -135,10 +139,11 @@ class FooIntroducer(BaseIntroducer):
 
     def next_gen(
         self,
-        prev_components: Union[None, list[list[BaseComponent]], list[BaseComponent]],  # noqa E501
-    ) -> list[list[BaseComponent]]:
-
-        return [[FooComponent(params=None) for _ in range(5)]]
+        prev_components: Union[None, list[InitialCondition], InitialCondition],
+    ) -> list[InitialCondition]:
+        init_comps = tuple([FooComponent(params=None) for _ in range(5)])
+        label = 'fooic_5'
+        return [InitialCondition(label, init_comps)]
 
 
 class FooICPool(BaseICPool):
@@ -146,7 +151,7 @@ class FooICPool(BaseICPool):
         super().__init__(*args, **kwargs)
         self.registry: dict[Union[str, int], ScoredMixture] = {}
 
-        self.queue = [(0, [FooComponent(params=None)])]
+        self.queue = [InitialCondition('0', tuple([FooComponent(params=None)]))]
 
     @classmethod
     def configure(cls, **kwargs):
@@ -164,15 +169,15 @@ class FooICPool(BaseICPool):
 
     def register_result(
         self,
-        unique_id: Union[str, int],
+        label: str,
         mixture: BaseMixture,
         score: float,
     ) -> None:
-        self.registry[unique_id] = ScoredMixture(mixture, score)
+        self.registry[label] = ScoredMixture(mixture, score, label)
 
     @property
     def best_mixture(self) -> BaseMixture:
-        mixture, _ = max(
+        mixture, _, _ = max(
             self.registry.values(), key=lambda x: x.score
         )
         return mixture

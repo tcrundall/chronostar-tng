@@ -1,6 +1,16 @@
 from typing import Callable, Union
 
-from ..base import BaseIntroducer, BaseComponent
+from ..base import BaseIntroducer, InitialCondition
+
+
+def convert_num2alpha(n) -> str:
+    res: list[str] = []
+    for order in range(1, 4):
+        digit = n % 26
+        res.insert(0, chr(ord('A') + digit))
+        n //= 26
+
+    return ''.join(res)
 
 
 class SimpleIntroducer(BaseIntroducer):
@@ -16,12 +26,27 @@ class SimpleIntroducer(BaseIntroducer):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self.generation = 0
+        self.n_initconds = 0
+        print(f"[SimpleIntroducer] After init {self.generation=}")
+
+    def _generate_label(self, components, parent_label, extra=None):
+        this_id = convert_num2alpha(self.n_initconds)
+        parent_id = parent_label.split('-')[0]
+
+        self.n_initconds += 1
+
+        label = f"{this_id}-{parent_id}-{self.generation:04}-{len(components):04}"
+        if extra is not None:
+            label = f"{label}-{extra}"
+
+        return label
 
     def next_gen(
         self,
         prev_comp_sets:
-            Union[list[list[BaseComponent]], list[BaseComponent], None],
-    ) -> list[list[BaseComponent]]:
+            Union[list[InitialCondition], InitialCondition, None],
+    ) -> list[InitialCondition]:
         """Generate the next generation of initial conditions by splitting
         each existing component into two
 
@@ -43,20 +68,42 @@ class SimpleIntroducer(BaseIntroducer):
             This introducer can only handle one set of components
         """
         if prev_comp_sets is None:
-            return [[self.component_class(params=None)]]
+            components = (self.component_class(params=None), )
+            label = self._generate_label(components, 'XXX', extra='auto')
+            self.generation += 1
+            return [InitialCondition(label, components)]
 
-        if isinstance(prev_comp_sets[0], list):
-            raise UserWarning("This Introducer accepts one set of components")
+        if isinstance(prev_comp_sets, list):
+            raise UserWarning("This Introducer only accepts one InitialCondition")
 
-        sets: list[list[BaseComponent]] = []
-        for i in range(len(prev_comp_sets)):
-            next_set: list[BaseComponent] = prev_comp_sets[:]   # type: ignore
-            target_comp = next_set.pop(i)
+        next_initial_conditions: list[InitialCondition] = []
+        for target_ix in range(len(prev_comp_sets.components)):
+            # Perform a deep copy of components, using their class to
+            # construct a replica
+            next_ic_components = [
+                c.__class__(c.get_parameters()) for c in prev_comp_sets.components
+            ]
 
+            # Replace the ith component by splitting it in two
+            target_comp = next_ic_components.pop(target_ix)
             c1, c2 = target_comp.split()
 
-            next_set.insert(i, c2)
-            next_set.insert(i, c1)
-            sets.append(next_set)
+            next_ic_components.insert(target_ix, c2)
+            next_ic_components.insert(target_ix, c1)
 
-        return sets
+            label = self._generate_label(
+                components=next_ic_components,
+                parent_label=prev_comp_sets.label,
+                extra=target_ix,
+                )
+            # next_ic_components
+            # next_ic_comps_tup: tuple[BaseComponent] = tuple(next_ic_components)
+
+            next_initial_conditions.append(
+                InitialCondition(label, tuple(next_ic_components))
+            )
+
+        self.generation += 1
+        print(f"[SimpleIntroducer] After next_gen {self.generation=}")
+
+        return next_initial_conditions

@@ -1,13 +1,13 @@
 import numpy as np
 from queue import Queue
-from typing import Callable, Optional, Union
+from typing import Callable, Optional
 
 from ..base import (
-    BaseComponent,
     BaseMixture,
     BaseICPool,
     BaseIntroducer,
     ScoredMixture,
+    InitialCondition,
 )
 
 
@@ -32,7 +32,7 @@ class SimpleICPool(BaseICPool):
         self.introducer: BaseIntroducer = self.introducer_class(
             self.component_class
         )
-        self.queue: Queue[tuple[int, list[BaseComponent]]] = Queue()
+        self.queue: Queue[InitialCondition] = Queue()
         self.best_mixture_: Optional[BaseMixture] = None
         self.best_score_: float = -np.inf
 
@@ -41,7 +41,7 @@ class SimpleICPool(BaseICPool):
 
     def register_result(
         self,
-        unique_id: Union[str, int],
+        label: str,
         mixture: BaseMixture,
         score: float,
     ) -> None:
@@ -49,8 +49,9 @@ class SimpleICPool(BaseICPool):
 
         Parameters
         ----------
-        unique_id : Union[str, int]
-            A unique identifier
+        label : str
+            A uniquely identifying label with summary information:
+            ``unique_id-parent_id-generation-ncomps``
         mixture : BaseMixture
             A mixture object whose fit has been finalised
         score : float
@@ -58,7 +59,7 @@ class SimpleICPool(BaseICPool):
             e.g. -BIC
         """
 
-        self.registry[unique_id] = ScoredMixture(mixture, score)
+        self.registry[label] = ScoredMixture(mixture, score, label)
 
     def try_populate_queue(self) -> None:
         """Attempt to populate the queue of initial conditions
@@ -66,8 +67,8 @@ class SimpleICPool(BaseICPool):
         # If this is our first pass, let our introducer provide starting point
         if self.first_pass:
             print("Letting introducer generate first IC")
-            for ix, init_conds in enumerate(self.introducer.next_gen(None)):
-                self.queue.put((ix, init_conds))
+            for init_conds in self.introducer.next_gen(None):
+                self.queue.put(init_conds)
             self.first_pass = False
             print(f"{self.generation=}")
             self.generation += 1
@@ -76,7 +77,7 @@ class SimpleICPool(BaseICPool):
         # Otherwise, check registry, see if we should generate next generation
         # If we are serial, we can trust that each run has been registered.
         # parallel needs some more thinking
-        best_mixture, best_score = max(
+        best_mixture, best_score, best_label = max(
             self.registry.values(),
             key=lambda x: x.score
         )
@@ -94,16 +95,18 @@ class SimpleICPool(BaseICPool):
             self.registry = {}
 
             # Loop over the next generation of initial conditions
-            for ix, init_conditions in enumerate(
-                self.introducer.next_gen(list(best_mixture.get_components()))
-            ):
-                print(f"Length {len(init_conditions)} ~ {self.max_components=}")
-                if len(init_conditions) <= self.max_components:
-                    self.queue.put((ix, init_conditions))
+            base_init_condition = InitialCondition(
+                best_label,
+                tuple(best_mixture.get_components())
+            )
+
+            for init_condition in self.introducer.next_gen(base_init_condition):
+                if len(init_condition.components) <= self.max_components:
+                    self.queue.put(init_condition)
                 else:
                     print(f"[SimpleICPool]:"
-                          f"Discarded IC, "
-                          f"{len(init_conditions)} > {self.max_components=}")
+                          f"Discarded IC {init_condition.label} "
+                          f"{len(init_condition.components)} > {self.max_components=}")
 
     def has_next(self) -> bool:
         """Return True if (after populating if needed) queue is non-empty
@@ -119,7 +122,7 @@ class SimpleICPool(BaseICPool):
         self.try_populate_queue()
         return not self.queue.empty()
 
-    def get_next(self) -> tuple[int, list[BaseComponent]]:
+    def get_next(self) -> InitialCondition:
         """Get the next initial condition set from queue
 
         Returns
@@ -129,8 +132,8 @@ class SimpleICPool(BaseICPool):
         """
         return self.queue.get()
 
-    def provide_start(self, init_conds):
-        self.queue.put((0, init_conds))
+    def provide_start(self, init_conds: InitialCondition):
+        self.queue.put(init_conds)
         self.first_pass = False
 
     @property

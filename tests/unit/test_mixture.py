@@ -12,7 +12,7 @@ def test_construction() -> None:
 
     cm = ComponentMixture(                          # noqa F841
         init_weights=np.ones(1),
-        init_components=[FooComponent(params=None)]
+        init_components=tuple([FooComponent(params=None)])
     )
 
 
@@ -22,7 +22,7 @@ def test_simple_usage() -> None:
 
     cm = ComponentMixture(                          # noqa F841
         init_weights=np.ones(5)/5,
-        init_components=[FooComponent(params=None) for _ in range(5)],
+        init_components=tuple([FooComponent(params=None) for _ in range(5)]),
     )
 
     cm.fit(DATA)

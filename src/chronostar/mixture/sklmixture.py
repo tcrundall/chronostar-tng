@@ -54,7 +54,7 @@ class SKLComponentMixture(SKLBaseMixture):
     def __init__(
         self,
         weights_init: NDArray[float64],
-        components_init: list[BaseComponent],
+        components_init: tuple[BaseComponent, ...],
         *,
         tol: float = 1e-3,
         reg_covar: float = 1e-6,
@@ -80,7 +80,7 @@ class SKLComponentMixture(SKLBaseMixture):
             verbose_interval=verbose_interval,
         )
 
-        self.components_: list[BaseComponent] = components_init
+        self.components_: tuple[BaseComponent, ...] = components_init
         self.init_resp: Optional[NDArray[float64]] = None
         self.m_step_count = 0
 
@@ -288,7 +288,7 @@ class SKLComponentMixture(SKLBaseMixture):
 
     def _get_parameters(
         self,
-    ) -> tuple[NDArray[float64], list[BaseComponent]]:
+    ) -> tuple[NDArray[float64], tuple[BaseComponent, ...]]:
         """Get the parameters that characterise the mixture
 
         Returns
@@ -301,7 +301,7 @@ class SKLComponentMixture(SKLBaseMixture):
 
     def _set_parameters(
         self,
-        params: tuple[NDArray[float64], list[BaseComponent]],
+        params: tuple[NDArray[float64], tuple[BaseComponent, ...]],
     ) -> None:
         """Set the parameters that characterise the mixture
 

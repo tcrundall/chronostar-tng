@@ -4,6 +4,7 @@ from ..context import chronostar     # noqa
 
 from chronostar.introducer.simpleintroducer import SimpleIntroducer
 from .fooclasses import CONFIG_PARAMS, DATA, FooComponent, FooMixture
+from chronostar.base import InitialCondition
 
 
 def test_construction() -> None:
@@ -23,16 +24,20 @@ def test_comp_count_increase() -> None:
         component_class=FooComponent,
     )
 
-    comp_set_1 = [FooComponent(params=None) for _ in range(1)]
+    comp_set_1 = tuple([FooComponent(params=None) for _ in range(1)])
     [c.maximize(None, None) for c in comp_set_1]    # type: ignore
-    next_gen = introducer.next_gen(comp_set_1)      # type: ignore
-    for comp_set in next_gen:
-        assert len(comp_set) == 2
+    prev_init_cond = InitialCondition(
+        label='first',
+        components=comp_set_1,
+    )
+    next_gen = introducer.next_gen(prev_init_cond)      # type: ignore
+    for init_cond in next_gen:
+        assert len(init_cond.components) == 2
 
-    comp_set_2 = next_gen[0]
-    next_gen = introducer.next_gen(comp_set_2)
-    for comp_set in next_gen:
-        assert len(comp_set) == 3
+    init_cond_2 = next_gen[0]
+    next_gen = introducer.next_gen(init_cond_2)
+    for init_cond in next_gen:
+        assert len(init_cond.components) == 3
 
 
 def test_full_usage() -> None:
@@ -53,23 +58,32 @@ def test_full_usage() -> None:
         init_weights=np.ones(1),
     )
 
+    best_initial_cond = InitialCondition(
+        '0',
+        best_mixture.get_components(),
+    )
+
     best_score = best_mixture.bic(DATA)
     prev_best_score = -np.inf
 
     while best_score > prev_best_score:
         # Produce the next generation and loop over them
         for next_init_cond in introducer.next_gen(
-            best_mixture.get_components()
+            best_initial_cond,
         ):
-            ncomps = len(next_init_cond)
+            ncomps = len(next_init_cond.components)
             init_weights = np.ones(ncomps) / ncomps
             m = FooMixture(
                 init_weights,
-                next_init_cond
+                next_init_cond.components,
             )
             m.fit(DATA)
             if m.bic(DATA) > prev_best_score:
                 prev_best_score = best_score
                 best_mixture = m
                 best_score = m.bic(DATA)
+                best_initial_cond = InitialCondition(
+                    label=next_init_cond.label,
+                    components=m.get_components(),
+                )
         print(best_score)
