@@ -40,6 +40,9 @@ class Driver:
 
     """
 
+    intermediate_dumps: bool = True
+    savedir: str = './result'
+
     def __init__(
         self,
         config_file: Union[dict, str, Path],
@@ -49,21 +52,21 @@ class Driver:
         component_class: Type[BaseComponent] = SphereSpaceTimeComponent,
     ) -> None:
         if isinstance(config_file, dict):
-            config_params = config_file
+            self.config_params = config_file
         else:
-            config_params = self.read_config_file(config_file)
+            self.config_params = self.read_config_file(config_file)
 
         self.component_class = component_class
         self.mixture_class = mixture_class
         self.icpool_class = icpool_class
         self.introducer_class = introducer_class
 
-        self.configure(**config_params["driver"])
+        self.configure(**self.config_params["driver"])
 
-        self.component_class.configure(**config_params["component"])
-        self.mixture_class.configure(**config_params["mixture"])
-        self.icpool_class.configure(**config_params["icpool"])
-        self.introducer_class.configure(**config_params["introducer"])
+        self.component_class.configure(**self.config_params["component"])
+        self.mixture_class.configure(**self.config_params["mixture"])
+        self.icpool_class.configure(**self.config_params["icpool"])
+        self.introducer_class.configure(**self.config_params["introducer"])
 
     def configure(self, **kwargs) -> None:
         function_parser: dict[str, Callable] = {}
@@ -99,6 +102,11 @@ class Driver:
             retrievable by mixture.get_parameters()
         """
 
+        # Before we start, make sure results directory exists
+        if self.intermediate_dumps:
+            self.savedir_path = Path(self.savedir)
+            self.savedir_path.mkdir(parents=True, exist_ok=True)
+
         icpool = self.icpool_class(
             introducer_class=self.introducer_class,
             component_class=self.component_class,
@@ -124,8 +132,57 @@ class Driver:
             m.fit(data)
             icpool.register_result(label, m, -m.bic(data))
 
+            if self.intermediate_dumps:
+                self.dump_mixture_result(label, m, data)
+
         # loop will end when icpool stops generating initial conditions
         return icpool.best_mixture
+
+    def dump_mixture_result(self, label: str, mixture: BaseMixture, data):
+        # Make directory
+        mixture_dir = self.savedir_path / label
+        mixture_dir.mkdir(parents=True, exist_ok=True)
+
+        # Save model parameters in numpy arrays
+        weights, components = mixture.get_parameters()
+        memberships = mixture.estimate_membership_prob(data)
+        np.save(str(mixture_dir / 'weights.npy'), weights)
+        np.save(str(mixture_dir / 'memberships.npy'), memberships)
+        for i, comp in enumerate(components):
+            np.save(str(mixture_dir / f"comp_{i:03}_params.npy"), comp.get_parameters())
+
+        # Write information to file for quick overview
+        results_file = mixture_dir / f'{label}.txt'
+        with open(results_file, 'w') as fp:
+            fp.write(f"Results of {label}\n")
+            fp.write("----------------------------------------------\n")
+            fp.write(f"BIC: {mixture.bic(data)}\n")
+            fp.write(f"weights: {weights}\n")
+            fp.write(f"total members: {memberships.sum(axis=0)}\n")
+            fp.write("\n")
+            fp.write("--------------------\n")
+            fp.write("Component parameters\n")
+            fp.write("--------------------\n")
+            for i, comp in enumerate(components):
+                fp.write(f"Component {i:03}:\n")
+                fp.write("^^^^^^^^^^^^^^^^^\n")
+                fp.write(f"{comp.get_parameters()}\n")
+                fp.write("\n")
+
+            fp.write("\n")
+            fp.write("----------------------\n")
+            fp.write("Configuration settings\n")
+            fp.write("----------------------\n")
+            yaml.dump(self.config_params, fp)
+
+            fp.write("\n")
+            fp.write("------------\n")
+            fp.write("Classes used\n")
+            fp.write("------------\n")
+            fp.write(f"{self.component_class=}\n")
+            fp.write(f"{self.mixture_class=}\n")
+            fp.write(f"{self.introducer_class=}\n")
+            fp.write(f"{self.icpool_class=}\n")
 
     def read_config_file(
         self,

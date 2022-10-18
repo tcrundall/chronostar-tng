@@ -119,6 +119,7 @@ def parse_config(config_file):
     if args.config:
         acceptable_keys = [
             'modules',
+            'driver',
             'component',
             'introducer',
             'icpool',
@@ -134,7 +135,7 @@ def parse_config(config_file):
         # Update config_params accordingly
         for key in user_config_params:
             if key not in acceptable_keys:
-                raise UserWarning(f"[CONFIG] {key} not recognised!")
+                raise UserWarning(f"[CONFIG] {key=} not recognised!")
             config_params[key].update(user_config_params[key])
 
     return config_params
@@ -154,7 +155,7 @@ if __name__ == '__main__':
         print(f"WARNING: Output directory \"{savedir}\" already exists")
         print("         Results may get jumbled with previous ones")
     if not savedir.is_dir():
-        os.mkdir(savedir)
+        savedir.mkdir(parents=True)
 
     # Read in numpy array of data
     data = np.load(args.data)

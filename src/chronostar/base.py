@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
-from typing import Callable, NamedTuple, Optional, Union, Type, Any
+from typing import Callable, NamedTuple, Optional, Union, Type
 # import numpy as np
 from numpy.typing import NDArray
 from numpy import float64
@@ -328,7 +328,7 @@ class BaseMixture(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_parameters(self) -> Any:
+    def get_parameters(self) -> tuple[NDArray[float64], tuple[BaseComponent, ...]]:
         pass
 
     @abstractmethod
