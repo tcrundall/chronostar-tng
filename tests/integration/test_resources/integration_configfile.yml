@@ -1,0 +1,14 @@
+driver: {}
+icpool: {}
+introducer: {}
+mixture:
+  tol: 3.e-5
+  verbose: 2
+  verbose_interval: 1
+  init_params: 'random'
+component:
+  minimize_method: 'Nelder-Mead'
+  age_offset_interval: 10
+  nthreads: 1
+driver:
+  intermediate_dumps: False
