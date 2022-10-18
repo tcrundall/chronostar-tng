@@ -208,14 +208,533 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
 </div>
-<div class="section" id="chronostar-component-spacecomponent-module">
-<h2>chronostar.component.spacecomponent module<a class="headerlink" href="#chronostar-component-spacecomponent-module" title="Permalink to this heading">#</a></h2>
+<div class="section" id="module-chronostar.component.spacecomponent">
+<span id="chronostar-component-spacecomponent-module"></span><h2>chronostar.component.spacecomponent module<a class="headerlink" href="#module-chronostar.component.spacecomponent" title="Permalink to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="chronostar.component.spacecomponent.SpaceComponent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chronostar.component.spacecomponent.</span></span><span class="sig-name descname"><span class="pre">SpaceComponent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.component.spacecomponent.SpaceComponent" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseComponent</span></code></p>
+<p>A 6D phase-space Gaussian component</p>
+<p>Capable of fitting itself to a set of samples and
+responsibilities (membership probabilities)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>ndarray</em><em> of </em><em>shape</em><em> (</em><em>42</em><em>)</em><em>, </em><em>optional</em>) – Model parameters, the mean and covariance of a 6D
+Gaussian, flattened into a 1D array like so:
+<code class="docutils literal notranslate"><span class="pre">np.hstack((mean,</span> <span class="pre">covariance.flatten()))</span></code></p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chronostar.component.spacecomponent.SpaceComponent.reg_covar">
+<span class="sig-name descname"><span class="pre">reg_covar</span></span><a class="headerlink" href="#chronostar.component.spacecomponent.SpaceComponent.reg_covar" title="Permalink to this definition">#</a></dt>
+<dd><p>A regularisation constant added to the diagonals
+of the covariance matrix, configurable</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float, default 1.e-6</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="chronostar.component.spacecomponent.SpaceComponent.covariance">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">covariance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#chronostar.component.spacecomponent.SpaceComponent.covariance" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the covariance, as encoded in internal parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The central covariance of the parameterised 6D Gaussian</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>NDArray[float64] of shape(6, 6)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.component.spacecomponent.SpaceComponent.estimate_log_prob">
+<span class="sig-name descname"><span class="pre">estimate_log_prob</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.component.spacecomponent.SpaceComponent.estimate_log_prob" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculate the log probability of each sample given
+this component</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>ndarray</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The multivariate normal defined by <cite>self.mean</cite> and
+<cite>self.covariance</cite> evaluated at each point in X</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>NDArray[float64] of shape (n_samples)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.component.spacecomponent.SpaceComponent.get_parameters">
+<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.component.spacecomponent.SpaceComponent.get_parameters" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the internal parameters of the model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>mean, covariance</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(n_features), (n_features, n_features)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.component.spacecomponent.SpaceComponent.maximize">
+<span class="sig-name descname"><span class="pre">maximize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.component.spacecomponent.SpaceComponent.maximize" title="Permalink to this definition">#</a></dt>
+<dd><p>Find the best model parameters for the data and stores them
+in <code class="docutils literal notranslate"><span class="pre">self.parameters</span></code>.</p>
+<p>You may access the parameters via the properties <code class="docutils literal notranslate"><span class="pre">mean</span></code> and
+<code class="docutils literal notranslate"><span class="pre">covariance</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>ndarray</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input data</p></li>
+<li><p><strong>resp</strong> (<em>ndarray</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>)</em>) – component responsibilities (membership probabilities)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This method relies heavily on functions written by
+scikit-learn.</p>
+<p class="rubric">References</p>
+<p>TODO: Cite the authors of code which was used as inspiration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="chronostar.component.spacecomponent.SpaceComponent.mean">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mean</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#chronostar.component.spacecomponent.SpaceComponent.mean" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the mean, as encoded in internal parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The central mean of the parameterised 6D Gaussian</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>NDArray[float64] of shape(6)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="chronostar.component.spacecomponent.SpaceComponent.n_params">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#chronostar.component.spacecomponent.SpaceComponent.n_params" title="Permalink to this definition">#</a></dt>
+<dd><p>Return the number of parameters required to
+define this model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of parameters required to define
+this model</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.component.spacecomponent.SpaceComponent.set_parameters">
+<span class="sig-name descname"><span class="pre">set_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.component.spacecomponent.SpaceComponent.set_parameters" title="Permalink to this definition">#</a></dt>
+<dd><p>Set the internal parameters of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>(</em><em>n_features</em><em>)</em><em>, </em><em>(</em><em>n_features</em><em>, </em><em>n_features</em><em>)</em>) – mean, covariance</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.component.spacecomponent.SpaceComponent.split">
+<span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.component.spacecomponent.SpaceComponent.split" title="Permalink to this definition">#</a></dt>
+<dd><p>Split this component into two new comps along the largest
+phase-space dimension</p>
+<p>This method finds the primary axis (i.e. largest eigen vector)
+and generates two components with means offset in either
+direction of the primary axis.</p>
+<p>The two new covariances are shrunk in the direction of the
+primary axis such that the two new ellipsoids formed by one
+standard deviation span the original ellipsoid formed by one
+standard deviation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Two new components with offset mean and shrunken
+covariance</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple[<a class="reference internal" href="#chronostar.component.spacecomponent.SpaceComponent" title="chronostar.component.spacecomponent.SpaceComponent">SpaceComponent</a>, <a class="reference internal" href="#chronostar.component.spacecomponent.SpaceComponent" title="chronostar.component.spacecomponent.SpaceComponent">SpaceComponent</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="chronostar-component-spherespacetimecomponent-module">
-<h2>chronostar.component.spherespacetimecomponent module<a class="headerlink" href="#chronostar-component-spherespacetimecomponent-module" title="Permalink to this heading">#</a></h2>
+<div class="section" id="module-chronostar.component.spherespacetimecomponent">
+<span id="chronostar-component-spherespacetimecomponent-module"></span><h2>chronostar.component.spherespacetimecomponent module<a class="headerlink" href="#module-chronostar.component.spherespacetimecomponent" title="Permalink to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chronostar.component.spherespacetimecomponent.</span></span><span class="sig-name descname"><span class="pre">SphereSpaceTimeComponent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseComponent</span></code></p>
+<p>A 6D phase-space Gaussian component with age.</p>
+<p>Capable of fitting itself to a set of samples and
+responsibilities (membership probabilities)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>ndarray</em><em> of </em><em>shape</em><em> (</em><em>9</em><em>)</em><em>, </em><em>optional</em>) – Model parameters parameterising the modeled spherical birth site
+of the component and its age flattened into a 1D array like so:
+<code class="docutils literal notranslate"><span class="pre">np.hstack((mean,</span> <span class="pre">dxyz,</span> <span class="pre">duvw,</span> <span class="pre">age))</span></code></p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.reg_covar">
+<span class="sig-name descname"><span class="pre">reg_covar</span></span><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.reg_covar" title="Permalink to this definition">#</a></dt>
+<dd><p>A regularisation constant added to the diagonals
+of the covariance matrix, configurable</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float, default 1.e-6</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.minimize_method">
+<span class="sig-name descname"><span class="pre">minimize_method</span></span><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.minimize_method" title="Permalink to this definition">#</a></dt>
+<dd><p>The method used by <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize</span></code>. Must be one of</p>
+<ul class="simple">
+<li><p>‘Nelder-Mead’ (recommended)</p></li>
+<li><p>‘Powell’ (not receommended)</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str, default ‘Nelder-Mead’</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.nthreads">
+<span class="sig-name descname"><span class="pre">nthreads</span></span><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.nthreads" title="Permalink to this definition">#</a></dt>
+<dd><p>Manually restrict how many threads openMP tries to use when
+executing optimized numpy functions, configurable</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.trace_orbit_func">
+<span class="sig-name descname"><span class="pre">trace_orbit_func</span></span><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.trace_orbit_func" title="Permalink to this definition">#</a></dt>
+<dd><p>A function that traces a position by <cite>time</cite> Myr. Positive <cite>time</cite>
+traces forward, negative <cite>time</cite> backwards</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Callable: f(start_loc, time), default <code class="xref py py-func docutils literal notranslate"><span class="pre">trace_epicyclic_orbit()</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.parameters">
+<span class="sig-name descname"><span class="pre">parameters</span></span><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.parameters" title="Permalink to this definition">#</a></dt>
+<dd><p>The model parameters, either as set by initialization, or as
+determined by <a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.maximize" title="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.maximize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">maximize()</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>ndarray of shape (42)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.age">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">age</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.age" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the age of the component</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The age of the component</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.cov_lnpriors">
+<span class="sig-name descname"><span class="pre">cov_lnpriors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.cov_lnpriors" title="Permalink to this definition">#</a></dt>
+<dd><p>Apply priors to covariance parameters</p>
+<p>For now, just a simple hard edge for negative standard
+deviations.</p>
+<p>Currently this should rarely be reached since the optimize
+routine should respect the bounds as set by
+<a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.get_parameter_bounds" title="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.get_parameter_bounds"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_parameter_bounds()</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cov_params</strong> (<em>NDArray</em><em> of </em><em>shape</em><em> (</em><em>2</em><em>)</em>) – The spherical standard deviations of position and velocity</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If standard deviations are negative, returns -np.inf,
+otherwise 0.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.covariance">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">covariance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.covariance" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the current day covariance of the component</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The covariance of the component</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray of shape(6, 6)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.estimate_log_prob">
+<span class="sig-name descname"><span class="pre">estimate_log_prob</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.estimate_log_prob" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculate the log probability of each sample given
+this component</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>ndarray</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The multivariate normal defined by <cite>self.mean</cite> and
+<cite>self.covariance</cite> evaluated at each point in X</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>NDArray[float64] of shape (n_samples)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.get_parameter_bounds">
+<span class="sig-name descname"><span class="pre">get_parameter_bounds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.get_parameter_bounds" title="Permalink to this definition">#</a></dt>
+<dd><p>Generate a set of parameter bounds for scipy.optimize</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A set of bounds to be used in <code class="xref py py-meth docutils literal notranslate"><span class="pre">scipy.optimize.minimize()</span></code></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>optimize.Bounds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.get_parameters">
+<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.get_parameters" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the internal parameters of the model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>mean, covariance, age</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(n_features), (n_features, n_features), float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.loss">
+<span class="sig-name descname"><span class="pre">loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.loss" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculate the loss (i.e. -log likelihood) of the
+data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_params</strong> (<em>ndarray</em><em> of </em><em>shape</em><em> (</em><em>9</em><em>)</em>) – Values that parameterise the birth mean, birth covariance
+matrix and age</p></li>
+<li><p><strong>X</strong> (<em>ndarray</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input data</p></li>
+<li><p><strong>resp</strong> (<em>ndarray</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>)</em>) – component responsibilities (membership probabilities)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Negative log likelihood of data given <cite>age</cite> and derived
+model parameters.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.maximize">
+<span class="sig-name descname"><span class="pre">maximize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.maximize" title="Permalink to this definition">#</a></dt>
+<dd><p>Find the best model parameters for the data</p>
+<p>Performs a minimization on <a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.loss" title="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.loss"><code class="xref py py-meth docutils literal notranslate"><span class="pre">loss()</span></code></a> to find the
+best parameters. To account for local minima caused by the
+Z-W phase / age degeneracy, we perform 3 minimizations with age
+offset by +0., +40. and +120. These offsets appear to guarantee
+successful fits up to 200 Myr.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>ndarray</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input data</p></li>
+<li><p><strong>resp</strong> (<em>ndarray</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>)</em>) – component responsibilities (membership probabilities)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The age offsets might be overkill for subsequent fittings of
+this component. Perhaps they are only needed for the initial fit,
+since each subsequent fit is initialised on previous parameters.
+Since the 0. age offset is twice as fast as the other two, it
+represents only 20% of execution time, and thus removing the need
+for the other minimizations would yield a 5x speed increase.</p>
+<p>Though… individual minimization runs don’t all converge to the
+same solution despite ending up in the vicinity of each other. So
+perhaps multiple runs can improve the fit?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.mean">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mean</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.mean" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the current day mean of the component</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The central mean of the component</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray of shape(6)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.n_params">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.n_params" title="Permalink to this definition">#</a></dt>
+<dd><p>Return the number of parameters required to
+define this model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The number of parameters required to define
+this model</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.set_parameters">
+<span class="sig-name descname"><span class="pre">set_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.set_parameters" title="Permalink to this definition">#</a></dt>
+<dd><p>Set the internal parameters of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>(</em><em>n_features</em><em>)</em><em>, </em><em>(</em><em>n_features</em><em>, </em><em>n_features</em><em>)</em><em>, </em><em>float</em>) – mean, covariance, age</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.split">
+<span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.split" title="Permalink to this definition">#</a></dt>
+<dd><p>Split the component along its primary phase-space axis</p>
+<p>Similar to <code class="xref py py-meth docutils literal notranslate"><span class="pre">SpaceComponent.split()</span></code>, however it is
+non-trivial to adjust covariance matrices which were
+transformed from birth-sites, so we don’t bother.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Two components with identical parameters as <cite>self</cite> but
+with current-day means offset in either direction of
+the primary axis</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple[<a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent" title="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent">SphereSpaceTimeComponent</a>, <a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent" title="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent">SphereSpaceTimeComponent</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trace_orbit_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyzuvw_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.89</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.21</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">220.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Noindex</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.construct_cov_from_params">
+<span class="sig-prename descclassname"><span class="pre">chronostar.component.spherespacetimecomponent.</span></span><span class="sig-name descname"><span class="pre">construct_cov_from_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.construct_cov_from_params" title="Permalink to this definition">#</a></dt>
+<dd><p>Construct a covariance matrix from given parameters</p>
+<p>This implementation is a spherical covariance, with a uniform
+standard deviation in position, and a uniform standard
+devaition in velocity</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cov_params</strong> (<em>NDArray</em><em>[</em><em>float64</em><em>] of </em><em>shape</em><em>(</em><em>2</em><em>)</em>) – The standard deviations in position and velocity: (dxyz, duvw)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A spherical covariance matrix</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>NDArray[float64] of shape(6, 6)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.component.spherespacetimecomponent.construct_params_from_cov">
+<span class="sig-prename descclassname"><span class="pre">chronostar.component.spherespacetimecomponent.</span></span><span class="sig-name descname"><span class="pre">construct_params_from_cov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">covariance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.component.spherespacetimecomponent.construct_params_from_cov" title="Permalink to this definition">#</a></dt>
+<dd><p>Derives spherical parameters from an arbitrary covariance
+matrix</p>
+<p>This implementation takes the volume of the covariance matrix
+in position (an ellipsoid whose axes’ half-lengths are the
+square root of the matrix’s eigen values) and finds the equivalent
+radius of a sphere with equal volume.</p>
+<p>An identical approach is taken for velocity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>covariance</strong> (<em>NDArray</em><em>[</em><em>float64</em><em>] of </em><em>shape</em><em>(</em><em>6</em><em>, </em><em>6</em><em>)</em>) – A covariance matrix (can be full)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The standard deviations in space and velocity: (dxyz, duvw)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>NDArray[float64] of shape(2)</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">#</a></h2>
+<div class="section" id="module-chronostar.component">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-chronostar.component" title="Permalink to this heading">#</a></h2>
 </div>
 </div>
 
@@ -278,9 +797,48 @@
             <ul>
 <li><a class="reference internal" href="#">chronostar.component package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#chronostar-component-spacecomponent-module">chronostar.component.spacecomponent module</a></li>
-<li><a class="reference internal" href="#chronostar-component-spherespacetimecomponent-module">chronostar.component.spherespacetimecomponent module</a></li>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#module-chronostar.component.spacecomponent">chronostar.component.spacecomponent module</a><ul>
+<li><a class="reference internal" href="#chronostar.component.spacecomponent.SpaceComponent"><code class="docutils literal notranslate"><span class="pre">SpaceComponent</span></code></a><ul>
+<li><a class="reference internal" href="#chronostar.component.spacecomponent.SpaceComponent.reg_covar"><code class="docutils literal notranslate"><span class="pre">SpaceComponent.reg_covar</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spacecomponent.SpaceComponent.covariance"><code class="docutils literal notranslate"><span class="pre">SpaceComponent.covariance</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spacecomponent.SpaceComponent.estimate_log_prob"><code class="docutils literal notranslate"><span class="pre">SpaceComponent.estimate_log_prob()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spacecomponent.SpaceComponent.get_parameters"><code class="docutils literal notranslate"><span class="pre">SpaceComponent.get_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spacecomponent.SpaceComponent.maximize"><code class="docutils literal notranslate"><span class="pre">SpaceComponent.maximize()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spacecomponent.SpaceComponent.mean"><code class="docutils literal notranslate"><span class="pre">SpaceComponent.mean</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spacecomponent.SpaceComponent.n_params"><code class="docutils literal notranslate"><span class="pre">SpaceComponent.n_params</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spacecomponent.SpaceComponent.set_parameters"><code class="docutils literal notranslate"><span class="pre">SpaceComponent.set_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spacecomponent.SpaceComponent.split"><code class="docutils literal notranslate"><span class="pre">SpaceComponent.split()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-chronostar.component.spherespacetimecomponent">chronostar.component.spherespacetimecomponent module</a><ul>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent</span></code></a><ul>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.reg_covar"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent.reg_covar</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.minimize_method"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent.minimize_method</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.nthreads"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent.nthreads</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.trace_orbit_func"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent.trace_orbit_func</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.parameters"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent.parameters</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.age"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent.age</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.cov_lnpriors"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent.cov_lnpriors()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.covariance"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent.covariance</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.estimate_log_prob"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent.estimate_log_prob()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.get_parameter_bounds"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent.get_parameter_bounds()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.get_parameters"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent.get_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.loss"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent.loss()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.maximize"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent.maximize()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.mean"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent.mean</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.n_params"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent.n_params</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.set_parameters"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent.set_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.split"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent.split()</span></code></a></li>
+<li><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent.trace_orbit_func()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.construct_cov_from_params"><code class="docutils literal notranslate"><span class="pre">construct_cov_from_params()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.component.spherespacetimecomponent.construct_params_from_cov"><code class="docutils literal notranslate"><span class="pre">construct_params_from_cov()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-chronostar.component">Module contents</a></li>
 </ul>
 </li>
 </ul>
