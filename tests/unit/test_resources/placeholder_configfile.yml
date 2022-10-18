@@ -1,5 +1,6 @@
 driver:
   n_draws: 10
+  intermediate_dumps: False
 icpool:
   param1: 'param1'
   param2: 'param2'

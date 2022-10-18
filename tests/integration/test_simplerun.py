@@ -17,7 +17,7 @@ from chronostar.component.spacecomponent import SpaceComponent
 
 def test_simple_spacemixture_run():
     curr_dir = Path(os.path.dirname(__file__))
-    config_file = curr_dir / 'test_resources' / 'placeholder_configfile.yml'
+    config_file = curr_dir / 'test_resources' / 'integration_configfile.yml'
     driver = Driver(
         config_file=config_file,
         mixture_class=ComponentMixture,
@@ -50,7 +50,7 @@ def test_simple_spacemixture_run():
 
 def test_simple_spacetimemixture_run():
     curr_dir = Path(os.path.dirname(__file__))
-    config_file = curr_dir / 'test_resources' / 'placeholder_configfile.yml'
+    config_file = curr_dir / 'test_resources' / 'integration_configfile.yml'
     driver = Driver(
         config_file=config_file,
         mixture_class=ComponentMixture,

@@ -70,7 +70,7 @@ def test_twoassocs():
     true_membership_probs[n_stars_1:, 1] = 1.
 
     curr_dir = Path(os.path.dirname(__file__))
-    config_file = curr_dir / 'test_resources' / 'placeholder_configfile.yml'
+    config_file = curr_dir / 'test_resources' / 'integration_configfile.yml'
     driver = Driver(
         config_file=config_file,
         mixture_class=ComponentMixture,
@@ -82,7 +82,7 @@ def test_twoassocs():
     best_mixture = driver.run(data=stars)
     params = best_mixture.get_parameters()
     weights = params[0]
-    components: list[SphereSpaceTimeComponent] = params[1]
+    components = params[1]
 
     nstars = len(stars)
     fitted_ages = [c.get_parameters()[-1] for c in components]
@@ -148,7 +148,7 @@ def test_one_assoc_one_gaussian_background():
     stars = np.vstack((assoc_stars, bg_stars))
 
     curr_dir = Path(os.path.dirname(__file__))
-    config_file = curr_dir / 'test_resources' / 'placeholder_configfile.yml'
+    config_file = curr_dir / 'test_resources' / 'integration_configfile.yml'
     driver = Driver(
         config_file=config_file,
         mixture_class=ComponentMixture,
@@ -161,7 +161,7 @@ def test_one_assoc_one_gaussian_background():
 
     params = best_mixture.get_parameters()
     weights = params[0]
-    components: list[SphereSpaceTimeComponent] = params[1]
+    components = params[1]
 
     nstars = len(stars)
     fitted_ages = [c.get_parameters()[-1] for c in components]
@@ -172,7 +172,7 @@ def test_one_assoc_one_gaussian_background():
 
     nstars = len(stars)
     assert np.isclose(assoc_nstars, fitted_assoc_weight*nstars, rtol=0.1)
-    assert np.isclose(assoc_age, assoc_comp.age, rtol=0.1)
+    assert np.isclose(assoc_age, assoc_comp.age, rtol=0.1)      # type: ignore
 
     return best_mixture, stars, driver
 
@@ -220,7 +220,7 @@ def test_one_assoc_one_uniform_background():
     stars = np.vstack((assoc_stars, bg_stars))
 
     curr_dir = Path(os.path.dirname(__file__))
-    config_file = curr_dir / 'test_resources' / 'placeholder_configfile.yml'
+    config_file = curr_dir / 'test_resources' / 'integration_configfile.yml'
     driver = Driver(
         config_file=config_file,
         mixture_class=ComponentMixture,
@@ -233,7 +233,7 @@ def test_one_assoc_one_uniform_background():
 
     params = best_mixture.get_parameters()
     weights = params[0]
-    components: list[SphereSpaceTimeComponent] = params[1]
+    components = params[1]
 
     nstars = len(stars)
     fitted_ages = [c.get_parameters()[-1] for c in components]
@@ -243,7 +243,7 @@ def test_one_assoc_one_uniform_background():
 
     nstars = len(stars)
     assert np.isclose(assoc_nstars, fitted_assoc_weight*nstars, rtol=0.1)
-    assert np.isclose(assoc_age, fitted_comp.age, rtol=0.1)
+    assert np.isclose(assoc_age, fitted_comp.age, rtol=0.1)     # type: ignore
     return best_mixture, stars
 
 

@@ -119,6 +119,7 @@ class SphereSpaceTimeComponent(BaseComponent):
     minimize_method: str = 'Nelder-Mead'
     reg_covar: float = 1e-6
     nthreads: Optional[int] = None
+    age_offset_interval: int = 20
 
     # We declare this as a staticmethod so that we can call
     # `self.trace_orbit_func` without passing an instance of `self` as
@@ -241,11 +242,11 @@ class SphereSpaceTimeComponent(BaseComponent):
             A set of bounds to be used in :meth:`scipy.optimize.minimize`
         """
         bound_map = {
-            'MEAN': (-10_000., 10_000.),
-            'STDEV': (0., 10_000.,),
+            'MEAN': (-20_000., 20_000.),
+            'STDEV': (0., 30_000.,),
             'INV_STDEV': (0., np.inf),
             'CORR': (-1, 1),
-            'AGE': (-50, 500),
+            'AGE': (-50, 1_100),
         }
 
         par_types = 6*['MEAN'] + 2*['STDEV'] + ['AGE']
@@ -320,8 +321,8 @@ class SphereSpaceTimeComponent(BaseComponent):
                 )
 
             # Every 10 iterations, check for age offsets
-            if self.maximize_iter % 20 == 0:
-                age_offsets = [0., 40., 80., 120., 160., 200.]
+            if self.maximize_iter % self.age_offset_interval == 0:
+                age_offsets = [-80., -40., 0., 40., 80., 160., 320.]
             else:
                 age_offsets = [0.]
 

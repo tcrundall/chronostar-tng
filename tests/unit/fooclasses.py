@@ -106,6 +106,8 @@ class FooMixture(BaseMixture):
 
     def fit(self, X: NDArray[float64]) -> None:
         self.memberships = np.ones((len(X), len(self.comps))) / len(self.comps)
+        for c in self.comps:
+            c.maximize(X, self.memberships)
 
     def bic(self, X: NDArray[float64]) -> float:
         """

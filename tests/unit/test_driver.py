@@ -17,7 +17,7 @@ def test_construction() -> None:
         icpool_class=FooICPool,
         introducer_class=FooIntroducer,
         component_class=FooComponent,
-        )
+    )
 
 
 def test_run() -> None:
@@ -31,7 +31,7 @@ def test_run() -> None:
         icpool_class=FooICPool,
         introducer_class=FooIntroducer,
         component_class=FooComponent,
-        )
+    )
 
     best_mixture = driver.run(DATA)
 
