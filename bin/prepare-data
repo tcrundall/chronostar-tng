@@ -34,8 +34,7 @@ def convert_astro2cart(astr_mean, astr_cov):
     xyzuvw_cov: [6,6] float array_like
         The carteisan covariance matrix
     """
-    xyzuvw_mean = coordinate.convert_astrometry2lsrxyzuvw(astr_mean)
-    xyzuvw_cov = transform.transform_covmatrix(
+    xyzuvw_cov, xyzuvw_mean = transform.transform_covmatrix(
             cov=astr_cov, trans_func=coordinate.convert_astrometry2lsrxyzuvw,
             loc=astr_mean
     )
@@ -65,7 +64,7 @@ if __name__ == '__main__':
     t = Table.read(args.astrodata)
 
     # Assume RVs are the only missing data
-    msk = np.where(~t['radial_velocity'].mask)
+    msk = np.where(np.isfinite(t['radial_velocity']))
 
     # Extract astrometry data, 6 measurements, 6 errors, 15 correlations
     # Assume gaia formatting

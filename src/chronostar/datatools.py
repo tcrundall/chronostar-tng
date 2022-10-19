@@ -3,7 +3,10 @@ from numpy.typing import NDArray
 from numpy import float64
 
 
-def construct_covs_from_data(X, dim=6):
+def construct_covs_from_data(
+    X: NDArray[float64],
+    dim=6
+) -> tuple[NDArray[float64], NDArray[float64]]:
     """Reconstruct covariance matrices from data rows
 
     Parameters
@@ -70,3 +73,48 @@ def replace_cov_with_sampling(
     print("\nDone")
 
     return new_data
+
+
+def extract_array_from_table(table, msk=None):
+    # Extract astrometry data, 6 measurements, 6 errors, 15 correlations
+    # Assume gaia formatting
+    if msk is None:
+        msk = np.where(np.isfinite(table['radial_velocity']))
+    astrodata = np.zeros((len(msk[0]), 6 + 6 + 15))
+
+    column_stems = [
+        'ra', 'dec', 'parallax', 'pmra', 'pmdec', 'radial_velocity'
+    ]
+    dim = len(column_stems)
+    # Insert measurements
+    for i, stem in enumerate(column_stems):
+        astrodata[:, i] = table[stem][msk]
+
+    # Insert errors
+    error_col_offset = dim
+    for i, stem in enumerate(column_stems):
+        error_col_name = f"{stem}_error"
+        astrodata[:, error_col_offset + i] = table[error_col_name][msk]
+
+    # Insert correlations
+    corr_col = 2 * dim
+    for i in range(len(column_stems)):
+        for j in range(i+1, len(column_stems)):
+            corr_col_name = f"{column_stems[i]}_{column_stems[j]}_corr"
+            if corr_col_name in table.keys():
+                astrodata[:, corr_col] = table[corr_col_name][msk]
+            corr_col += 1
+
+    # Insert covariances
+    corr_col = 2 * dim
+    for i in range(len(column_stems)):
+        for j in range(i+1, len(column_stems)):
+            corr_col_name = f"{column_stems[i]}_{column_stems[j]}_corr"
+            error_1 = f"{column_stems[i]}_error"
+            error_2 = f"{column_stems[j]}_error"
+            if corr_col_name in table.keys():
+                astrodata[:, corr_col] =\
+                    table[corr_col_name][msk] * table[error_1][msk] * table[error_2][msk]
+            corr_col += 1
+
+    return astrodata

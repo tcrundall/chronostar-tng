@@ -107,6 +107,10 @@ class Driver:
             self.savedir_path = Path(self.savedir)
             self.savedir_path.mkdir(parents=True, exist_ok=True)
 
+        # If we have covariances, merge with data array
+        if covariances is not None:
+            data = np.vstack((data.T, covariances.reshape(-1, 36).T)).T
+
         icpool = self.icpool_class(
             introducer_class=self.introducer_class,
             component_class=self.component_class,

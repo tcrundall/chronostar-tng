@@ -1,18 +1,19 @@
 import numpy as np
 import os
+os.environ['NUMBA_DISABLE_JIT'] = "1"
 from pathlib import Path
-
-from chronostar.traceorbit import trace_epicyclic_orbit
 
 from ..context import chronostar     # noqa
 
+from chronostar import synthdata, datatools
+from chronostar.utils import coordinate, transform
 from chronostar.driver import Driver
+from chronostar.traceorbit import trace_epicyclic_orbit
 from chronostar.component.spherespacetimecomponent import\
     SphereSpaceTimeComponent
 from chronostar.icpool.simpleicpool import SimpleICPool
 from chronostar.introducer.simpleintroducer import SimpleIntroducer
 from chronostar.mixture.componentmixture import ComponentMixture
-from chronostar import synthdata
 
 
 def test_twoassocs():
@@ -105,7 +106,7 @@ def test_twoassocs():
             (
                 true_membership_probs[:, :: -1]
                 != np.round(fitted_memberships)
-             )[:, 0]
+            )[:, 0]
         )
         assert false_matches < 0.1 * (nstars)
 
@@ -245,6 +246,88 @@ def test_one_assoc_one_uniform_background():
     assert np.isclose(assoc_nstars, fitted_assoc_weight*nstars, rtol=0.1)
     assert np.isclose(assoc_age, fitted_comp.age, rtol=0.1)     # type: ignore
     return best_mixture, stars
+
+
+def test_uncertain_one_assoc_one_gaussian_background():
+
+    DIM = 6
+    bg_mean = np.zeros(DIM)
+    bg_stdev_pos = 1000.
+    bg_stdev_vel = 30.
+    bg_cov = np.eye(DIM)
+    bg_cov[:3] *= bg_stdev_pos**2
+    bg_cov[3:] *= bg_stdev_vel**2
+
+    bg_age = 0.
+    bg_nstars = 1_000
+
+    seed = 0
+    rng = np.random.default_rng(seed)
+
+    bg_stars = synthdata.generate_association(
+        bg_mean, bg_cov, bg_age, bg_nstars, rng=rng,
+    )
+
+    assoc_mean = np.ones(DIM)
+    assoc_stdev_pos = 50.
+    assoc_stdev_vel = 1.5
+    assoc_age = 30.
+    assoc_nstars = 200
+
+    assoc_cov = np.eye(DIM)
+    assoc_cov[:3] *= assoc_stdev_pos**2
+    assoc_cov[3:] *= assoc_stdev_vel**2
+
+    assoc_stars = synthdata.generate_association(
+        assoc_mean, assoc_cov, assoc_age, assoc_nstars, rng=rng,
+    )
+
+    stars = np.vstack((assoc_stars, bg_stars))
+
+    synthdata.SynthData.m_err = 0.3
+    astrometry = synthdata.SynthData.measure_astrometry(stars)
+    astro_data = datatools.extract_array_from_table(astrometry)
+    astro_means, astro_covs = datatools.construct_covs_from_data(astro_data)
+
+    cart_means = np.empty(astro_means.shape)
+    cart_covs = np.empty(astro_covs.shape)
+    for i in range(len(cart_means)):
+        cart_covs[i], cart_means[i] = transform.transform_covmatrix(
+            cov=astro_covs[i],
+            trans_func=coordinate.convert_astrometry2lsrxyzuvw,
+            loc=astro_means[i],
+        )
+
+    data = np.vstack((cart_means.T, cart_covs.reshape(-1, 36).T)).T
+
+    curr_dir = Path(os.path.dirname(__file__))
+    config_file = curr_dir / 'test_resources' / 'uncertainties_configfile.yml'
+    driver = Driver(
+        config_file=config_file,
+        mixture_class=ComponentMixture,
+        icpool_class=SimpleICPool,
+        introducer_class=SimpleIntroducer,
+        component_class=SphereSpaceTimeComponent,
+    )
+
+    best_mixture = driver.run(data=data)
+
+    params = best_mixture.get_parameters()
+    weights = params[0]
+    components = params[1]
+
+    nstars = len(stars)
+    fitted_ages = [c.get_parameters()[-1] for c in components]
+    assoc_ix = np.argmax(fitted_ages)
+    assoc_comp = components[assoc_ix]
+    # parameters = components[assoc_ix].get_parameters()
+    fitted_assoc_weight = weights[assoc_ix]
+
+    nstars = len(stars)
+    assert np.isclose(assoc_nstars, fitted_assoc_weight*nstars, rtol=0.1)
+    assert np.isclose(assoc_age, assoc_comp.age, rtol=0.1)      # type: ignore
+
+    return best_mixture, stars, driver
 
 
 if __name__ == '__main__':

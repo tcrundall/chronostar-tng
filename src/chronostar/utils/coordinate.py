@@ -205,7 +205,7 @@ def convert_cartesian2angles(x, y, z, return_dist=False):
         z += 1e-10   # HACK allowing sun (who has dist=0) to be inserted
         dist = np.sqrt(x**2 + y**2 + z**2)
     phi_deg = np.arcsin(z/dist)*180./np.pi
-    theta_deg = np.mod((np.arctan2(y/dist, x/dist))*180./np.pi, 360.)
+    theta_deg = np.mod((np.arctan2(y/dist, x/dist)) * 180./np.pi, 360.)
     if return_dist:
         return np.array([theta_deg, phi_deg, dist])
     else:

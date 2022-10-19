@@ -11,6 +11,8 @@ from sklearn.mixture._gaussian_mixture import _estimate_gaussian_parameters
 from sklearn.mixture._gaussian_mixture import _estimate_log_gaussian_prob
 from sklearn.mixture._gaussian_mixture import _compute_precision_cholesky
 
+from chronostar.maths import estimate_log_gaussian_ol_prob
+
 from ..base import BaseComponent
 from ..traceorbit import trace_epicyclic_orbit
 from ..utils.transform import transform_covmatrix
@@ -120,6 +122,7 @@ class SphereSpaceTimeComponent(BaseComponent):
     reg_covar: float = 1e-6
     nthreads: Optional[int] = None
     age_offset_interval: int = 20
+    stellar_uncertainties: bool = False
 
     # We declare this as a staticmethod so that we can call
     # `self.trace_orbit_func` without passing an instance of `self` as
@@ -186,52 +189,62 @@ class SphereSpaceTimeComponent(BaseComponent):
             Negative log likelihood of data given `age` and derived
             model parameters.
         """
-        # Extract and label sets of params
-        mean_birth = model_params[:6]
-        cov_birth_params = model_params[6:-1]
-        age = model_params[-1]
+        with threadpool_limits(self.nthreads, user_api='openmp'):
+            # Extract and label sets of params
+            mean_birth = model_params[:6]
+            cov_birth_params = model_params[6:-1]
+            age = model_params[-1]
 
-        # Check covariance params are valid
-        lnprior = self.cov_lnpriors(cov_birth_params)
-        if lnprior == -np.inf:
-            return -lnprior
+            # Check covariance params are valid
+            lnprior = self.cov_lnpriors(cov_birth_params)
+            if lnprior == -np.inf:
+                return -lnprior
 
-        # Get current day covariance and mean
-        cov_birth = construct_cov_from_params(cov_birth_params)
-        cov_now, mean_now = transform_covmatrix(
-            cov_birth,
-            self.trace_orbit_func,
-            mean_birth,
-            args=(age,)
-        )
+            # Get current day covariance and mean
+            cov_birth = construct_cov_from_params(cov_birth_params)
+            cov_now, mean_now = transform_covmatrix(
+                cov_birth,
+                self.trace_orbit_func,
+                mean_birth,
+                args=(age,)
+            )
 
-        # Confirm current day covariance is valid
-        if not np.all(np.linalg.eigvals(cov_now) > 0):
-            return np.inf
+            # Confirm current day covariance is valid
+            if not np.all(np.linalg.eigvals(cov_now) > 0):
+                return np.inf
 
-        # Decompose covariance's precision with cholesky method
-        # (optimisation used by sklearn)
-        prec_now_chol = _compute_precision_cholesky(
-            cov_now[np.newaxis],
-            "full",
-        ).squeeze()
+            if self.stellar_uncertainties:
+                print(".", end="")
+                log_prob = estimate_log_gaussian_ol_prob(
+                    X,
+                    mean_now,
+                    cov_now,
+                )
 
-        # Evaluate each star's log prob given the current day model
-        log_prob = _estimate_log_gaussian_prob(
-            X,
-            mean_now[np.newaxis],
-            prec_now_chol[np.newaxis],
-            self.COVARIANCE_TYPE,
-        ).squeeze()
+            else:
+                # Decompose covariance's precision with cholesky method
+                # (optimisation used by sklearn)
+                prec_now_chol = _compute_precision_cholesky(
+                    cov_now[np.newaxis],
+                    "full",
+                ).squeeze()
 
-        # Weight each log_prob by membership probability (resp)
-        # and take the sum (which would be the product if we weren't in
-        # log space), include prior.
-        # https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm#E_step
-        # ^^ see final equaion in this section, ignore the inner sum since we
-        # only have one component here.
-        # We negate since we want to *minimize* this function.
-        return -float(lnprior + np.sum(resp * log_prob))
+                # Evaluate each star's log prob given the current day model
+                log_prob = _estimate_log_gaussian_prob(
+                    X,
+                    mean_now[np.newaxis],
+                    prec_now_chol[np.newaxis],
+                    self.COVARIANCE_TYPE,
+                ).squeeze()
+
+            # Weight each log_prob by membership probability (resp)
+            # and take the sum (which would be the product if we weren't in
+            # log space), include prior.
+            # https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm#E_step
+            # ^^ see final equaion in this section, ignore the inner sum since we
+            # only have one component here.
+            # We negate since we want to *minimize* this function.
+            return -float(lnprior + np.sum(resp * log_prob))
 
     def get_parameter_bounds(self) -> optimize.Bounds:
         """Generate a set of parameter bounds for scipy.optimize
@@ -307,7 +320,7 @@ class SphereSpaceTimeComponent(BaseComponent):
             # Otherwise, initialise based on the data, with age 0.
             else:
                 _, est_means, est_covariances = _estimate_gaussian_parameters(
-                    X,
+                    X[:, :6],       # index up to 6 in case cov-matrices are here
                     resp[:, np.newaxis],
                     self.reg_covar,
                     self.COVARIANCE_TYPE,
@@ -322,7 +335,7 @@ class SphereSpaceTimeComponent(BaseComponent):
 
             # Every 10 iterations, check for age offsets
             if self.maximize_iter % self.age_offset_interval == 0:
-                age_offsets = [-80., -40., 0., 40., 80., 160., 320.]
+                age_offsets = [-40., -20., 0., 20., 40., 80., 160.]
             else:
                 age_offsets = [0.]
 
@@ -339,6 +352,8 @@ class SphereSpaceTimeComponent(BaseComponent):
             for age_offset in age_offsets:
                 # Offset initial guess age by a certain amount
                 ig_age = base_init_guess[-1] + age_offset
+                print(f"[SphereSpaceTimeComponent.maximize] {age_offset=}")
+                print(f"[SphereSpaceTimeComponent.maximize] {ig_age=}")
 
                 # Adjust initial guess mean by tracing back an extra amount
                 ig_mean = self.trace_orbit_func(
@@ -356,7 +371,9 @@ class SphereSpaceTimeComponent(BaseComponent):
                     method=self.minimize_method,
                     bounds=bounds,
                 )
+                print("")
                 all_results.append(res)
+                print(f"[SphereSpaceTimeComponent.maximize] {res.x[-1]=:.2f}")
 
             # Take the best minimization result
             best_res = min(all_results, key=lambda x: x.fun)
@@ -383,12 +400,20 @@ class SphereSpaceTimeComponent(BaseComponent):
             The multivariate normal defined by `self.mean` and
             `self.covariance` evaluated at each point in X
         """
-        return np.array(_estimate_log_gaussian_prob(
-            X,
-            self.mean[np.newaxis],
-            self.precision_chol[np.newaxis],
-            self.COVARIANCE_TYPE,
-        ).squeeze(), dtype=float64)
+        with threadpool_limits(1):
+            if self.stellar_uncertainties:
+                return estimate_log_gaussian_ol_prob(
+                    X,
+                    self.mean,
+                    self.covariance,
+                )
+            else:
+                return np.array(_estimate_log_gaussian_prob(
+                    X,
+                    self.mean[np.newaxis],
+                    self.precision_chol[np.newaxis],
+                    self.COVARIANCE_TYPE,
+                ).squeeze(), dtype=float64)
 
     @property
     def n_params(self) -> int:

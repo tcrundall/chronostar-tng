@@ -14,7 +14,7 @@ if __name__ == '__main__':
 
     birth_means = []
     for m, a in zip(final_means, ages):
-        birth_mean = trace_epicyclic_orbit(m[np.newaxis], -a).squeeze()
+        birth_means.append(trace_epicyclic_orbit(m[np.newaxis], -a).squeeze())
 
     birth_covs = np.array(np.broadcast_to(np.eye(6), (3, 6, 6)))
 

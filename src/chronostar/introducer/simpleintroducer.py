@@ -95,7 +95,7 @@ class SimpleIntroducer(BaseIntroducer):
                 components=next_ic_components,
                 parent_label=prev_comp_sets.label,
                 extra=target_ix,
-                )
+            )
             # next_ic_components
             # next_ic_comps_tup: tuple[BaseComponent] = tuple(next_ic_components)
 
