@@ -1,6 +1,5 @@
 import numpy as np
 import os
-os.environ['NUMBA_DISABLE_JIT'] = "1"
 from pathlib import Path
 
 from ..context import chronostar     # noqa
@@ -292,7 +291,7 @@ def test_uncertain_one_assoc_one_gaussian_background():
     cart_means = np.empty(astro_means.shape)
     cart_covs = np.empty(astro_covs.shape)
     for i in range(len(cart_means)):
-        cart_covs[i], cart_means[i] = transform.transform_covmatrix(
+        cart_covs[i], cart_means[i] = transform.transform_covmatrix_py(
             cov=astro_covs[i],
             trans_func=coordinate.convert_astrometry2lsrxyzuvw,
             loc=astro_means[i],
