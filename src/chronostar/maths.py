@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.typing import NDArray
 from numpy import float64
-from numba import njit
+from numba import njit, prange
 
 
 # @njit(parallel=True)
@@ -14,8 +14,8 @@ def extract_gaussian_pars(
     return means, covs
 
 
-# @njit(parallel=True)
-@njit
+@njit(parallel=True)
+# @njit
 def estimate_log_gaussian_ol_prob(
     X: NDArray[float64],
     mean: NDArray[float64],
@@ -42,12 +42,12 @@ def estimate_log_gaussian_ol_prob(
     """
     data_means, data_covs = extract_gaussian_pars(X)
     lnols = np.empty(data_means.shape[0])
-    for i, (data_mean, data_cov) in enumerate(zip(data_means, data_covs)):
+    for i in prange(len(data_means)):
         res = 0.
         res -= 6. * np.log(2*np.pi)
-        res -= np.log(np.linalg.det(data_cov + covariance))
-        diff = data_mean - mean
-        comb_cov = data_cov + covariance
+        res -= np.log(np.linalg.det(data_covs[i] + covariance))
+        diff = data_means[i] - mean
+        comb_cov = data_covs[i] + covariance
         res -= np.dot(diff.T, np.dot(np.linalg.inv(comb_cov), diff))
         res *= 0.5
         lnols[i] = res

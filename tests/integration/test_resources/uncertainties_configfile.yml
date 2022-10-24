@@ -9,7 +9,7 @@ mixture:
 component:
   minimize_method: 'Nelder-Mead'
   age_offset_interval: 10
-  nthreads: 1
+  nthreads: 4
   stellar_uncertainties: True
 driver:
   intermediate_dumps: False

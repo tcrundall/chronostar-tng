@@ -301,9 +301,11 @@ class SphereSpaceTimeComponent(BaseComponent):
         same solution despite ending up in the vicinity of each other. So
         perhaps multiple runs can improve the fit?
         """
-        # Set OMP_NUM_THREADS = self.nthreads
-        with threadpool_limits(self.nthreads, user_api='openmp'):
-            # Numba potentially uses different layers, so set here too
+        # Effectively set OMP_NUM_THREADS = self.nthreads
+        with threadpool_limits(1, user_api='openmp'):
+            # Numba potentially uses different layers, so put all
+            # component parallelisation into numba
+            # TODO: properly manage the different layers of parallelisation
             if self.nthreads is not None:
                 numba.set_num_threads(self.nthreads)
             print(f'[SphereComp.maximize] {self.nthreads=}')
