@@ -247,8 +247,8 @@ def test_one_assoc_one_uniform_background():
     return best_mixture, stars
 
 
+# @pytest.mark.skip("Takes over 6 hours to run")
 def test_uncertain_one_assoc_one_gaussian_background():
-
     DIM = 6
     bg_mean = np.zeros(DIM)
     bg_stdev_pos = 1000.

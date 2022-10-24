@@ -1,15 +1,21 @@
 import numpy as np
 from numpy.typing import NDArray
 from numpy import float64
+from numba import njit
 
 
+# @njit(parallel=True)
+@njit
 def extract_gaussian_pars(
     X: NDArray[float64],
 ) -> tuple[NDArray[float64], NDArray[float64]]:
+    means = np.copy(X[:, :6])
+    covs = np.copy(X[:, 6:]).reshape(-1, 6, 6)
+    return means, covs
 
-    return X[:, :6], X[:, 6:].reshape(-1, 6, 6)
 
-
+# @njit(parallel=True)
+@njit
 def estimate_log_gaussian_ol_prob(
     X: NDArray[float64],
     mean: NDArray[float64],
@@ -35,8 +41,8 @@ def estimate_log_gaussian_ol_prob(
         an array of the logarithm of the overlaps
     """
     data_means, data_covs = extract_gaussian_pars(X)
-    lnols = []
-    for data_mean, data_cov in zip(data_means, data_covs):
+    lnols = np.empty(data_means.shape[0])
+    for i, (data_mean, data_cov) in enumerate(zip(data_means, data_covs)):
         res = 0.
         res -= 6. * np.log(2*np.pi)
         res -= np.log(np.linalg.det(data_cov + covariance))
@@ -44,8 +50,56 @@ def estimate_log_gaussian_ol_prob(
         comb_cov = data_cov + covariance
         res -= np.dot(diff.T, np.dot(np.linalg.inv(comb_cov), diff))
         res *= 0.5
-        lnols.append(res)
-    return np.array(lnols)
+        lnols[i] = res
+    return lnols
+
+
+def extract_gaussian_pars_py(
+    X: NDArray[float64],
+) -> tuple[NDArray[float64], NDArray[float64]]:
+    means = np.copy(X[:, :6])
+    covs = np.copy(X[:, 6:]).reshape(-1, 6, 6)
+    return means, covs
+
+
+def estimate_log_gaussian_ol_prob_py(
+    X: NDArray[float64],
+    mean: NDArray[float64],
+    covariance: NDArray[float64],
+) -> NDArray[float64]:
+    """
+    A pythonic implementation of overlap integral calculation.
+    Left here in case swigged _overlap doesn't work.
+
+    Parameters
+    ---------
+    X: ndarray of shape (n_stars, 42)
+        The first 6 columns are the mean of each star, the remaining
+        36 are the flattened covariance matrix of each star
+    mean: ndarray of shape (6)
+        Mean of component Gaussian model (current day)
+    covariance: ndarray of shape (6, 6)
+        Covariance of component Gaussian model (current day)
+
+    Returns
+    -------
+    ln_ols: ([nstars] float array)
+        an array of the logarithm of the overlaps
+    """
+    # data_means, data_covs = extract_gaussian_pars(X)
+    data_means, data_covs = extract_gaussian_pars_py(X)
+    # data_covs = np.copy(data_means)
+    lnols = np.empty(data_means.shape[0])
+    for i, (data_mean, data_cov) in enumerate(zip(data_means, data_covs)):
+        res = 0.
+        res -= 6. * np.log(2*np.pi)
+        res -= np.log(np.linalg.det(data_cov + covariance))
+        diff = data_mean - mean
+        comb_cov = data_cov + covariance
+        res -= np.dot(diff.T, np.dot(np.linalg.inv(comb_cov), diff))
+        res *= 0.5
+        lnols[i] = res
+    return lnols
 
 
 def co2(A, a, B, b):
