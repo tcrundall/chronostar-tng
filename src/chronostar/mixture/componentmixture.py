@@ -110,7 +110,6 @@ class ComponentMixture(BaseMixture):
         print(f"Fitting {len(self.get_components())}-comp mixture")
         print("--------------------------------------------------")
 
-        # with parallel_backend('threading', n_jobs=1):
         self.sklmixture.fit(X)
 
     def bic(self, X: NDArray[float64]) -> float:
@@ -155,7 +154,7 @@ class ComponentMixture(BaseMixture):
         return self.sklmixture._get_parameters()
 
     def get_components(self) -> tuple[BaseComponent, ...]:
-        """Get the list of components fitted to the data
+        """Get the tuple of components fitted to the data
 
         Returns
         -------
@@ -165,28 +164,15 @@ class ComponentMixture(BaseMixture):
         _, components = self.get_parameters()
         return components
 
-    def estimate_membership_prob(self, X: NDArray[float64]):
-        """Estimate the membership probabilities of each sample to
-        each component
-
-        This method assumes the mixture has already been fit with
-        :meth:`fit`
+    def estimate_weighted_log_prob(self, X: NDArray[float64]):
+        """Estimate the weighted log-probabilities, log P(X | Z) + log weights.
 
         Parameters
         ----------
-        X : NDArray[float64] of shape (n_samples, n_features)
-            Input data
+        X : array-like of shape (n_samples, n_features)
 
         Returns
         -------
-        NDArray[float64] of shape (n_samples, n_components)
-            The membership probabilities of each sample to each
-            component.
+        weighted_log_prob : array, shape (n_samples, n_component)
         """
-        weighted_log_prob = self.sklmixture._estimate_weighted_log_prob(X)
-
-        # Take exponent
-        weighted_prob = np.exp(weighted_log_prob)
-
-        # Normalize such that each row sums to 1
-        return (weighted_prob.T / weighted_prob.sum(axis=1)).T
+        return self.sklmixture._estimate_weighted_log_prob(X)

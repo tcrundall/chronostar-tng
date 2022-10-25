@@ -119,11 +119,14 @@ class FooMixture(BaseMixture):
     def get_components(self) -> tuple[BaseComponent, ...]:
         return self.get_parameters()[1]
 
-    def estimate_membership_prob(
-        self,
-        X: NDArray[float64]
-    ) -> NDArray[float64]:
-        return self.memberships
+    def estimate_weighted_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
+        return np.ones((len(X), len(self.comps)))
+
+    # def estimate_membership_prob(
+    #     self,
+    #     X: NDArray[float64]
+    # ) -> NDArray[float64]:
+    #     return self.memberships
 
 
 class FooIntroducer(BaseIntroducer):

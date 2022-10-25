@@ -166,11 +166,6 @@ class SynthData():
         #                       # provided in different forms?
 
         self.ncomps = len(pars)
-        # if type(starcounts) is not np.ndarray:
-        #     if type(starcounts) in (list, tuple):
-        #         self.starcounts = np.array(starcounts, dtype=int)
-        #     else:
-        #         self.starcounts = np.array([starcounts], dtype=int)
         self.starcounts = starcounts
 
         assert len(self.starcounts) ==\
@@ -187,52 +182,8 @@ class SynthData():
             ComponentClass.configure(**component_config)
         self.components = [ComponentClass(p) for p in pars]
 
-        # self.background_density = background_density
-        # self.bg_span_scale = bg_span_scale
         self.table = Table(names=self.DEFAULT_NAMES,
                            dtype=self.DEFAULT_DTYPES)
-
-    # def extract_data_as_array(self, colnames=None, table=None):
-    #     result = []
-    #     if table is None:
-    #         table = self.table
-    #     for colname in colnames:
-    #         result.append(np.array(table[colname]))
-    #     return np.array(result).T
-
-    # @staticmethod
-    # def generate_synth_data_from_file():
-    #     """Given saved files, generate a SynthData object"""
-    #     raise NotImplementedError
-
-    # def append_extra_cartesian(self, extra_xyzuvw, component_name='',
-    #                            component_age=0., init=True):
-    #     """
-    #     Append rows of stellar initial (or final) positions to current table
-    #     """
-    #     # construct new table with same fields as self.astr_table,
-    #     # then append to existing table
-    #     init_size = len(self.table)
-    #     starcount = len(extra_xyzuvw)
-
-    #     names = np.arange(init_size, init_size + starcount).astype(str)
-    #     new_data = Table(
-    #             data=np.zeros(starcount, dtype=self.table.dtype)
-    #     )
-
-    #     new_data['name'] = names
-    #     new_data['component'] = starcount * [component_name]
-    #     new_data['age'] = starcount * [component_age]
-    #     if init:
-    #         colnames = [dim+'0' for dim in self.cart_labels]
-    #     else:
-    #         # Final data
-    #         colnames = [dim+'_now' for dim in self.cart_labels]
-
-    #     for col, colname in zip(extra_xyzuvw.T, colnames):
-    #         new_data[colname] = col
-
-    #     self.table = vstack((self.table, new_data))
 
     def generate_init_cartesian(
         self,
@@ -253,59 +204,7 @@ class SynthData():
 
         return init_xyzuvw
 
-        # # Append data to end of table
-        # self.append_extra_cartesian(
-        #     init_xyzuvw,
-        #     component_name=component_name,
-        #     component_age=component.age,
-        #     init=True,
-        # )
-
-#     def generate_background_stars(self):
-#         """
-#         Embed association stars in a sea of background stars with
-#         `self.bg_span_scale` * the span as current data
-#         """
-
-#         # Get the 6D means of all stars currently in table
-#         means_now = tabletool.build_data_dict_from_table(
-#                 self.table, main_colnames=[dim+'_now' for dim in self.cart_labels],
-#                 only_means=True,
-#         )
-# #         init_means = tabletool.build_data_dict_from_table(
-# #                 self.table, main_colnames=[el+'0' for el in 'xyzuvw'],
-# #                 only_means=True,
-# #         )
-
-#         # Identify 6D box centred on component stars, with twice the span
-#         # TC: Edited, to only have 10% margin on every side
-#         data_upper_bound = np.max(means_now, axis=0)
-#         data_lower_bound = np.min(means_now, axis=0)
-#         box_centre = (data_upper_bound + data_lower_bound) / 2.
-
-#         data_span = data_upper_bound - data_lower_bound
-#         box_span = self.bg_span_scale * data_span
-#         box_low = box_centre - 0.5*box_span
-#         box_high = box_centre + 0.5*box_span
-
-#         # Calculate number of background stars required to reach given density
-#         bg_starcount = self.background_density * np.product(box_span)
-
-#         # Generate a uniform sampling within box
-#         # bg_xyzuvw = np.random.uniform(low=-data_span, high=data_span,
-#         # TC: This was incorrect. Fixed it now.
-#         bg_xyzuvw = np.random.uniform(low=box_low, high=box_high,
-#                                            size=(int(round(bg_starcount)),6))
-#         # bg_xyzuvw += box_centre
-#         self.bg_starcount = bg_starcount
-#         if bg_starcount > 0:
-#             self.append_extra_cartesian(bg_xyzuvw, component_name='bg', init=False)
-#         else:
-#             print('WARNING: No synthetic background stars generated')
-
     def generate_all_cartesian(self) -> NDArray[float64]:
-        # self.table = Table(names=self.DEFAULT_NAMES,
-        #                    dtype=self.DEFAULT_DTYPES)
         all_final_cartesian = []
         for ix, comp in enumerate(self.components):
             init_cartesian = self.generate_init_cartesian(
@@ -316,36 +215,12 @@ class SynthData():
 
         return all_cartesian_arr
 
-    # def project_stars(self):
-    #     """Project stars from xyzuvw then to xyzuvw now based on their age"""
-    #     if self.trace_orbit_func is None:
-    #         raise UserWarning(
-    #                 'Need to explicitly set trace orbit function '
-    #                 'i.e. with mysynthdata.trace_orbit_func = trace_epicyclic_orbit')
-    #     for star in self.table:
-    #         mean_then = self.extract_data_as_array(
-    #             table=star,
-    #             colnames=[dim+'0' for dim in self.cart_labels],
-    #         )
-    #         xyzuvw_now = self.trace_orbit_func(mean_then, times=star['age'])
-    #         for ix, dim in enumerate(self.cart_labels):
-    #             star[dim+'_now'] = xyzuvw_now[ix]
-    #     # if self.background_density is not None:
-    #     #     self.generate_background_stars()
-
     @classmethod
     def measure_astrometry(cls, cartesian):
         """
         Convert current day cartesian phase-space coordinates into astrometry
         values, with incorporated measurement uncertainty.
         """
-        # # Grab xyzuvw data in array form
-        # xyzuvw_now_colnames = [dim + '_now' for dim in self.cart_labels]
-        # xyzuvw_now = self.extract_data_as_array(colnames=xyzuvw_now_colnames)
-
-        # Build array of measurement errors, based on Gaia DR2 and scaled by
-        # `m_err`
-        # [ra, dec, plx, pmra, pmdec, rv]
         print(cls.m_err)
         errors = cls.m_err * np.array([
             cls.GERROR[colname + '_error']
@@ -380,39 +255,12 @@ class SynthData():
             table[astr_name + '_error'] = raw_errors[:, ix]
         return table
 
-    # def store_table(self, savedir=None, filename=None, overwrite=False):
-    #     """
-    #     Store table on disk.
-    #     Parameters
-    #     ----------
-    #     savedir : str {None}
-    #         the directory to store table file in
-    #     filename : str {None}
-    #         what to call the file (can also just use this and provide whole
-    #         path)
-    #     overwrite : boolean {False}
-    #         Whether to overwrite a table in the same location
-    #     """
-    #     if savedir is None:
-    #         savedir = self.savedir
-    #     # ensure singular trailing '/'
-    #     if savedir != '':
-    #         savedir = savedir.rstrip('/') + '/'
-    #     if filename is None:
-    #         filename = self.tablefilename
-    #     self.table.write(savedir + filename, overwrite=overwrite)
-
     def synthesise_everything(self, savedir=None, filename=None, overwrite=False):
         """
         Uses self.pars and self.starcounts to generate an astropy table with
         synthetic stellar measurements.
         """
         cartesian = self.generate_all_cartesian()
-        # if self.background_density is not None:
-        #     self.generate_background_stars()
 
         table = self.measure_astrometry(cartesian)
         return table
-        # if filename is not None:
-        #     self.store_table(savedir=savedir, filename=filename,
-        #                      overwrite=overwrite)

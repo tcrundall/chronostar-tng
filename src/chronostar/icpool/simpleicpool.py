@@ -63,6 +63,12 @@ class SimpleICPool(BaseICPool):
 
     def try_populate_queue(self) -> None:
         """Attempt to populate the queue of initial conditions
+
+        If this is the "first pass", then the ICPool object will ask
+        its introducer to produce a generation given no starting point.
+
+        Otherwise, it provides its introducer with the previous generation's
+        best mixture and adds the next generation to the queue.
         """
         # If this is our first pass, let our introducer provide starting point
         if self.first_pass:
@@ -132,8 +138,18 @@ class SimpleICPool(BaseICPool):
         """
         return self.queue.get()
 
-    def provide_start(self, init_conds: InitialCondition):
-        self.queue.put(init_conds)
+    def provide_start(self, init_cond: InitialCondition):
+        """Use the provided InitialCondition to start the queue
+
+        Parameters
+        ----------
+        init_conds : InitialCondition
+            Some initial condition provided from outside of the ICPool
+        """
+        self.queue.put(init_cond)
+
+        # Set this to false, so ICPool doesn't try to generate its own
+        # first initial condition
         self.first_pass = False
 
     @property

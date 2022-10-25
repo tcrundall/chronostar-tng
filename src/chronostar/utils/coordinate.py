@@ -8,6 +8,7 @@ TODO: Update docstrings to reflect the removal of astropy
 
 import logging
 import numpy as np
+import numpy.typing as npt
 from numba import njit
 
 # a_o = 192.8595 * un.degree
@@ -589,7 +590,7 @@ def convert_lsrxyzuvw2astrometry(xyzuvw_lsr):
     return np.squeeze(astr)
 
 
-def convert_many_lsrxyzuvw2astrometry(xyzuvw_lsrs):
+def convert_many_lsrxyzuvw2astrometry(xyzuvw_lsrs) -> npt.NDArray[np.float64]:
     """
     Takes as input heliocentric XYZUVW values, returns astrometry
 

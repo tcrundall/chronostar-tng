@@ -38,6 +38,12 @@ class Driver:
     component_class : Type[BaseComponent], default :class:`SphereSpaceTimeComponent`
         A class derived from BaseComponent
 
+    Attributes
+    ----------
+    intermediate_dumps : bool, default True
+        Whether to write to file the results of mixture model fits, configurable
+    savedir : str, default './result'
+        Path to the directory of where to store results, configurable
     """
 
     intermediate_dumps: bool = True
@@ -69,6 +75,8 @@ class Driver:
         self.introducer_class.configure(**self.config_params["introducer"])
 
     def configure(self, **kwargs) -> None:
+        """Set any configurable class attributes
+        """
         function_parser: dict[str, Callable] = {}
 
         for param, val in kwargs.items():
@@ -141,7 +149,23 @@ class Driver:
         # loop will end when icpool stops generating initial conditions
         return icpool.best_mixture
 
-    def dump_mixture_result(self, label: str, mixture: BaseMixture, data):
+    def dump_mixture_result(
+        self,
+        label: str,
+        mixture: BaseMixture,
+        data: NDArray[float64],
+    ) -> None:
+        """Store the result of a mixture to file
+
+        Parameters
+        ----------
+        label : str
+            The unique label of the initial condition of the mixture
+        mixture : BaseMixture
+            The (fitted) mixture model
+        data : NDArray of shape (n_samples, n_features)
+            The input data
+        """
         # Make directory
         mixture_dir = self.savedir_path / label
         mixture_dir.mkdir(parents=True, exist_ok=True)
@@ -190,7 +214,7 @@ class Driver:
     def read_config_file(
         self,
         config_file: Union[str, Path]
-    ) -> dict[Any, Any]:
+    ) -> dict[str, Any]:
         """Read the contents of the config file into a
         dictionary
 
@@ -202,13 +226,15 @@ class Driver:
 
         Returns
         -------
-        dict[Any, Any]
+        dict[str, Any]
             A dictionary of all configuration parameters
 
         Raises
         ------
-        exc
-            _description_
+        yaml.YAMLError 
+            A yaml exception, in the event the file can't be read
+        UserWarning
+            If the file has an unrecognised key at top-most level
         """
         # We use a default dict to gracefully handle empty config file
         config_params: dict[str, dict] = defaultdict(dict)

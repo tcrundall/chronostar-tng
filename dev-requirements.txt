@@ -1,0 +1,15 @@
+pyyaml
+pathlib
+scikit-learn
+numpy
+scipy
+astropy
+pytest
+pathlib
+matplotlib
+jupyter-notebook
+ipython
+ipdb
+ipyparallel
+jupyter_server
+

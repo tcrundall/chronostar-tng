@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
 from typing import Callable, NamedTuple, Optional, Union, Type
-# import numpy as np
+import numpy as np
 from numpy.typing import NDArray
 from numpy import float64
 
 
 class ScoredMixture(NamedTuple):
-    """Simple dataclass for pairing mixtures with their scores
+    """Simple named tuple for pairing mixtures with their scores
 
     Parameters
     ----------
@@ -62,7 +62,7 @@ class BaseICPool(metaclass=ABCMeta):
 
     @classmethod
     def configure(cls, **kwargs) -> None:
-        """Set any conofigurable class attributes
+        """Set any configurable class attributes
         """
         for param, val in kwargs.items():
             if hasattr(cls, param):
@@ -92,13 +92,21 @@ class BaseICPool(metaclass=ABCMeta):
 
         Returns
         -------
-        tuple[Union[str, int], list[BaseComponent]]
-            (unique_id, set of initialc conditions)
+        InitialCondition
+            An initial condition: a tuple of components, paired with
+            a unique, informative id
         """
         pass
 
     @abstractmethod
     def provide_start(self, init_conds: InitialCondition) -> None:
+        """Provide the ICPool with a starting initial condition
+
+        Parameters
+        ----------
+        init_conds : InitialCondition
+            The starting initial condition
+        """
         pass
 
     @abstractmethod
@@ -112,7 +120,7 @@ class BaseICPool(metaclass=ABCMeta):
 
         Parameters
         ----------
-        unique_id : Union[str, int]
+        unique_id : str
             Unique identifier that was provided along with initial conditions
         mixture : BaseMixture
             A mixture model that has been fit
@@ -158,7 +166,7 @@ class BaseIntroducer(metaclass=ABCMeta):
 
     @classmethod
     def configure(cls, **kwargs) -> None:
-        """Set any conofigurable class attributes
+        """Set any configurable class attributes
         """
         for param, val in kwargs.items():
             if hasattr(cls, param):
@@ -183,15 +191,15 @@ class BaseIntroducer(metaclass=ABCMeta):
 
         Parameters
         ----------
-        prev_comp_sets : Union[ list[list[BaseComponent]], list[BaseComponent], None ]
-            Takes either multiple previous fits, one previous fit, or none,
-            where a previous fit is a list of components
+        prev_comp_sets : list[InitialCondition] | InitialCondition, optional
+            One or multiple fitted initial conditions
 
         Returns
         -------
-        list[list[BaseComponent]]
+        list[InitialCondition]
             Returns sets of initial conditions as a list, where each set of initial
-            conditions is a list of components.
+            conditions is a list of components paired with a unique,
+            informative label.
         """
         pass
 
@@ -212,6 +220,7 @@ class BaseComponent(metaclass=ABCMeta):
     function_parser: dict[str, Callable] = {}
 
     def __init__(self, params: Optional[NDArray[float64]] = None) -> None:
+        # If ``parameters_set`` is false, components may get auto-initialized
         if params is not None:
             self.set_parameters(params)
             self.parameters_set = True
@@ -220,7 +229,7 @@ class BaseComponent(metaclass=ABCMeta):
 
     @classmethod
     def configure(cls, **kwargs) -> None:
-        """Set any conofigurable class attributes
+        """Set any configurable class attributes
         """
         for param, val in kwargs.items():
             if hasattr(cls, param):
@@ -233,6 +242,19 @@ class BaseComponent(metaclass=ABCMeta):
 
     @abstractmethod
     def estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
+        """Calculate the log probability of each sample in X given
+        this components current estimated parameters
+
+        Parameters
+        ----------
+        X : NDArray[float64] of shape (n_samples, n_features)
+            Input data
+
+        Returns
+        -------
+        NDArray[float64] of shape (n_samples)
+            Log probabilities
+        """
         pass
 
     @abstractmethod
@@ -257,6 +279,17 @@ class BaseComponent(metaclass=ABCMeta):
     @property
     @abstractmethod
     def n_params(self) -> int:
+        """The number of parameters required to describe this component's
+        model
+
+        Necessary for calculating information criteria that depend on
+        number of parameters, e.g. BIC or AIC
+
+        Returns
+        -------
+        int
+            How many parameters describe this model
+        """
         pass
 
     @abstractmethod
@@ -309,7 +342,7 @@ class BaseMixture(metaclass=ABCMeta):
 
     @classmethod
     def configure(cls, **kwargs) -> None:
-        """Set any conofigurable class attributes
+        """Set any configurable class attributes
         """
         for param, val in kwargs.items():
             if hasattr(cls, param):
@@ -325,26 +358,101 @@ class BaseMixture(metaclass=ABCMeta):
         self,
         params: tuple[NDArray[float64], tuple[BaseComponent, ...]],
     ) -> None:
+        """Set the parameters of the mixture model
+
+        Parameters
+        ----------
+        params : tuple[NDArray[float64], tuple[BaseComponent, ...]]
+            The weights of the components and a tuple of the components
+        """
         pass
 
     @abstractmethod
     def get_parameters(self) -> tuple[NDArray[float64], tuple[BaseComponent, ...]]:
+        """Get the parameters of the mixture model
+
+        Returns
+        -------
+        tuple[NDArray[float64], tuple[BaseComponent, ...]]
+            The weights of the components and a tuple of the components
+        """
         pass
 
     @abstractmethod
     def fit(self, X: NDArray[float64]) -> None:
+        """Fit the mixture model to the data
+
+        Parameters
+        ----------
+        X : NDArray[float64] of shape (n_samples, n_features)
+            Input data
+        """
         pass
 
     @abstractmethod
     def bic(self, X: NDArray[float64]) -> float:
+        """Calculate the Bayesian Information Critereon (BIC)
+
+        Parameters
+        ----------
+        X : NDArray[float64] of shape (n_samples, n_features)
+            Input data
+
+        Returns
+        -------
+        float
+            The BIC
+        """
         pass
 
     @abstractmethod
     def get_components(self) -> tuple[BaseComponent, ...]:
+        """Return the components of the mixture model
+
+        Returns
+        -------
+        tuple[BaseComponent, ...]
+            A tuple of the components
+        """
         pass
 
     @abstractmethod
+    def estimate_weighted_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
+        """Estimate the weighted log-probabilities, log P(X | Z) + log weights.
+
+        Parameters
+        ----------
+        X : array-like of shape (n_samples, n_features)
+
+        Returns
+        -------
+        array, shape (n_samples, n_component)
+            weighted_log_prob
+        """
+        pass
+
     def estimate_membership_prob(
         self, X: NDArray[float64]
     ) -> NDArray[float64]:
-        pass
+        """Estimate the membership probability of each star to each
+        component
+
+        Parameters
+        ----------
+        X : NDArray[float64] of shape (n_samples, n_features)
+            Input data
+
+        Returns
+        -------
+        NDArray[float64] of shape (n_samples, n_components)
+            The membership probability of each star to each component.
+            Each row should sum to 1, each column should average to the
+            corresponding component's weight
+        """
+        weighted_log_prob = self.estimate_weighted_log_prob(X)
+
+        # Take exponent
+        weighted_prob = np.exp(weighted_log_prob)
+
+        # Normalize such that each row sums to 1
+        return (weighted_prob.T / weighted_prob.sum(axis=1)).T

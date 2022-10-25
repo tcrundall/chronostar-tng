@@ -23,7 +23,7 @@ def test_twoassocs():
     n_stars_1, n_stars_2 = 1_000, 2_000
 
     mean_now_1 = np.zeros(6)
-    mean_now_2 = np.array([5., 10., 20., 1., 2., 3])
+    mean_now_2 = np.array([5., 10., 20., 1., 2., 3], dtype=float)
 
     mean_birth_1 = trace_epicyclic_orbit(
         mean_now_1[np.newaxis],

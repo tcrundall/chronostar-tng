@@ -103,10 +103,17 @@ class SphereSpaceTimeComponent(BaseComponent):
         executing optimized numpy functions, configurable
     trace_orbit_func: Callable: f(start_loc, time), default :func:`trace_epicyclic_orbit`
         A function that traces a position by `time` Myr. Positive `time`
-        traces forward, negative `time` backwards
-    parameters : ndarray of shape (42)
+        traces forward, negative `time` backwards, configurable
+    age_offset_interval: int, default 20
+        After how many calls to :func:`maximize` age offsets should be explored
+    stellar_uncertaintes: bool, default False
+        Whether data covariance matrices are encoded in final 36 columns of
+        input data X
+    parameters : ndarray of shape (9)
         The model parameters, either as set by initialization, or as
-        determined by :meth:`maximize`
+        determined by :meth:`maximize`. For this component this parameters
+        are: [x, y, z, u, v, w, dxyz, duvw, age] with position in pc,
+        velocity in km/s and age in Myr
     """
     # an sklearn specific parameter. DON'T CHANGE!
     # Used when evaluating log probs of stars
@@ -277,9 +284,9 @@ class SphereSpaceTimeComponent(BaseComponent):
 
         Performs a minimization on :meth:`loss` to find the
         best parameters. To account for local minima caused by the
-        Z-W phase / age degeneracy, we perform 3 minimizations with age
-        offset by +0., +40. and +120. These offsets appear to guarantee
-        successful fits up to 200 Myr.
+        Z-W phase / age degeneracy, every `self.age_offset_interval` calls
+        we perform 5 minimizations with age offset by -20., +0., +20., +40.
+        and +80. These offsets appear to guarantee successful fits up to 200 Myr.
 
         Parameters
         ----------
@@ -288,20 +295,15 @@ class SphereSpaceTimeComponent(BaseComponent):
         resp : ndarray of shape (n_samples)
             component responsibilities (membership probabilities)
 
-        Notes
-        -----
-        The age offsets might be overkill for subsequent fittings of
-        this component. Perhaps they are only needed for the initial fit,
-        since each subsequent fit is initialised on previous parameters.
-        Since the 0. age offset is twice as fast as the other two, it
-        represents only 20% of execution time, and thus removing the need
-        for the other minimizations would yield a 5x speed increase.
-
-        Though... individual minimization runs don't all converge to the
-        same solution despite ending up in the vicinity of each other. So
-        perhaps multiple runs can improve the fit?
+        Note
+        ----
+        We achieve a significant performance boost by beginning a
+        minimiztion at the location of the component's current best
+        fitting parameters.
         """
         # Effectively set OMP_NUM_THREADS = self.nthreads
+        # Allowing numpy to use multiple threads for its c implementations
+        # destroys performance. So we force it not to.
         with threadpool_limits(1, user_api='openmp'):
             # Numba potentially uses different layers, so put all
             # component parallelisation into numba
@@ -335,20 +337,17 @@ class SphereSpaceTimeComponent(BaseComponent):
                     [mean_params_init_guess, cov_params_init_guess, 0.]
                 )
 
-            # Every 10 iterations, check for age offsets
+            # Every now and then, check for age offsets
             if self.maximize_iter % self.age_offset_interval == 0:
-                age_offsets = [-40., -20., 0., 20., 40., 80., 160.]
+                # age_offsets = [-40., -20., 0., 20., 40., 80., 160.]
+                age_offsets = [-20., 0., 20., 40., 80.]
             else:
                 age_offsets = [0.]
 
-            # --------------------------------------------------
-            # Perform minimization with 3 separate age offsets
-            # --------------------------------------------------
-
-            # TODO: consider only offsetting on first maximization?
-            # We should only need to force age offsets if this is the first
-            # time this component is being maximized. Otherwise it's previous
-            # parameter set should be close enough.
+            # --------------------
+            # Perform minimization
+            # --------------------
+            # Get parameter boundaries for the optimizer
             bounds = self.get_parameter_bounds()
             all_results = []
             for age_offset in age_offsets:
@@ -402,7 +401,8 @@ class SphereSpaceTimeComponent(BaseComponent):
             The multivariate normal defined by `self.mean` and
             `self.covariance` evaluated at each point in X
         """
-        with threadpool_limits(1):
+        # Force numpy's c functions not to parallelise
+        with threadpool_limits(1, user_api="openmp"):
             if self.stellar_uncertainties:
                 return estimate_log_gaussian_ol_prob(
                     X,

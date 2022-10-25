@@ -1,11 +1,13 @@
+from astropy.table import Table
+from typing import Optional
 import numpy as np
 from numpy.typing import NDArray
-from numpy import float64
+from numpy import float64, ndarray
 
 
 def construct_covs_from_data(
     X: NDArray[float64],
-    dim=6
+    dim: int = 6,
 ) -> tuple[NDArray[float64], NDArray[float64]]:
     """Reconstruct covariance matrices from data rows
 
@@ -13,10 +15,12 @@ def construct_covs_from_data(
     ----------
     X : NDArray[float64] of shape (n_samples, n_features)
         Input data
+    dim : int, default 6
+        The dimensions of the means and covariance matrices
 
     Notes
     -----
-    Structure of data is assumed to be:
+    Structure of data is assumed to be (in the case of `dim=6`):
     .. code::
 
         X, Y, Z, U, V, W, DX, DY, DZ, DU, DV, DW,
@@ -49,11 +53,34 @@ def construct_covs_from_data(
 
 
 def replace_cov_with_sampling(
-    data,
-    covs=None,
-    n_draws=100,
-    dim=6,
+    data: NDArray[float64],
+    covs: Optional[NDArray[float64]] = None,
+    n_draws: int = 100,
+    dim: int = 6,
 ) -> NDArray[float64]:
+    """Replace uncertainty covariances with a random sampling of the
+    implied distribution
+
+    Parameters
+    ----------
+    data : NDArray[float64] of shape (n_samples, n_features)
+        Input data. If `covs` is None, then `data` should have
+        `dim` + `dim`th triangle number columns,
+        with the final "`dim`th triangle number" columns encoding
+        covariance matrices
+    covs : Optional[NDArray[float64]] of shape (n_samples, 6, 6), optional
+        An array of covariance matrices, by default None
+    n_draws : int, optional
+        the number of random draws to take from each star's distribution, by default 100
+    dim : int, optional
+        dimensions, by default 6
+
+    Returns
+    -------
+    NDArray[float64] of shape (n_samples * n_draws, dim)
+        A pseudo data set, where each initial sample is replaced by a
+        swarm of samples
+    """
 
     if covs is None:
         sample_means, sample_covs = construct_covs_from_data(data, dim)
@@ -75,12 +102,15 @@ def replace_cov_with_sampling(
     return new_data
 
 
-def extract_array_from_table(table, msk=None):
+def extract_array_from_table(
+    table: Table, msk: Optional[NDArray] = None,
+) -> NDArray[float64]:                                                  # type: ignore
+
     # Extract astrometry data, 6 measurements, 6 errors, 15 correlations
     # Assume gaia formatting
     if msk is None:
-        msk = np.where(np.isfinite(table['radial_velocity']))
-    astrodata = np.zeros((len(msk[0]), 6 + 6 + 15))
+        msk = np.where(np.isfinite(table['radial_velocity']))           # type: ignore
+    astrodata: NDArray[float64] = np.zeros((len(msk[0]), 6 + 6 + 15))   # type: ignore
 
     column_stems = [
         'ra', 'dec', 'parallax', 'pmra', 'pmdec', 'radial_velocity'
@@ -88,13 +118,13 @@ def extract_array_from_table(table, msk=None):
     dim = len(column_stems)
     # Insert measurements
     for i, stem in enumerate(column_stems):
-        astrodata[:, i] = table[stem][msk]
+        astrodata[:, i] = table[stem][msk]                      # type: ignore
 
     # Insert errors
     error_col_offset = dim
     for i, stem in enumerate(column_stems):
         error_col_name = f"{stem}_error"
-        astrodata[:, error_col_offset + i] = table[error_col_name][msk]
+        astrodata[:, error_col_offset + i] = table[error_col_name][msk]  # type: ignore
 
     # Insert correlations
     corr_col = 2 * dim
@@ -102,7 +132,7 @@ def extract_array_from_table(table, msk=None):
         for j in range(i+1, len(column_stems)):
             corr_col_name = f"{column_stems[i]}_{column_stems[j]}_corr"
             if corr_col_name in table.keys():
-                astrodata[:, corr_col] = table[corr_col_name][msk]
+                astrodata[:, corr_col] = table[corr_col_name][msk]  # type: ignore
             corr_col += 1
 
     # Insert covariances
@@ -113,8 +143,11 @@ def extract_array_from_table(table, msk=None):
             error_1 = f"{column_stems[i]}_error"
             error_2 = f"{column_stems[j]}_error"
             if corr_col_name in table.keys():
-                astrodata[:, corr_col] =\
-                    table[corr_col_name][msk] * table[error_1][msk] * table[error_2][msk]
+                astrodata[:, corr_col] =(
+                    table[corr_col_name][msk]                           # type: ignore
+                    * table[error_1][msk]                               # type: ignore
+                    * table[error_2][msk]                               # type: ignore
+                )
             corr_col += 1
 
-    return astrodata
+    return astrodata                                                    # type: ignore
