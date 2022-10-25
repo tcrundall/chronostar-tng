@@ -205,23 +205,66 @@
         <article role="main">
           <div class="section" id="quickstart">
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this heading">#</a></h1>
-<p>Chronostar provides three command line tools: <code class="code docutils literal notranslate"><span class="pre">fit-component</span></code>, <code class="code docutils literal notranslate"><span class="pre">fit-mixture</span></code>
+<p>Chronostar provides three command line tools for analyzing data: <code class="code docutils literal notranslate"><span class="pre">fit-component</span></code>, <code class="code docutils literal notranslate"><span class="pre">fit-mixture</span></code>
 and <code class="code docutils literal notranslate"><span class="pre">fit-chronostar</span></code>. Each of these tools serve as entry points to different
 levels of complexity.</p>
+<p>There are also two helper tools <code class="code docutils literal notranslate"><span class="pre">prepare-data</span></code> and <code class="code docutils literal notranslate"><span class="pre">plot-features</span></code>.
+<code class="code docutils literal notranslate"><span class="pre">prepare-data</span></code> assists users in converting fits tables from Gaia into the
+appropriate format expected by Chronostar. <code class="code docutils literal notranslate"><span class="pre">plot-features</span></code> is a convenience
+tool that plots various 2D projections of the data’s feature space, as well as
+colour magnitude diagrams.</p>
 <p>If you’d prefer to stay in python, sample scripts are explained in
 <a class="reference internal" href="scripts.html"><span class="doc">Scripts</span></a>, or you may peruse the pre-written provided scripts
 on <a class="reference external" href="https://github.com/tcrundall/chronostar-tng/tree/main/bin">github</a>.</p>
 <p>Each command  assumes you have a data as numpy array of shape
 <code class="code docutils literal notranslate"><span class="pre">(n_samples,</span> <span class="pre">n_features)</span></code> stored as a <code class="code docutils literal notranslate"><span class="pre">.npy</span></code> file.</p>
-<div class="section" id="data-preparation">
-<h2>Data preparation<a class="headerlink" href="#data-preparation" title="Permalink to this heading">#</a></h2>
-<p>Chronostar’s front end expects data to be in a 2D array of shape
-<cite>(n_samples, n_features)</cite>. For current implementations, this translates to
-a <cite>(n_stars, 6)</cite> array where the 6 columns are <cite>XYZUVW</cite>.</p>
-<p>A CLI tool is under development to assist users in this, but it isn’t ready yet.</p>
-<p>If you’re using a subset of a Gaia fits file, we recommend saving an array of the source ids for the stars actually used,
-as this will prove useful mapping Chronostar results back to the fits table and is explicitly used
-by <cite>plot-features</cite>.</p>
+<div class="section" id="data-input">
+<h2>Data Input<a class="headerlink" href="#data-input" title="Permalink to this heading">#</a></h2>
+<p>Chronostar’s <code class="xref py py-class docutils literal notranslate"><span class="pre">Driver</span></code> accepts data only as a single 2D array of shape
+<cite>(n_samples, n_features)</cite>. For example, for the current default implementation,
+in the absence of uncertainties, the input is a <cite>(n_stars, 6)</cite> array where the
+6 columns are <cite>XYZUVW</cite>.</p>
+<p>If you wish to provide uncertainties in the form of a covariance matrix, the
+matrices must be flattened and appended to the data array:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">input_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">means</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">covariances</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+</pre></div>
+</div>
+<p>However, if you’re using the command line tool <a class="reference internal" href="#fit-chron"><span class="std std-ref">fit-chronostar</span></a>
+this is handled for you, you need only provide the path to a stored
+<code class="code docutils literal notranslate"><span class="pre">(n_stars,</span> <span class="pre">6,</span> <span class="pre">6)</span></code> numpy array of covariance matrices.</p>
+<div class="section" id="converting-to-cartesian-coordinates">
+<h3>Converting to Cartesian Coordinates<a class="headerlink" href="#converting-to-cartesian-coordinates" title="Permalink to this heading">#</a></h3>
+<p>The default implementation of Chronostar-TNG fits to data in a right handed
+6D cartesian coordinate system, centred on the local standard of rest.</p>
+<p>Since stellar data is typically provided as observables, we provide a command
+line tool for converting fits files of observables into numpy arrays of cartesian
+values.</p>
+<p>Currently table column names are expected to be in the default form provided by
+Gaia. First ensure your column names match that of Gaia:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;source_id&#39;</span><span class="p">,</span> <span class="s1">&#39;ra&#39;</span><span class="p">,</span> <span class="s1">&#39;ra_error&#39;</span><span class="p">,</span> <span class="s1">&#39;dec&#39;</span><span class="p">,</span> <span class="s1">&#39;dec_error&#39;</span><span class="p">,</span> <span class="s1">&#39;parallax&#39;</span><span class="p">,</span> <span class="s1">&#39;parallax_error&#39;</span><span class="p">,</span>
+<span class="s1">&#39;pmra&#39;</span><span class="p">,</span> <span class="s1">&#39;pmra_error&#39;</span><span class="p">,</span> <span class="s1">&#39;pmdec&#39;</span><span class="p">,</span> <span class="s1">&#39;pmdec_error&#39;</span><span class="p">,</span> <span class="s1">&#39;ra_dec_corr&#39;</span><span class="p">,</span> <span class="s1">&#39;ra_parallax_corr&#39;</span><span class="p">,</span> <span class="o">...</span>
+ <span class="s1">&#39;radial_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;radial_velocity_error&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Then run</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">prepare</span><span class="o">-</span><span class="n">data</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">data</span><span class="o">.</span><span class="n">fits</span>
+</pre></div>
+</div>
+<p>This will try to convert each star (skipping those that have non-finite radial velocities)
+from astrometry to cartesian. Upon completion you will have 3 files in the working directory.
+The cartesian means will be <code class="code docutils literal notranslate"><span class="pre">data_means.npy</span></code>, the uncertainty covariance matrices will be
+<code class="code docutils literal notranslate"><span class="pre">data_covs.npy</span></code>, and the <code class="code docutils literal notranslate"><span class="pre">source_id</span></code> will be in <code class="code docutils literal notranslate"><span class="pre">ids.npy</span></code>.</p>
+<p>By default, you’ll also get a <code class="code docutils literal notranslate"><span class="pre">data_all.npy</span></code> file, which has the covariances
+flattened and appended to the data. If you don’t want this file, you can skip it by calling</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">prepare</span><span class="o">-</span><span class="n">data</span> <span class="o">--</span><span class="n">nomerge</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">data</span><span class="o">.</span><span class="n">fits</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <cite>ids</cite> array is useful for identifying which rows of the table constitute your
+data sample: <code class="code docutils literal notranslate"><span class="pre">subset_table</span> <span class="pre">=</span> <span class="pre">t[np.where(np.isin(t['source_id'],</span> <span class="pre">ids))]</span></code></p>
+</div>
+</div>
 </div>
 <div class="section" id="fitting-a-component">
 <h2>Fitting a component<a class="headerlink" href="#fitting-a-component" title="Permalink to this heading">#</a></h2>
@@ -249,6 +292,8 @@ and stored in a <code class="code docutils literal notranslate"><span class="pre
 <span class="n">component</span><span class="p">:</span>
    <span class="n">minimize_method</span><span class="p">:</span> <span class="s2">&quot;Nelder-Mead&quot;</span>  <span class="c1"># The scipy.optimize method</span>
    <span class="n">reg_covar</span><span class="p">:</span> <span class="mf">1.e-6</span>                <span class="c1"># Covariance matrix regularization constant</span>
+   <span class="n">nthreads</span><span class="p">:</span> <span class="mi">4</span>                     <span class="c1"># How many numba threads to use for overlap integral calc</span>
+   <span class="n">stellar_uncertainties</span><span class="p">:</span> <span class="kc">True</span>     <span class="c1"># If the final 36 columns of data file are covariances</span>
 
 <span class="c1"># Specifics for the actual run</span>
 <span class="n">run</span><span class="p">:</span>
@@ -302,6 +347,7 @@ configuration parameters along with those for the mixture:</p>
    <span class="n">reg_covar</span><span class="p">:</span> <span class="mf">1.e-5</span>
    <span class="n">minimize_method</span><span class="p">:</span> <span class="s1">&#39;Nelder-Mead&#39;</span>
    <span class="n">trace_orbit_func</span><span class="p">:</span> <span class="s1">&#39;epicyclic&#39;</span>
+   <span class="n">age_offset_interval</span><span class="p">:</span> <span class="mi">20</span>         <span class="c1"># After how many M-steps offsets for a component&#39;s age are tried</span>
 
 <span class="n">run</span><span class="p">:</span>
    <span class="n">savedir</span><span class="p">:</span> <span class="s2">&quot;result&quot;</span>
@@ -309,13 +355,15 @@ configuration parameters along with those for the mixture:</p>
 </div>
 </div>
 <div class="section" id="finding-the-best-mixture">
-<h2>Finding the best mixture<a class="headerlink" href="#finding-the-best-mixture" title="Permalink to this heading">#</a></h2>
+<span id="fit-chron"></span><h2>Finding the best mixture<a class="headerlink" href="#finding-the-best-mixture" title="Permalink to this heading">#</a></h2>
 <p>This is full Chronostar.
 Chronostar begins with fitting a single component to the
 data, then progressively introduces more components, fitting
 more complex mixtures, until extra components cease improving
 the fit.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fit-chronostar -c path/to/config.yml path/to/data.npy
+   or
+$ fit-chronostar -c path/to/config.yml path/to/means.npy --covs path/to/covs.npy
 </pre></div>
 </div>
 <p>An example config file is:</p>
@@ -349,20 +397,18 @@ the fit.</p>
 <div class="section" id="plotting">
 <h2>Plotting<a class="headerlink" href="#plotting" title="Permalink to this heading">#</a></h2>
 <p>A CLI tool for plotting is provided. It has two key functions so far. One is to plot features against features. Another is to plot CMDs. In both instances points are coloured by membership.</p>
-<div class="section" id="features">
-<h3>Features<a class="headerlink" href="#features" title="Permalink to this heading">#</a></h3>
 <p>Here is an example of plotting 6 phase-space planes (‘XY, XZ, YZ, XU, YV, ZW’) and saving the plot in a directory <cite>plots</cite>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span><span class="o">-</span><span class="n">features</span> <span class="o">-</span><span class="n">f</span> <span class="s1">&#39;0,1.0,2.1,2.0,3.1,4.2,5&#39;</span> <span class="o">-</span><span class="n">m</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">data</span><span class="o">.</span><span class="n">npy</span> <span class="o">-</span><span class="n">z</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">membership_probs</span><span class="o">.</span><span class="n">npy</span> <span class="o">-</span><span class="n">o</span> <span class="n">plots</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="cmd">
-<h3>CMD<a class="headerlink" href="#cmd" title="Permalink to this heading">#</a></h3>
+<p>Each phase-space subplot is separated in the command by a period, i.e.
+<code class="code docutils literal notranslate"><span class="pre">plot1-xaxis,plot1-yaxis.plot2-xaxis,plot2-yaxis</span></code> etc. You may add as many
+phase-space pairs as you like, and they will be arranged top to bottom, left to right,
+with as close to a square layout as possible.</p>
 <p>Here is an example of plotting a CMD. Since the fits file likely featured rows with incomplete data, there will likely not be a one to one mapping from the membership probability table to the astrometry table. Hence <cite>source_ids.npy</cite> is used. <cite>source_ids.npy</cite> should be of shape <cite>(n_stars)</cite>
 and has the gaia source id of each star in <cite>membership_probs.npy</cite>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span><span class="o">-</span><span class="n">features</span> <span class="o">--</span><span class="n">photom</span> <span class="o">-</span><span class="n">d</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">gaia</span><span class="o">/</span><span class="n">data</span><span class="o">.</span><span class="n">fits</span> <span class="o">-</span><span class="n">z</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">membership_probs</span><span class="o">.</span><span class="n">npy</span> <span class="o">-</span><span class="n">s</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">source_ids</span><span class="o">.</span><span class="n">npy</span>
 </pre></div>
-</div>
 </div>
 </div>
 </div>
@@ -425,15 +471,14 @@ and has the gaia source id of each star in <cite>membership_probs.npy</cite>.</p
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Quickstart</a><ul>
-<li><a class="reference internal" href="#data-preparation">Data preparation</a></li>
+<li><a class="reference internal" href="#data-input">Data Input</a><ul>
+<li><a class="reference internal" href="#converting-to-cartesian-coordinates">Converting to Cartesian Coordinates</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#fitting-a-component">Fitting a component</a></li>
 <li><a class="reference internal" href="#fitting-a-mixture">Fitting a mixture</a></li>
 <li><a class="reference internal" href="#finding-the-best-mixture">Finding the best mixture</a></li>
-<li><a class="reference internal" href="#plotting">Plotting</a><ul>
-<li><a class="reference internal" href="#features">Features</a></li>
-<li><a class="reference internal" href="#cmd">CMD</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#plotting">Plotting</a></li>
 </ul>
 </li>
 </ul>
