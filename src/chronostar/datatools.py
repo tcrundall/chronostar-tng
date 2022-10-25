@@ -2,7 +2,7 @@ from astropy.table import Table
 from typing import Optional
 import numpy as np
 from numpy.typing import NDArray
-from numpy import float64, ndarray
+from numpy import float64
 
 
 def construct_covs_from_data(
@@ -143,7 +143,7 @@ def extract_array_from_table(
             error_1 = f"{column_stems[i]}_error"
             error_2 = f"{column_stems[j]}_error"
             if corr_col_name in table.keys():
-                astrodata[:, corr_col] =(
+                astrodata[:, corr_col] = (
                     table[corr_col_name][msk]                           # type: ignore
                     * table[error_1][msk]                               # type: ignore
                     * table[error_2][msk]                               # type: ignore

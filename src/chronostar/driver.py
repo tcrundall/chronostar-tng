@@ -231,7 +231,7 @@ class Driver:
 
         Raises
         ------
-        yaml.YAMLError 
+        yaml.YAMLError
             A yaml exception, in the event the file can't be read
         UserWarning
             If the file has an unrecognised key at top-most level
