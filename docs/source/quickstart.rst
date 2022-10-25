@@ -6,9 +6,15 @@
 
 Quickstart
 ----------
-Chronostar provides three command line tools: :code:`fit-component`, :code:`fit-mixture`
+Chronostar provides three command line tools for analyzing data: :code:`fit-component`, :code:`fit-mixture`
 and :code:`fit-chronostar`. Each of these tools serve as entry points to different
 levels of complexity.
+
+There are also two helper tools :code:`prepare-data` and :code:`plot-features`.
+:code:`prepare-data` assists users in converting fits tables from Gaia into the
+appropriate format expected by Chronostar. :code:`plot-features` is a convenience
+tool that plots various 2D projections of the data's feature space, as well as
+colour magnitude diagrams.
 
 If you'd prefer to stay in python, sample scripts are explained in
 :doc:`Scripts <scripts>`, or you may peruse the pre-written provided scripts
@@ -17,17 +23,64 @@ on `github <https://github.com/tcrundall/chronostar-tng/tree/main/bin>`_.
 Each command  assumes you have a data as numpy array of shape
 :code:`(n_samples, n_features)` stored as a :code:`.npy` file.
 
-Data preparation
-^^^^^^^^^^^^^^^^
-Chronostar's front end expects data to be in a 2D array of shape
-`(n_samples, n_features)`. For current implementations, this translates to
-a `(n_stars, 6)` array where the 6 columns are `XYZUVW`.
+Data Input
+^^^^^^^^^^
+Chronostar's :class:`Driver` accepts data only as a single 2D array of shape
+`(n_samples, n_features)`. For example, for the current default implementation,
+in the absence of uncertainties, the input is a `(n_stars, 6)` array where the
+6 columns are `XYZUVW`.
 
-A CLI tool is under development to assist users in this, but it isn't ready yet.
+If you wish to provide uncertainties in the form of a covariance matrix, the
+matrices must be flattened and appended to the data array:
 
-If you're using a subset of a Gaia fits file, we recommend saving an array of the source ids for the stars actually used,
-as this will prove useful mapping Chronostar results back to the fits table and is explicitly used
-by `plot-features`.
+.. code::
+
+   input_data = np.vstack((means.T, covariances.flatten().T)).T
+
+However, if you're using the command line tool :ref:`fit-chronostar<fit-chron>`
+this is handled for you, you need only provide the path to a stored
+:code:`(n_stars, 6, 6)` numpy array of covariance matrices.
+
+Converting to Cartesian Coordinates
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The default implementation of Chronostar-TNG fits to data in a right handed
+6D cartesian coordinate system, centred on the local standard of rest.
+
+Since stellar data is typically provided as observables, we provide a command
+line tool for converting fits files of observables into numpy arrays of cartesian
+values.
+
+Currently table column names are expected to be in the default form provided by 
+Gaia. First ensure your column names match that of Gaia:
+
+.. code::
+
+   ['source_id', 'ra', 'ra_error', 'dec', 'dec_error', 'parallax', 'parallax_error',
+   'pmra', 'pmra_error', 'pmdec', 'pmdec_error', 'ra_dec_corr', 'ra_parallax_corr', ...
+    'radial_velocity', 'radial_velocity_error']
+
+Then run
+
+.. code::
+
+   prepare-data path/to/data.fits
+
+This will try to convert each star (skipping those that have non-finite radial velocities)
+from astrometry to cartesian. Upon completion you will have 3 files in the working directory.
+The cartesian means will be :code:`data_means.npy`, the uncertainty covariance matrices will be
+:code:`data_covs.npy`, and the :code:`source_id` will be in :code:`ids.npy`.
+
+By default, you'll also get a :code:`data_all.npy` file, which has the covariances
+flattened and appended to the data. If you don't want this file, you can skip it by calling
+
+.. code::
+   
+   prepare-data --nomerge path/to/data.fits
+
+.. note::
+
+   The `ids` array is useful for identifying which rows of the table constitute your
+   data sample: :code:`subset_table = t[np.where(np.isin(t['source_id'], ids))]`
 
 Fitting a component
 ^^^^^^^^^^^^^^^^^^^
@@ -64,6 +117,8 @@ An empty config file is valid. An example :code:`config.yml` file is:
    component:
       minimize_method: "Nelder-Mead"  # The scipy.optimize method
       reg_covar: 1.e-6                # Covariance matrix regularization constant
+      nthreads: 4                     # How many numba threads to use for overlap integral calc
+      stellar_uncertainties: True     # If the final 36 columns of data file are covariances
 
    # Specifics for the actual run
    run:
@@ -127,9 +182,12 @@ configuration parameters along with those for the mixture:
       reg_covar: 1.e-5
       minimize_method: 'Nelder-Mead'
       trace_orbit_func: 'epicyclic'
+      age_offset_interval: 20         # After how many M-steps offsets for a component's age are tried
 
    run:
       savedir: "result"
+
+.. _fit-chron:
 
 Finding the best mixture
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -142,6 +200,8 @@ the fit.
 .. code::
 
    $ fit-chronostar -c path/to/config.yml path/to/data.npy
+      or
+   $ fit-chronostar -c path/to/config.yml path/to/means.npy --covs path/to/covs.npy
 
 An example config file is:
 
@@ -183,6 +243,11 @@ Here is an example of plotting 6 phase-space planes ('XY, XZ, YZ, XU, YV, ZW') a
 .. code::
 
    plot-features -f '0,1.0,2.1,2.0,3.1,4.2,5' -m path/to/data.npy -z path/to/membership_probs.npy -o plots
+
+Each phase-space subplot is separated in the command by a period, i.e.
+:code:`plot1-xaxis,plot1-yaxis.plot2-xaxis,plot2-yaxis` etc. You may add as many
+phase-space pairs as you like, and they will be arranged top to bottom, left to right,
+with as close to a square layout as possible.
 
 CMD
 +++

@@ -34,7 +34,7 @@ def convert_astro2cart(astr_mean, astr_cov):
     xyzuvw_cov: [6,6] float array_like
         The carteisan covariance matrix
     """
-    xyzuvw_cov, xyzuvw_mean = transform.transform_covmatrix(
+    xyzuvw_cov, xyzuvw_mean = transform.transform_covmatrix_py(
             cov=astr_cov, trans_func=coordinate.convert_astrometry2lsrxyzuvw,
             loc=astr_mean
     )
@@ -50,6 +50,13 @@ def init_argparse() -> argparse.ArgumentParser:
     parser.add_argument(
         "astrodata",
         help="The astro data file, stored as a .fits file"
+    )
+
+    parser.add_argument(
+        "-n",
+        "--nomerge",
+        help="Whether to skip merging means and covariances into one data array",
+        action="store_false",
     )
 
     return parser
@@ -121,6 +128,7 @@ if __name__ == '__main__':
         cart_means[i], cart_covs[i] = convert_astro2cart(
             astro_means[i], astro_covs[i],
         )
+    print(f"Converted {100:5.1f}% of input", end='\r')
     print("\nDone!")
 
     # Store data in numpy arrays
@@ -129,3 +137,8 @@ if __name__ == '__main__':
 
     # Store ids
     np.save("ids.npy", t['source_id'][msk])
+
+    # Merge into one data array if requested
+    if not args.nomerge:
+        cart_all = np.vstack((cart_means.T, cart_covs.flatten().reshape(-1, 36).T)).T
+        np.save("data_all.npy", cart_all)
