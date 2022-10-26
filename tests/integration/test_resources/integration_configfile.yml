@@ -10,5 +10,6 @@ component:
   minimize_method: 'Nelder-Mead'
   age_offset_interval: 10
   nthreads: 1
+  stellar_uncertainties: False
 driver:
   intermediate_dumps: False
