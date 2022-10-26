@@ -2,7 +2,8 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="chronostar.introducer package" href="chronostar.introducer.html" /><link rel="prev" title="chronostar.component package" href="chronostar.component.html" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="chronostar.introducer package" href="chronostar.introducer.html" /><link rel="prev" title="chronostar.component package" href="chronostar.component.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
         <title>chronostar.icpool package - chronostar-tng 1.0 documentation</title>
@@ -203,18 +204,125 @@
           </label>
         </div>
         <article role="main">
-          <div class="section" id="chronostar-icpool-package">
+          <section id="chronostar-icpool-package">
 <h1>chronostar.icpool package<a class="headerlink" href="#chronostar-icpool-package" title="Permalink to this heading">#</a></h1>
-<div class="section" id="submodules">
+<section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
-</div>
-<div class="section" id="chronostar-icpool-simpleicpool-module">
-<h2>chronostar.icpool.simpleicpool module<a class="headerlink" href="#chronostar-icpool-simpleicpool-module" title="Permalink to this heading">#</a></h2>
-</div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">#</a></h2>
-</div>
-</div>
+</section>
+<section id="module-chronostar.icpool.simpleicpool">
+<span id="chronostar-icpool-simpleicpool-module"></span><h2>chronostar.icpool.simpleicpool module<a class="headerlink" href="#module-chronostar.icpool.simpleicpool" title="Permalink to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="chronostar.icpool.simpleicpool.SimpleICPool">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chronostar.icpool.simpleicpool.</span></span><span class="sig-name descname"><span class="pre">SimpleICPool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.icpool.simpleicpool.SimpleICPool" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="chronostar.html#chronostar.base.BaseICPool" title="chronostar.base.BaseICPool"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseICPool</span></code></a></p>
+<p>Manager and populator of a pool of initial conditions</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chronostar.icpool.simpleicpool.SimpleICPool.max_components">
+<span class="sig-name descname"><span class="pre">max_components</span></span><a class="headerlink" href="#chronostar.icpool.simpleicpool.SimpleICPool.max_components" title="Permalink to this definition">#</a></dt>
+<dd><p>The max components in an initial condition provided by
+<cite>SimpleICPOol</cite>, configurable</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int, default 100</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="chronostar.icpool.simpleicpool.SimpleICPool.best_mixture">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">best_mixture</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="chronostar.html#chronostar.base.BaseMixture" title="chronostar.base.BaseMixture"><span class="pre">BaseMixture</span></a></em><a class="headerlink" href="#chronostar.icpool.simpleicpool.SimpleICPool.best_mixture" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the mixture with the best score</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The best fitting mixture</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="chronostar.html#chronostar.base.BaseMixture" title="chronostar.base.BaseMixture">BaseMixture</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.icpool.simpleicpool.SimpleICPool.get_next">
+<span class="sig-name descname"><span class="pre">get_next</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.icpool.simpleicpool.SimpleICPool.get_next" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the next initial condition set from queue</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(unique_id, initial condition set)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[int, list[<a class="reference internal" href="chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent">BaseComponent</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.icpool.simpleicpool.SimpleICPool.has_next">
+<span class="sig-name descname"><span class="pre">has_next</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.icpool.simpleicpool.SimpleICPool.has_next" title="Permalink to this definition">#</a></dt>
+<dd><p>Return True if (after populating if needed) queue is non-empty</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if queue is non-empty</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.icpool.simpleicpool.SimpleICPool.provide_start">
+<span class="sig-name descname"><span class="pre">provide_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_cond</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.icpool.simpleicpool.SimpleICPool.provide_start" title="Permalink to this definition">#</a></dt>
+<dd><p>Use the provided InitialCondition to start the queue</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>init_conds</strong> (<a class="reference internal" href="chronostar.html#chronostar.base.InitialCondition" title="chronostar.base.InitialCondition"><em>InitialCondition</em></a>) – Some initial condition provided from outside of the ICPool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.icpool.simpleicpool.SimpleICPool.register_result">
+<span class="sig-name descname"><span class="pre">register_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixture</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.icpool.simpleicpool.SimpleICPool.register_result" title="Permalink to this definition">#</a></dt>
+<dd><p>Register the result of a completed fit</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>) – A uniquely identifying label with summary information:
+<code class="docutils literal notranslate"><span class="pre">unique_id-parent_id-generation-ncomps</span></code></p></li>
+<li><p><strong>mixture</strong> (<a class="reference internal" href="chronostar.html#chronostar.base.BaseMixture" title="chronostar.base.BaseMixture"><em>BaseMixture</em></a>) – A mixture object whose fit has been finalised</p></li>
+<li><p><strong>score</strong> (<em>float</em>) – A score of the fit, where higher means better,
+e.g. -BIC</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.icpool.simpleicpool.SimpleICPool.try_populate_queue">
+<span class="sig-name descname"><span class="pre">try_populate_queue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.icpool.simpleicpool.SimpleICPool.try_populate_queue" title="Permalink to this definition">#</a></dt>
+<dd><p>Attempt to populate the queue of initial conditions</p>
+<p>If this is the “first pass”, then the ICPool object will ask
+its introducer to produce a generation given no starting point.</p>
+<p>Otherwise, it provides its introducer with the previous generation’s
+best mixture and adds the next generation to the queue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-chronostar.icpool">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-chronostar.icpool" title="Permalink to this heading">#</a></h2>
+</section>
+</section>
 
         </article>
       </div>
@@ -275,8 +383,20 @@
             <ul>
 <li><a class="reference internal" href="#">chronostar.icpool package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#chronostar-icpool-simpleicpool-module">chronostar.icpool.simpleicpool module</a></li>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#module-chronostar.icpool.simpleicpool">chronostar.icpool.simpleicpool module</a><ul>
+<li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool"><code class="docutils literal notranslate"><span class="pre">SimpleICPool</span></code></a><ul>
+<li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.max_components"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.max_components</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.best_mixture"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.best_mixture</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.get_next"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.get_next()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.has_next"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.has_next()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.provide_start"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.provide_start()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.register_result"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.register_result()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.try_populate_queue"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.try_populate_queue()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-chronostar.icpool">Module contents</a></li>
 </ul>
 </li>
 </ul>

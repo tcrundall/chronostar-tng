@@ -2,7 +2,8 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="src" href="modules.html" /><link rel="prev" title="Quickstart" href="quickstart.html" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="src" href="modules.html" /><link rel="prev" title="Quickstart" href="quickstart.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
         <title>Scripts - chronostar-tng 1.0 documentation</title>
@@ -203,9 +204,9 @@
           </label>
         </div>
         <article role="main">
-          <div class="section" id="scripts">
+          <section id="scripts">
 <h1>Scripts<a class="headerlink" href="#scripts" title="Permalink to this heading">#</a></h1>
-<div class="section" id="fitting-a-component">
+<section id="fitting-a-component">
 <h2>Fitting a component<a class="headerlink" href="#fitting-a-component" title="Permalink to this heading">#</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
@@ -256,7 +257,7 @@
 <span class="c1"># But this varies depending on the implementation of Component</span>
 </pre></div>
 </div>
-<div class="section" id="example-config-yaml-file">
+<section id="example-config-yaml-file">
 <h3>Example config.yaml file<a class="headerlink" href="#example-config-yaml-file" title="Permalink to this heading">#</a></h3>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">component</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">minimize_method</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Nelder-Mead&#39;</span><span class="w"></span>
@@ -264,9 +265,9 @@
 <span class="w">    </span><span class="nt">trace_orbit_func</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;epicyclic&#39;</span><span class="w"></span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="fitting-a-mixture">
+</section>
+</section>
+<section id="fitting-a-mixture">
 <h2>Fitting a Mixture<a class="headerlink" href="#fitting-a-mixture" title="Permalink to this heading">#</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
@@ -371,7 +372,7 @@
 <span class="n">membership_probs</span> <span class="o">=</span> <span class="n">mixture</span><span class="o">.</span><span class="n">estimate_membership_probs</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="section" id="example-config-yml-file">
+<section id="example-config-yml-file">
 <h3>Example config.yml file<a class="headerlink" href="#example-config-yml-file" title="Permalink to this heading">#</a></h3>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">mixture</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">tol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.e-4</span><span class="w"></span>
@@ -392,9 +393,9 @@
 <span class="w">    </span><span class="nt">trace_orbit_func</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;epicyclic&#39;</span><span class="w"></span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="fit-chronostar">
+</section>
+</section>
+<section id="fit-chronostar">
 <h2>Fit Chronostar<a class="headerlink" href="#fit-chronostar" title="Permalink to this heading">#</a></h2>
 <p>Running full chronostar is the simplest script of them all, because
 the <code class="xref py py-class docutils literal notranslate"><span class="pre">Driver</span></code> handles everything. The default classes used are
@@ -433,7 +434,7 @@ a custom class of your own) simply import it and pass it to the <code class="xre
         <span class="nb">print</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="section" id="id1">
+<section id="id1">
 <h3>Example config.yml file<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span><span class="w"></span>
 
@@ -454,9 +455,9 @@ a custom class of your own) simply import it and pass it to the <code class="xre
 <span class="w">    </span><span class="nt">reg_covar</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.e-5</span><span class="w"></span>
 </pre></div>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
         </article>
       </div>

@@ -2,7 +2,8 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="chronostar.mixture package" href="chronostar.mixture.html" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="chronostar.mixture package" href="chronostar.mixture.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
         <title>chronostar.utils package - chronostar-tng 1.0 documentation</title>
@@ -203,21 +204,582 @@
           </label>
         </div>
         <article role="main">
-          <div class="section" id="chronostar-utils-package">
+          <section id="chronostar-utils-package">
 <h1>chronostar.utils package<a class="headerlink" href="#chronostar-utils-package" title="Permalink to this heading">#</a></h1>
-<div class="section" id="submodules">
+<section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
-</div>
-<div class="section" id="chronostar-utils-coordinate-module">
-<h2>chronostar.utils.coordinate module<a class="headerlink" href="#chronostar-utils-coordinate-module" title="Permalink to this heading">#</a></h2>
-</div>
-<div class="section" id="chronostar-utils-transform-module">
-<h2>chronostar.utils.transform module<a class="headerlink" href="#chronostar-utils-transform-module" title="Permalink to this heading">#</a></h2>
-</div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">#</a></h2>
-</div>
-</div>
+</section>
+<section id="module-chronostar.utils.coordinate">
+<span id="chronostar-utils-coordinate-module"></span><h2>chronostar.utils.coordinate module<a class="headerlink" href="#module-chronostar.utils.coordinate" title="Permalink to this heading">#</a></h2>
+<p>coordinate.py</p>
+<p>Module to handle various coordinate transformations.</p>
+<p>TODO: Update docstrings to reflect the removal of astropy</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.calc_eq2gc_matrix">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">calc_eq2gc_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a_deg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">192.8595</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_deg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">27.1283</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th_deg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">122.9319</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.calc_eq2gc_matrix" title="Permalink to this definition">#</a></dt>
+<dd><p>Generate matrix to transform cartesian points determined by equatorial
+coordinates to cartesian points determined by Galactic coordinates</p>
+<p>Using the RA (a) DEC (d) of Galactic north, and theta, generate matrix
+Default values are from J2000</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a_deg</strong> (<em>float</em><em> (</em><em>deg</em><em>)</em>) – right ascension of the north galactic pole</p></li>
+<li><p><strong>d_deg</strong> (<em>float</em><em> (</em><em>deg</em><em>)</em>) – declination of the north galactic pole</p></li>
+<li><p><strong>th_deg</strong> (<em>float</em><em> (</em><em>deg</em><em>)</em>) – position angle of the North Celestial Pole relative to the great
+semicircle passing through the NGP and zero Galactic longitude</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>res</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[3x3] array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.calc_gc2eq_matrix">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">calc_gc2eq_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a_deg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">192.8595</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_deg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">27.1283</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th_deg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">122.9319</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.calc_gc2eq_matrix" title="Permalink to this definition">#</a></dt>
+<dd><p>Generate a matrix that takes Galactic coordinates to equatorial</p>
+<p>This is simply the inverse of the EQ to GC matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a_deg</strong> (<em>float</em><em> (</em><em>deg</em><em>)</em>) – right ascension of the north galactic pole</p></li>
+<li><p><strong>d_deg</strong> (<em>float</em><em> (</em><em>deg</em><em>)</em>) – declination of the north galactic pole</p></li>
+<li><p><strong>th_deg</strong> (<em>float</em><em> (</em><em>deg</em><em>)</em>) – position angle of the North Celestial Pole relative to the great
+semicircle passing through the NGP and zero Galactic longitude</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>result</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[6x6] array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.calc_pm_coord_matrix">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">calc_pm_coord_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_deg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.calc_pm_coord_matrix" title="Permalink to this definition">#</a></dt>
+<dd><p>Generate a coordinate matrix for calculating proper motions</p>
+<p>This is matrix <cite>A</cite> in Johnson &amp; Soderblom (1987)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.convert_angles2cartesian">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">convert_angles2cartesian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.convert_angles2cartesian" title="Permalink to this definition">#</a></dt>
+<dd><p>theta   : angle (as astropy degrees) about the north pole (longitude, RA)
+phi : angle (as astropy degrees) from the plane (lattitude, dec))</p>
+<p>Tested</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.convert_astrometry2helioxyzuvw">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">convert_astrometry2helioxyzuvw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rv</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.convert_astrometry2helioxyzuvw" title="Permalink to this definition">#</a></dt>
+<dd><p>Converts astrometry to heliocentric XYZUVW values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a_deg</strong> (<em>(</em><em>deg</em><em>) </em><em>right ascention</em>) – </p></li>
+<li><p><strong>d_deg</strong> (<em>(</em><em>deg</em><em>) </em><em>declination</em>) – </p></li>
+<li><p><strong>pi</strong> (<em>(</em><em>as</em><em>) </em><em>parallax</em>) – </p></li>
+<li><p><strong>mu_a</strong> (<em>(</em><em>as/yr</em><em>) </em><em>proper motion in right ascension</em>) – </p></li>
+<li><p><strong>mu_d</strong> (<em>(</em><em>as/yr</em><em>) </em><em>proper motion in declination</em>) – </p></li>
+<li><p><strong>rv</strong> (<em>(</em><em>km/s</em><em>) </em><em>line</em><em> of </em><em>sight velocity</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.convert_astrometry2lsrxyzuvw">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">convert_astrometry2lsrxyzuvw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">astro</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.convert_astrometry2lsrxyzuvw" title="Permalink to this definition">#</a></dt>
+<dd><p>Take a point straight from a catalogue, return it as XYZUVW</p>
+<p>This function takes astrometry in conventional units, and converts them
+into internal units for convenience.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>(</em><em>deg</em><em>) </em><em>right ascention</em>) – </p></li>
+<li><p><strong>d</strong> (<em>(</em><em>deg</em><em>) </em><em>declination</em>) – </p></li>
+<li><p><strong>pi</strong> (<em>(</em><em>mas</em><em>) </em><em>parallax</em>) – </p></li>
+<li><p><strong>mu_a</strong> (<em>(</em><em>mas/yr</em><em>) </em><em>proper motion in right ascension</em>) – </p></li>
+<li><p><strong>mu_d</strong> (<em>(</em><em>mas/yr</em><em>) </em><em>proper motion in declination</em>) – </p></li>
+<li><p><strong>rv</strong> (<em>(</em><em>km/s</em><em>) </em><em>line</em><em> of </em><em>sight velocity</em>) – </p></li>
+<li><p><strong>mas</strong> (<em>Boolean {True}</em>) – set if input parallax and proper motions are in mas</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>XYZUVW</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(pc, pc, pc, km/s, km/s, km/s)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.convert_cart2curvilin">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">convert_cart2curvilin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">220.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.convert_cart2curvilin" title="Permalink to this definition">#</a></dt>
+<dd><p>MZ (2020 - 01 - 17)</p>
+<p>Converts cartesian coordinates XYZUVW (given with respect to the
+LSR) to the curvilinear system. Curvilinear system is corotating
+so its radial component xi is always pointing towards the galactic
+center. Coordinates in the curvilinear system are
+[xi, eta, zeta, xidot, etadot, zetadot]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>[</em><em>6</em><em>, </em><em>(</em><em>npoints</em><em>)</em><em>] </em><em>float np.array</em>) – [pc, pc, pc, km/s,km/s,km/s]
+[X,  Y,  Z,  U,   V,   W]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>curvilin_coordinates</strong> – xi     : radial distance from the origin in LSR
+eta    :
+zeta   : vertical distance from plane
+xidot  :
+etadot :
+zetadot:</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[6, (npoints)] float np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.convert_cartesian2angles">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">convert_cartesian2angles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.convert_cartesian2angles" title="Permalink to this definition">#</a></dt>
+<dd><p>Tested</p>
+<p>TODO: This takes up 10% of a run
+Uses astropy angles which slows everything down</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.convert_curvilin2cart">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">convert_curvilin2cart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">220.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lsr_centered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.convert_curvilin2cart" title="Permalink to this definition">#</a></dt>
+<dd><p>MZ (2020 - 01 - 17)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.convert_dec2deg">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">convert_dec2deg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arcm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arcs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.convert_dec2deg" title="Permalink to this definition">#</a></dt>
+<dd><p>Convert measurement of declination in deg arcmin, arcsec to
+decimal degrees</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>deg</strong> (<em>int -or- string -or- float</em>) – degrees value</p></li>
+<li><p><strong>arcm</strong> (<em>int -or- string -or- float</em>) – arc minute value</p></li>
+<li><p><strong>arcs</strong> (<em>int -or- string -or- float</em>) – arc second value</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>result</strong> – declination in degrees</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.convert_equatorial2galactic">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">convert_equatorial2galactic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_deg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.convert_equatorial2galactic" title="Permalink to this definition">#</a></dt>
+<dd><p>Convert equatorial (ra, dec) to galactic (longitude, latitude)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>(</em><em>float</em><em>) </em><em>right ascension in degrees</em>) – </p></li>
+<li><p><strong>phi</strong> (<em>(</em><em>float</em><em>) </em><em>declination in degrees</em>) – </p></li>
+<li><p><strong>value</strong> (<em>(</em><em>bool</em><em>) </em><em>{True} Set flag if output desired as raw float</em><em> (</em><em>as opposed</em>) – to an astropy unit object)</p></li>
+<li><p><strong>Output</strong> – </p></li>
+<li><p><strong>------</strong> – </p></li>
+<li><p><strong>pos_gc</strong> (<em>(</em><em>float</em><em>, </em><em>float</em><em>) </em><em>Galactic coordinates l and b</em><em>, </em><em>in degrees</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.convert_galactic2equatorial">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">convert_galactic2equatorial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.convert_galactic2equatorial" title="Permalink to this definition">#</a></dt>
+<dd><p>Convert galactic (longitude, latitude) to equatorial (ra, dec)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>(</em><em>float</em><em>) </em><em>galactic l in degrees</em>) – </p></li>
+<li><p><strong>phi</strong> (<em>(</em><em>float</em><em>) </em><em>galactic b in degrees</em>) – </p></li>
+<li><p><strong>value</strong> (<em>(</em><em>bool</em><em>) </em><em>{True} Set flag if output desired as raw float</em><em> (</em><em>as opposed</em>) – to an astropy unit object)</p></li>
+<li><p><strong>Output</strong> – </p></li>
+<li><p><strong>------</strong> – </p></li>
+<li><p><strong>pos_gc</strong> (<em>(</em><em>float</em><em>, </em><em>float</em><em>) </em><em>Equatorial coordinates RA and DEC</em><em>, </em><em>in degrees</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.convert_helio2lsr">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">convert_helio2lsr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyzuvw_helio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.convert_helio2lsr" title="Permalink to this definition">#</a></dt>
+<dd><p>Convert cartesian xyzuvw position from helio-centred to LSR-centred</p>
+<p>Assumes position is in pc unless stated otherwise</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xyzuvw_helio</strong> (<em>[</em><em>6</em><em>] </em><em>array</em>) – 3 position [pc] and 3 velocity with respect to the the sun</p></li>
+<li><p><strong>kpc</strong> (<em>bool {False}</em>) – If set, then treats input units of position as kpc (as opposed to pc)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>result</strong> – 3 position [pc] (or [kpc] if <cite>kpc</cite> set to True)
+and 3 velocity with respect to the local standard of rest</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[6] array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.convert_heliospacevelocity2pm">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">convert_heliospacevelocity2pm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.convert_heliospacevelocity2pm" title="Permalink to this definition">#</a></dt>
+<dd><p>Take the position and space velocities, return proper motions and rv</p>
+<section id="paramters">
+<h3>Paramters<a class="headerlink" href="#paramters" title="Permalink to this heading">#</a></h3>
+<p>a_deg : (deg) right ascension
+d_deg : (deg) declination
+pi : (as) parallax
+u : (km/s) heliocentric velocity towards galactic centre
+v : (km/s) heliocentric velocity towards in direction of circular orbit
+w : (km/s) heliocentric velocity towards galactic north</p>
+<dl class="field-list simple">
+<dt class="field-odd">returns<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mu_a</strong> (<em>(as/yr) proper motion in right ascension</em>)</p></li>
+<li><p><strong>mu_d</strong> (<em>(as/yr) proper motion in declination</em>)</p></li>
+<li><p><strong>rv</strong> (<em>(km/s) line of sight velocity</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.convert_helioxyzuvw2astrometry">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">convert_helioxyzuvw2astrometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyzuvw_helio</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.convert_helioxyzuvw2astrometry" title="Permalink to this definition">#</a></dt>
+<dd><p>Takes as input heliocentric XYZUVW values, returns astrometry</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>xyzuvw_helio</strong> (<em>(</em><em>pc</em><em>, </em><em>pc</em><em>, </em><em>pc</em><em>, </em><em>km/s</em><em>, </em><em>km/s</em><em>, </em><em>km/s</em><em>) </em><em>array</em>) – The position and velocity of a star in a right handed cartesian system
+centred on the sun</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>a_deg</strong> (<em>(deg) right ascention</em>)</p></li>
+<li><p><strong>d_deg</strong> (<em>(deg) declination</em>)</p></li>
+<li><p><strong>pi</strong> (<em>(as) parallax</em>)</p></li>
+<li><p><strong>mu_a</strong> (<em>(as/yr) proper motion in right ascension</em>)</p></li>
+<li><p><strong>mu_d</strong> (<em>(as/yr) proper motion in declination</em>)</p></li>
+<li><p><strong>rv</strong> (<em>(km/s) line of sight velocity</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.convert_lsr2helio">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">convert_lsr2helio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyzuvw_lsr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.convert_lsr2helio" title="Permalink to this definition">#</a></dt>
+<dd><p>Convert cartesian xyzuvw position from LSR-centred to helio-centred</p>
+<p>Assumes position is in pc unless stated otherwise</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xyzuvw_lsr</strong> (<em>[</em><em>6</em><em>] </em><em>array</em>) – 3 position [pc] and 3 velocity with respect to the local standard
+of rest</p></li>
+<li><p><strong>kpc</strong> (<em>bool {False}</em>) – If set, then treats input units of position as kpc (as opposed to pc)
+and outputs in kpc.
+Use this flag if inputing position into Galpy!!!</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>result</strong> – 3 position [pc] (or [kpc] if <cite>kpc</cite> set to True)
+and 3 velocity with respect to the sun</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[6] array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.convert_lsrxyzuvw2astrometry">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">convert_lsrxyzuvw2astrometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyzuvw_lsr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.convert_lsrxyzuvw2astrometry" title="Permalink to this definition">#</a></dt>
+<dd><p>Takes as input heliocentric XYZUVW values, returns astrometry</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>xyzuvw_lsr</strong> (<em>(</em><em>pc</em><em>, </em><em>pc</em><em>, </em><em>pc</em><em>, </em><em>km/s</em><em>, </em><em>km/s</em><em>, </em><em>km/s</em><em>) </em><em>array</em>) – The position and velocity of a star in a right handed cartesian system
+corotating with and centred on the local standard of rest</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>a</strong> (<em>(deg) right ascention</em>)</p></li>
+<li><p><strong>d</strong> (<em>(deg) declination</em>)</p></li>
+<li><p><strong>pi</strong> (<em>(mas) parallax</em>)</p></li>
+<li><p><strong>mu_a</strong> (<em>(mas/yr) proper motion in right ascension</em>)</p></li>
+<li><p><strong>mu_d</strong> (<em>(mas/yr) proper motion in declination</em>)</p></li>
+<li><p><strong>rv</strong> (<em>(km/s) line of sight velocity</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.convert_many_astrometry2lsrxyzuvw">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">convert_many_astrometry2lsrxyzuvw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">astr_arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.convert_many_astrometry2lsrxyzuvw" title="Permalink to this definition">#</a></dt>
+<dd><p>Take a point straight from a catalogue, return it as XYZUVW</p>
+<p>This function takes astrometry in conventional units, and converts them
+into internal units for convenience.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>(</em><em>deg</em><em>) </em><em>right ascention</em>) – </p></li>
+<li><p><strong>d</strong> (<em>(</em><em>deg</em><em>) </em><em>declination</em>) – </p></li>
+<li><p><strong>pi</strong> (<em>(</em><em>mas</em><em>) </em><em>parallax</em>) – </p></li>
+<li><p><strong>mu_a</strong> (<em>(</em><em>mas/yr</em><em>) </em><em>proper motion in right ascension</em>) – </p></li>
+<li><p><strong>mu_d</strong> (<em>(</em><em>mas/yr</em><em>) </em><em>proper motion in declination</em>) – </p></li>
+<li><p><strong>rv</strong> (<em>(</em><em>km/s</em><em>) </em><em>line</em><em> of </em><em>sight velocity</em>) – </p></li>
+<li><p><strong>mas</strong> (<em>Boolean {True}</em>) – set if input parallax and proper motions are in mas</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.convert_many_lsrxyzuvw2astrometry">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">convert_many_lsrxyzuvw2astrometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyzuvw_lsrs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.convert_many_lsrxyzuvw2astrometry" title="Permalink to this definition">#</a></dt>
+<dd><p>Takes as input heliocentric XYZUVW values, returns astrometry</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>xyzuvw_lsr</strong> (<em>(</em><em>pc</em><em>, </em><em>pc</em><em>, </em><em>pc</em><em>, </em><em>km/s</em><em>, </em><em>km/s</em><em>, </em><em>km/s</em><em>) </em><em>array</em>) – The position and velocity of a star in a right handed cartesian system
+corotating with and centred on the local standard of rest</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float64</span></code>]]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>a</strong> (<em>(deg) right ascention</em>)</p></li>
+<li><p><strong>d</strong> (<em>(deg) declination</em>)</p></li>
+<li><p><strong>pi</strong> (<em>(mas) parallax</em>)</p></li>
+<li><p><strong>mu_a</strong> (<em>(mas/yr) proper motion in right ascension</em>)</p></li>
+<li><p><strong>mu_d</strong> (<em>(mas/yr) proper motion in declination</em>)</p></li>
+<li><p><strong>rv</strong> (<em>(km/s) line of sight velocity</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.convert_pm2heliospacevelocity">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">convert_pm2heliospacevelocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rv</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.convert_pm2heliospacevelocity" title="Permalink to this definition">#</a></dt>
+<dd><p>Convert proper motions to space velocities</p>
+<section id="id1">
+<h3>Paramters<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
+<p>a_deg : (deg) right ascension in equatorial coordinates
+d_deg : (deg) declination in equatorial coordinates
+pi : (arcsec) parallax
+mu_a : (arcsec/yr) proper motion in right ascension
+mu_d : (arcsec/yr) proper motion in declination
+rv : (km/s) radial velocity</p>
+<dl class="field-list simple">
+<dt class="field-odd">returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>UVW</strong></p>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p>[3] array</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.coordinate.convert_ra2deg">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.coordinate.</span></span><span class="sig-name descname"><span class="pre">convert_ra2deg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ss</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.coordinate.convert_ra2deg" title="Permalink to this definition">#</a></dt>
+<dd><p>Convert measurement of right ascension in hh:mm:ss to
+decimal degrees</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hh</strong> (<em>int -or- string -or- float</em>) – hours component of right ascension</p></li>
+<li><p><strong>mm</strong> (<em>int -or- string -or- float</em>) – minutes component of right ascension</p></li>
+<li><p><strong>ss</strong> (<em>int -or- string -or- float</em>) – seconds component of right ascension</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>result</strong> – Right ascension in degrees</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-chronostar.utils.transform">
+<span id="chronostar-utils-transform-module"></span><h2>chronostar.utils.transform module<a class="headerlink" href="#module-chronostar.utils.transform" title="Permalink to this heading">#</a></h2>
+<p>A module which aids in the transformation of a covariance matrix
+between two coordinate frames.</p>
+<p>These functions are used to convert astrometric covariance matrices into
+cartesian covariance matrices. Also to project cartesian Gaussian distributions
+forward (or backward) through the Galactic potential.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.transform.calc_jacobian">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.transform.</span></span><span class="sig-name descname"><span class="pre">calc_jacobian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trans_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.transform.calc_jacobian" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculate the Jacobian of the coordinate transfromation <cite>trans_func</cite> about
+<cite>loc</cite>.</p>
+<p><cite>trans_func</cite> should take a vector of dimension <cite>dim</cite> to a new vector
+of same dimension. This function then calculates the 2nd order partial
+derivative at point <cite>loc</cite>. Extra arguments for <cite>trans_func</cite> can be
+provided as a tuple to <cite>args</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trans_func</strong> (<em>function</em>) – Transformation function taking us from the initial coordinate frame
+to the final coordinate frame</p></li>
+<li><p><strong>loc</strong> (<em>[</em><em>dim</em><em>] </em><em>float array</em>) – The position (in the initial coordinte frame) around which we are
+calculating the jacobian</p></li>
+<li><p><strong>dim</strong> (<em>int {6}</em>) – The dimensionality of the coordinate frames</p></li>
+<li><p><strong>h</strong> (<em>float {1e-3}</em>) – The size of the increment, smaller values maybe run into numerical
+issues</p></li>
+<li><p><strong>args</strong> (<em>tuple {None}</em>) – Extra arguments required by <cite>trans_func</cite></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>[dim,dim] float array</em> – A jacobian matrix</p></li>
+<li><p><em>[dim] float array</em> – Transformed location</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>OPTIMISATION TARGET</p>
+<p>The application of <cite>trans_func</cite> is the bottleneck of Chronostar
+(at least when <cite>trans_func</cite> is traceorbit.trace_cartesian_orbit).
+Since this is a loop, there is scope for parallelisation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.transform.calc_jacobian_py">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.transform.</span></span><span class="sig-name descname"><span class="pre">calc_jacobian_py</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trans_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.transform.calc_jacobian_py" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculate the Jacobian of the coordinate transfromation <cite>trans_func</cite> about
+<cite>loc</cite>.</p>
+<p><cite>trans_func</cite> should take a vector of dimension <cite>dim</cite> to a new vector
+of same dimension. This function then calculates the 2nd order partial
+derivative at point <cite>loc</cite>. Extra arguments for <cite>trans_func</cite> can be
+provided as a tuple to <cite>args</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trans_func</strong> (<em>function</em>) – Transformation function taking us from the initial coordinate frame
+to the final coordinate frame</p></li>
+<li><p><strong>loc</strong> (<em>[</em><em>dim</em><em>] </em><em>float array</em>) – The position (in the initial coordinte frame) around which we are
+calculating the jacobian</p></li>
+<li><p><strong>dim</strong> (<em>int {6}</em>) – The dimensionality of the coordinate frames</p></li>
+<li><p><strong>h</strong> (<em>float {1e-3}</em>) – The size of the increment, smaller values maybe run into numerical
+issues</p></li>
+<li><p><strong>args</strong> (<em>tuple {None}</em>) – Extra arguments required by <cite>trans_func</cite></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>[dim,dim] float array</em> – A jacobian matrix</p></li>
+<li><p><em>[dim] float array</em> – Transformed location</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>OPTIMISATION TARGET</p>
+<p>The application of <cite>trans_func</cite> is the bottleneck of Chronostar
+(at least when <cite>trans_func</cite> is traceorbit.trace_cartesian_orbit).
+Since this is a loop, there is scope for parallelisation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.transform.transform_covmatrix">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.transform.</span></span><span class="sig-name descname"><span class="pre">transform_covmatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.transform.transform_covmatrix" title="Permalink to this definition">#</a></dt>
+<dd><p>Transforming a covariance matrix from one coordinate frame to another</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cov</strong> (<em>[</em><em>dim</em><em>,</em><em>dim</em><em>] </em><em>float array</em>) – Covariance matrix in the initial frame</p></li>
+<li><p><strong>trans_func</strong> (<em>function</em>) – Transformation function taking us from the initial
+coordinate frame to the final coordinate frame. Output must be
+mutable, i.e. single value, or an array</p></li>
+<li><p><strong>loc</strong> (<em>[</em><em>dim</em><em>] </em><em>float array</em>) – The position (in the initial coordinate frame)
+around which we are calculating the jacobian
+(i.e. the mean, in the example of a Gaussian distribution)</p></li>
+<li><p><strong>dim</strong> (<em>integer {6}</em>) – The dimensionality of the coordinate frame</p></li>
+<li><p><strong>h</strong> (<em>float {1e-3}</em>) – The size of the increment, smaller values maybe run into numerical
+issues</p></li>
+<li><p><strong>args</strong> (<em>tuple</em>) – extra args to be passed to trans_func. E.g. for traceOrbitXYZUVW
+args = (age,) [for traceforward] or args = (-age,) [for traceback]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>[dim,dim] float array</em> – The transformed covariance matrix</p></li>
+<li><p><em>[dim] float array</em> – The transformed location</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.utils.transform.transform_covmatrix_py">
+<span class="sig-prename descclassname"><span class="pre">chronostar.utils.transform.</span></span><span class="sig-name descname"><span class="pre">transform_covmatrix_py</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.utils.transform.transform_covmatrix_py" title="Permalink to this definition">#</a></dt>
+<dd><p>Transforming a covariance matrix from one coordinate frame to another</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cov</strong> (<em>[</em><em>dim</em><em>,</em><em>dim</em><em>] </em><em>float array</em>) – Covariance matrix in the initial frame</p></li>
+<li><p><strong>trans_func</strong> (<em>function</em>) – Transformation function taking us from the initial
+coordinate frame to the final coordinate frame. Output must be
+mutable, i.e. single value, or an array</p></li>
+<li><p><strong>loc</strong> (<em>[</em><em>dim</em><em>] </em><em>float array</em>) – The position (in the initial coordinate frame)
+around which we are calculating the jacobian
+(i.e. the mean, in the example of a Gaussian distribution)</p></li>
+<li><p><strong>dim</strong> (<em>integer {6}</em>) – The dimensionality of the coordinate frame</p></li>
+<li><p><strong>h</strong> (<em>float {1e-3}</em>) – The size of the increment, smaller values maybe run into numerical
+issues</p></li>
+<li><p><strong>args</strong> (<em>tuple</em>) – extra args to be passed to trans_func. E.g. for traceOrbitXYZUVW
+args = (age,) [for traceforward] or args = (-age,) [for traceback]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>[dim,dim] float array</em> – The transformed covariance matrix</p></li>
+<li><p><em>[dim] float array</em> – The transformed location</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-chronostar.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-chronostar.utils" title="Permalink to this heading">#</a></h2>
+</section>
+</section>
 
         </article>
       </div>
@@ -270,9 +832,38 @@
             <ul>
 <li><a class="reference internal" href="#">chronostar.utils package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#chronostar-utils-coordinate-module">chronostar.utils.coordinate module</a></li>
-<li><a class="reference internal" href="#chronostar-utils-transform-module">chronostar.utils.transform module</a></li>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#module-chronostar.utils.coordinate">chronostar.utils.coordinate module</a><ul>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.calc_eq2gc_matrix"><code class="docutils literal notranslate"><span class="pre">calc_eq2gc_matrix()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.calc_gc2eq_matrix"><code class="docutils literal notranslate"><span class="pre">calc_gc2eq_matrix()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.calc_pm_coord_matrix"><code class="docutils literal notranslate"><span class="pre">calc_pm_coord_matrix()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.convert_angles2cartesian"><code class="docutils literal notranslate"><span class="pre">convert_angles2cartesian()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.convert_astrometry2helioxyzuvw"><code class="docutils literal notranslate"><span class="pre">convert_astrometry2helioxyzuvw()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.convert_astrometry2lsrxyzuvw"><code class="docutils literal notranslate"><span class="pre">convert_astrometry2lsrxyzuvw()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.convert_cart2curvilin"><code class="docutils literal notranslate"><span class="pre">convert_cart2curvilin()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.convert_cartesian2angles"><code class="docutils literal notranslate"><span class="pre">convert_cartesian2angles()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.convert_curvilin2cart"><code class="docutils literal notranslate"><span class="pre">convert_curvilin2cart()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.convert_dec2deg"><code class="docutils literal notranslate"><span class="pre">convert_dec2deg()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.convert_equatorial2galactic"><code class="docutils literal notranslate"><span class="pre">convert_equatorial2galactic()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.convert_galactic2equatorial"><code class="docutils literal notranslate"><span class="pre">convert_galactic2equatorial()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.convert_helio2lsr"><code class="docutils literal notranslate"><span class="pre">convert_helio2lsr()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.convert_heliospacevelocity2pm"><code class="docutils literal notranslate"><span class="pre">convert_heliospacevelocity2pm()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.convert_helioxyzuvw2astrometry"><code class="docutils literal notranslate"><span class="pre">convert_helioxyzuvw2astrometry()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.convert_lsr2helio"><code class="docutils literal notranslate"><span class="pre">convert_lsr2helio()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.convert_lsrxyzuvw2astrometry"><code class="docutils literal notranslate"><span class="pre">convert_lsrxyzuvw2astrometry()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.convert_many_astrometry2lsrxyzuvw"><code class="docutils literal notranslate"><span class="pre">convert_many_astrometry2lsrxyzuvw()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.convert_many_lsrxyzuvw2astrometry"><code class="docutils literal notranslate"><span class="pre">convert_many_lsrxyzuvw2astrometry()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.convert_pm2heliospacevelocity"><code class="docutils literal notranslate"><span class="pre">convert_pm2heliospacevelocity()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.coordinate.convert_ra2deg"><code class="docutils literal notranslate"><span class="pre">convert_ra2deg()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-chronostar.utils.transform">chronostar.utils.transform module</a><ul>
+<li><a class="reference internal" href="#chronostar.utils.transform.calc_jacobian"><code class="docutils literal notranslate"><span class="pre">calc_jacobian()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.transform.calc_jacobian_py"><code class="docutils literal notranslate"><span class="pre">calc_jacobian_py()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.transform.transform_covmatrix"><code class="docutils literal notranslate"><span class="pre">transform_covmatrix()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.utils.transform.transform_covmatrix_py"><code class="docutils literal notranslate"><span class="pre">transform_covmatrix_py()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-chronostar.utils">Module contents</a></li>
 </ul>
 </li>
 </ul>

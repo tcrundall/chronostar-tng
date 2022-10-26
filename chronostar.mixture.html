@@ -2,7 +2,8 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="chronostar.utils package" href="chronostar.utils.html" /><link rel="prev" title="chronostar.introducer package" href="chronostar.introducer.html" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="chronostar.utils package" href="chronostar.utils.html" /><link rel="prev" title="chronostar.introducer package" href="chronostar.introducer.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
         <title>chronostar.mixture package - chronostar-tng 1.0 documentation</title>
@@ -203,21 +204,322 @@
           </label>
         </div>
         <article role="main">
-          <div class="section" id="chronostar-mixture-package">
+          <section id="chronostar-mixture-package">
 <h1>chronostar.mixture package<a class="headerlink" href="#chronostar-mixture-package" title="Permalink to this heading">#</a></h1>
-<div class="section" id="submodules">
+<section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
-</div>
-<div class="section" id="chronostar-mixture-componentmixture-module">
-<h2>chronostar.mixture.componentmixture module<a class="headerlink" href="#chronostar-mixture-componentmixture-module" title="Permalink to this heading">#</a></h2>
-</div>
-<div class="section" id="chronostar-mixture-sklmixture-module">
-<h2>chronostar.mixture.sklmixture module<a class="headerlink" href="#chronostar-mixture-sklmixture-module" title="Permalink to this heading">#</a></h2>
-</div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">#</a></h2>
-</div>
-</div>
+</section>
+<section id="module-chronostar.mixture.componentmixture">
+<span id="chronostar-mixture-componentmixture-module"></span><h2>chronostar.mixture.componentmixture module<a class="headerlink" href="#module-chronostar.mixture.componentmixture" title="Permalink to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="chronostar.mixture.componentmixture.ComponentMixture">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chronostar.mixture.componentmixture.</span></span><span class="sig-name descname"><span class="pre">ComponentMixture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_components</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.mixture.componentmixture.ComponentMixture" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="chronostar.html#chronostar.base.BaseMixture" title="chronostar.base.BaseMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMixture</span></code></a></p>
+<p>A mixture model of arbitrary components</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>init_weights</strong> (<em>NDArray</em><em>[</em><em>float64</em><em>] of </em><em>shape</em><em> (</em><em>n_components</em><em>) or </em><em>(</em><em>n_samples</em><em>, </em><em>n_components</em><em>)</em>) – Initial weights of the components. If array is 2 dimensional, the
+init_weights are taken to be initial membership probabilities. If
+this is the case, you must configure <cite>init_params=’init_resp’</cite></p></li>
+<li><p><strong>init_components</strong> (<em>list</em><em>[</em><a class="reference internal" href="chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent"><em>BaseComponent</em></a><em>]</em>) – Component objects which will be maximised to the data,
+optionally with pre-initialised parameters</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chronostar.mixture.componentmixture.ComponentMixture.tol">
+<span class="sig-name descname"><span class="pre">tol</span></span><a class="headerlink" href="#chronostar.mixture.componentmixture.ComponentMixture.tol" title="Permalink to this definition">#</a></dt>
+<dd><p>Used to determine convergence by sklearn’s EM algorithm.
+Convergence determined if “change” between EM iterations is
+less than tol, where change is the difference between the
+average log probability of each sample, configurable</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float, default 1e-3</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chronostar.mixture.componentmixture.ComponentMixture.reg_covar">
+<span class="sig-name descname"><span class="pre">reg_covar</span></span><a class="headerlink" href="#chronostar.mixture.componentmixture.ComponentMixture.reg_covar" title="Permalink to this definition">#</a></dt>
+<dd><p>A regularization constant added to the diagonals of
+covariance matrices, configurable</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float, default 1e-6</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chronostar.mixture.componentmixture.ComponentMixture.max_iter">
+<span class="sig-name descname"><span class="pre">max_iter</span></span><a class="headerlink" href="#chronostar.mixture.componentmixture.ComponentMixture.max_iter" title="Permalink to this definition">#</a></dt>
+<dd><p>The maximum iterations for sklearn’s EM algorithm, configurable</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int, default 100</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chronostar.mixture.componentmixture.ComponentMixture.n_init">
+<span class="sig-name descname"><span class="pre">n_init</span></span><a class="headerlink" href="#chronostar.mixture.componentmixture.ComponentMixture.n_init" title="Permalink to this definition">#</a></dt>
+<dd><p>(included only for sklearn API compatbility, ignored)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int, default 1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chronostar.mixture.componentmixture.ComponentMixture.init_params">
+<span class="sig-name descname"><span class="pre">init_params</span></span><a class="headerlink" href="#chronostar.mixture.componentmixture.ComponentMixture.init_params" title="Permalink to this definition">#</a></dt>
+<dd><p>The initialization approach used by sklearn if component
+parameters aren’t pre set, configurable. Must be one of</p>
+<ul class="simple">
+<li><p>‘init_resp’ : responsibilites are taken from input</p></li>
+<li><p>‘kmeans’ : responsibilities are initialized using kmeans.</p></li>
+<li><p>‘k-means++’ : use the k-means++ method to initialize.</p></li>
+<li><p>‘random’ : responsibilities are initialized randomly.</p></li>
+<li><p>‘random_from_data’ : initial means are randomly selected data points.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str, default ‘random’</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chronostar.mixture.componentmixture.ComponentMixture.random_state">
+<span class="sig-name descname"><span class="pre">random_state</span></span><a class="headerlink" href="#chronostar.mixture.componentmixture.ComponentMixture.random_state" title="Permalink to this definition">#</a></dt>
+<dd><p>Controls the random seed given to the method chosen to
+initialize the parameters (see init_params). In addition, it
+controls the generation of random samples from the fitted
+distribution. Pass an int for reproducible output across multiple
+function calls, configurable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int, default None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chronostar.mixture.componentmixture.ComponentMixture.warm_start">
+<span class="sig-name descname"><span class="pre">warm_start</span></span><a class="headerlink" href="#chronostar.mixture.componentmixture.ComponentMixture.warm_start" title="Permalink to this definition">#</a></dt>
+<dd><p>(leave True for correct interactions between <cite>self</cite> and
+<cite>self.sklmixture</cite>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool, default True</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chronostar.mixture.componentmixture.ComponentMixture.verbose">
+<span class="sig-name descname"><span class="pre">verbose</span></span><a class="headerlink" href="#chronostar.mixture.componentmixture.ComponentMixture.verbose" title="Permalink to this definition">#</a></dt>
+<dd><p>Whether to print sklearn statements:</p>
+<ul class="simple">
+<li><p>0 : no output</p></li>
+<li><p>1 : prints current initialization and each iteration step</p></li>
+<li><p>2 : same as 1 but also prints log probability and execution time</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int, default 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chronostar.mixture.componentmixture.ComponentMixture.verbose_interval">
+<span class="sig-name descname"><span class="pre">verbose_interval</span></span><a class="headerlink" href="#chronostar.mixture.componentmixture.ComponentMixture.verbose_interval" title="Permalink to this definition">#</a></dt>
+<dd><p>If <cite>verbose &gt; 0</cite>, how many iterations between print statements</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int, default 10</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.mixture.componentmixture.ComponentMixture.bic">
+<span class="sig-name descname"><span class="pre">bic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.mixture.componentmixture.ComponentMixture.bic" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculate the Bayesian Information Criterion</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>NDArray</em><em>[</em><em>float64</em><em>] of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input data</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The calculated BIC</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.mixture.componentmixture.ComponentMixture.estimate_weighted_log_prob">
+<span class="sig-name descname"><span class="pre">estimate_weighted_log_prob</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.mixture.componentmixture.ComponentMixture.estimate_weighted_log_prob" title="Permalink to this definition">#</a></dt>
+<dd><p>Estimate the weighted log-probabilities, log P(X | Z) + log weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>array-like</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>weighted_log_prob</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array, shape (n_samples, n_component)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.mixture.componentmixture.ComponentMixture.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.mixture.componentmixture.ComponentMixture.fit" title="Permalink to this definition">#</a></dt>
+<dd><p>Fit the mixture model to the input data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>NDArray</em><em>[</em><em>float64</em><em>] of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input data</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.mixture.componentmixture.ComponentMixture.get_components">
+<span class="sig-name descname"><span class="pre">get_components</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.mixture.componentmixture.ComponentMixture.get_components" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the tuple of components fitted to the data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The list of components</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[<a class="reference internal" href="chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent">BaseComponent</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.mixture.componentmixture.ComponentMixture.get_parameters">
+<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.mixture.componentmixture.ComponentMixture.get_parameters" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the parameters that characterise the mixture</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The weights of the components and the component objects</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[NDArray[float64], list[<a class="reference internal" href="chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent">BaseComponent</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.mixture.componentmixture.ComponentMixture.set_parameters">
+<span class="sig-name descname"><span class="pre">set_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.mixture.componentmixture.ComponentMixture.set_parameters" title="Permalink to this definition">#</a></dt>
+<dd><p>Set the parameters that characterise the mixture</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>tuple</em><em>[</em><em>NDArray</em><em>[</em><em>float64</em><em>]</em><em>, </em><em>list</em><em>[</em><a class="reference internal" href="chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent"><em>BaseComponent</em></a><em>]</em><em>]</em>) – The weights of the components and the component objects</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-chronostar.mixture.sklmixture">
+<span id="chronostar-mixture-sklmixture-module"></span><h2>chronostar.mixture.sklmixture module<a class="headerlink" href="#module-chronostar.mixture.sklmixture" title="Permalink to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="chronostar.mixture.sklmixture.SKLComponentMixture">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chronostar.mixture.sklmixture.</span></span><span class="sig-name descname"><span class="pre">SKLComponentMixture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights_init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components_init</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_covar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'random'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warm_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.mixture.sklmixture.SKLComponentMixture" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMixture</span></code></p>
+<p>A derived class utilising much from scikit-learn
+to fit a Gaussian Mixture Model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>weights_init</strong> (<em>NDArray</em><em>[</em><em>float64</em><em>] of </em><em>shape</em><em> (</em><em>n_components</em><em>)</em>) – Initial weights of each component, ideally normalized
+to sum to 1. If array is 2 dimensional, the
+init_weights are taken to be initial membership probabilities.
+If this is the case, you must configure
+<cite>init_params=’init_resp’</cite></p></li>
+<li><p><strong>components_init</strong> (<em>list</em><em>[</em><a class="reference internal" href="chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent"><em>BaseComponent</em></a><em>]</em>) – Component objects which will be maximised to the data,
+optionally with pre-initialised parameters</p></li>
+<li><p><strong>tol</strong> (<em>float</em><em>, </em><em>optional</em>) – Some tolerance used by sklearn… , by default 1e-3</p></li>
+<li><p><strong>reg_covar</strong> (<em>float</em><em>, </em><em>optional</em>) – Regularisation factor added to diagonal elements of
+covariance matrices, by default 1e-6</p></li>
+<li><p><strong>max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum iterations of EM algorithm, by default 100</p></li>
+<li><p><strong>n_init</strong> (<em>int</em><em>, </em><em>optional</em>) – sklearn parameter we don’t use, by default 1</p></li>
+<li><p><strong>init_params</strong> (<em>str</em><em>, </em><em>optional</em>) – <p>How to initialise components if not already set,
+‘random’ assigns memberships randomly then maximises,
+by default ‘random’. Options are:</p>
+<ul>
+<li><p>’random’: each responsibility is randomly assigned</p></li>
+<li><p>’init_resp’: an initial responsiblity array is provided</p></li>
+</ul>
+</p></li>
+<li><p><strong>random_state</strong> (<em>Any</em><em>, </em><em>optional</em>) – sklearn parameter… the random seed?, by default None</p></li>
+<li><p><strong>warm_start</strong> (<em>bool</em><em>, </em><em>optional</em>) – sklearn parameter that we don’t use, by default True</p></li>
+<li><p><strong>verbose</strong> (<em>int</em><em>, </em><em>optional</em>) – sklearn parameter…, by default 0</p></li>
+<li><p><strong>verbose_interval</strong> (<em>int</em><em>, </em><em>optional</em>) – sklearn parameter, by default 10</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.mixture.sklmixture.SKLComponentMixture.aic">
+<span class="sig-name descname"><span class="pre">aic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.mixture.sklmixture.SKLComponentMixture.aic" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculate the Akaike Information Criterion</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>NDArray</em><em>[</em><em>float64</em><em>] of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input data</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The calculated AIC</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.mixture.sklmixture.SKLComponentMixture.bic">
+<span class="sig-name descname"><span class="pre">bic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.mixture.sklmixture.SKLComponentMixture.bic" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculate the Bayesian Information Criterion</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>NDArray</em><em>[</em><em>float64</em><em>] of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input data</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The calculated BIC</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-chronostar.mixture">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-chronostar.mixture" title="Permalink to this heading">#</a></h2>
+</section>
+</section>
 
         </article>
       </div>
@@ -278,9 +580,36 @@
             <ul>
 <li><a class="reference internal" href="#">chronostar.mixture package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#chronostar-mixture-componentmixture-module">chronostar.mixture.componentmixture module</a></li>
-<li><a class="reference internal" href="#chronostar-mixture-sklmixture-module">chronostar.mixture.sklmixture module</a></li>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#module-chronostar.mixture.componentmixture">chronostar.mixture.componentmixture module</a><ul>
+<li><a class="reference internal" href="#chronostar.mixture.componentmixture.ComponentMixture"><code class="docutils literal notranslate"><span class="pre">ComponentMixture</span></code></a><ul>
+<li><a class="reference internal" href="#chronostar.mixture.componentmixture.ComponentMixture.tol"><code class="docutils literal notranslate"><span class="pre">ComponentMixture.tol</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.mixture.componentmixture.ComponentMixture.reg_covar"><code class="docutils literal notranslate"><span class="pre">ComponentMixture.reg_covar</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.mixture.componentmixture.ComponentMixture.max_iter"><code class="docutils literal notranslate"><span class="pre">ComponentMixture.max_iter</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.mixture.componentmixture.ComponentMixture.n_init"><code class="docutils literal notranslate"><span class="pre">ComponentMixture.n_init</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.mixture.componentmixture.ComponentMixture.init_params"><code class="docutils literal notranslate"><span class="pre">ComponentMixture.init_params</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.mixture.componentmixture.ComponentMixture.random_state"><code class="docutils literal notranslate"><span class="pre">ComponentMixture.random_state</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.mixture.componentmixture.ComponentMixture.warm_start"><code class="docutils literal notranslate"><span class="pre">ComponentMixture.warm_start</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.mixture.componentmixture.ComponentMixture.verbose"><code class="docutils literal notranslate"><span class="pre">ComponentMixture.verbose</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.mixture.componentmixture.ComponentMixture.verbose_interval"><code class="docutils literal notranslate"><span class="pre">ComponentMixture.verbose_interval</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.mixture.componentmixture.ComponentMixture.bic"><code class="docutils literal notranslate"><span class="pre">ComponentMixture.bic()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.mixture.componentmixture.ComponentMixture.estimate_weighted_log_prob"><code class="docutils literal notranslate"><span class="pre">ComponentMixture.estimate_weighted_log_prob()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.mixture.componentmixture.ComponentMixture.fit"><code class="docutils literal notranslate"><span class="pre">ComponentMixture.fit()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.mixture.componentmixture.ComponentMixture.get_components"><code class="docutils literal notranslate"><span class="pre">ComponentMixture.get_components()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.mixture.componentmixture.ComponentMixture.get_parameters"><code class="docutils literal notranslate"><span class="pre">ComponentMixture.get_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.mixture.componentmixture.ComponentMixture.set_parameters"><code class="docutils literal notranslate"><span class="pre">ComponentMixture.set_parameters()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-chronostar.mixture.sklmixture">chronostar.mixture.sklmixture module</a><ul>
+<li><a class="reference internal" href="#chronostar.mixture.sklmixture.SKLComponentMixture"><code class="docutils literal notranslate"><span class="pre">SKLComponentMixture</span></code></a><ul>
+<li><a class="reference internal" href="#chronostar.mixture.sklmixture.SKLComponentMixture.aic"><code class="docutils literal notranslate"><span class="pre">SKLComponentMixture.aic()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.mixture.sklmixture.SKLComponentMixture.bic"><code class="docutils literal notranslate"><span class="pre">SKLComponentMixture.bic()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-chronostar.mixture">Module contents</a></li>
 </ul>
 </li>
 </ul>

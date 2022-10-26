@@ -2,7 +2,8 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Scripts" href="scripts.html" /><link rel="prev" title="Installation" href="install.html" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Scripts" href="scripts.html" /><link rel="prev" title="Installation" href="install.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
         <title>Quickstart - chronostar-tng 1.0 documentation</title>
@@ -203,7 +204,7 @@
           </label>
         </div>
         <article role="main">
-          <div class="section" id="quickstart">
+          <section id="quickstart">
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this heading">#</a></h1>
 <p>Chronostar provides three command line tools for analyzing data: <code class="code docutils literal notranslate"><span class="pre">fit-component</span></code>, <code class="code docutils literal notranslate"><span class="pre">fit-mixture</span></code>
 and <code class="code docutils literal notranslate"><span class="pre">fit-chronostar</span></code>. Each of these tools serve as entry points to different
@@ -218,7 +219,7 @@ colour magnitude diagrams.</p>
 on <a class="reference external" href="https://github.com/tcrundall/chronostar-tng/tree/main/bin">github</a>.</p>
 <p>Each command  assumes you have a data as numpy array of shape
 <code class="code docutils literal notranslate"><span class="pre">(n_samples,</span> <span class="pre">n_features)</span></code> stored as a <code class="code docutils literal notranslate"><span class="pre">.npy</span></code> file.</p>
-<div class="section" id="data-input">
+<section id="data-input">
 <h2>Data Input<a class="headerlink" href="#data-input" title="Permalink to this heading">#</a></h2>
 <p>Chronostar’s <code class="xref py py-class docutils literal notranslate"><span class="pre">Driver</span></code> accepts data only as a single 2D array of shape
 <cite>(n_samples, n_features)</cite>. For example, for the current default implementation,
@@ -232,7 +233,7 @@ matrices must be flattened and appended to the data array:</p>
 <p>However, if you’re using the command line tool <a class="reference internal" href="#fit-chron"><span class="std std-ref">fit-chronostar</span></a>
 this is handled for you, you need only provide the path to a stored
 <code class="code docutils literal notranslate"><span class="pre">(n_stars,</span> <span class="pre">6,</span> <span class="pre">6)</span></code> numpy array of covariance matrices.</p>
-<div class="section" id="converting-to-cartesian-coordinates">
+<section id="converting-to-cartesian-coordinates">
 <h3>Converting to Cartesian Coordinates<a class="headerlink" href="#converting-to-cartesian-coordinates" title="Permalink to this heading">#</a></h3>
 <p>The default implementation of Chronostar-TNG fits to data in a right handed
 6D cartesian coordinate system, centred on the local standard of rest.</p>
@@ -264,9 +265,9 @@ flattened and appended to the data. If you don’t want this file, you can skip 
 <p>The <cite>ids</cite> array is useful for identifying which rows of the table constitute your
 data sample: <code class="code docutils literal notranslate"><span class="pre">subset_table</span> <span class="pre">=</span> <span class="pre">t[np.where(np.isin(t['source_id'],</span> <span class="pre">ids))]</span></code></p>
 </div>
-</div>
-</div>
-<div class="section" id="fitting-a-component">
+</section>
+</section>
+<section id="fitting-a-component">
 <h2>Fitting a component<a class="headerlink" href="#fitting-a-component" title="Permalink to this heading">#</a></h2>
 <p>This is for fitting a single component (e.g. a 6-D Gaussian) to the data.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fit-component path/to/data.npy
@@ -305,8 +306,8 @@ and stored in a <code class="code docutils literal notranslate"><span class="pre
 <p>Make sure to include the decimal point when using scientific
 notation, or <code class="code docutils literal notranslate"><span class="pre">yaml</span></code> will treat the value as a string.</p>
 </div>
-</div>
-<div class="section" id="fitting-a-mixture">
+</section>
+<section id="fitting-a-mixture">
 <h2>Fitting a mixture<a class="headerlink" href="#fitting-a-mixture" title="Permalink to this heading">#</a></h2>
 <p>This is for fitting a fixed number of components to some data.</p>
 <p>For example, to fit 5 components one would do:</p>
@@ -353,8 +354,8 @@ configuration parameters along with those for the mixture:</p>
    <span class="n">savedir</span><span class="p">:</span> <span class="s2">&quot;result&quot;</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="finding-the-best-mixture">
+</section>
+<section id="finding-the-best-mixture">
 <span id="fit-chron"></span><h2>Finding the best mixture<a class="headerlink" href="#finding-the-best-mixture" title="Permalink to this heading">#</a></h2>
 <p>This is full Chronostar.
 Chronostar begins with fitting a single component to the
@@ -393,8 +394,8 @@ $ fit-chronostar -c path/to/config.yml path/to/means.npy --covs path/to/covs.npy
    <span class="n">savedir</span><span class="p">:</span> <span class="s2">&quot;result&quot;</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="plotting">
+</section>
+<section id="plotting">
 <h2>Plotting<a class="headerlink" href="#plotting" title="Permalink to this heading">#</a></h2>
 <p>A CLI tool for plotting is provided. It has two key functions so far. One is to plot features against features. Another is to plot CMDs. In both instances points are coloured by membership.</p>
 <p>Here is an example of plotting 6 phase-space planes (‘XY, XZ, YZ, XU, YV, ZW’) and saving the plot in a directory <cite>plots</cite>.</p>
@@ -410,8 +411,8 @@ and has the gaia source id of each star in <cite>membership_probs.npy</cite>.</p
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span><span class="o">-</span><span class="n">features</span> <span class="o">--</span><span class="n">photom</span> <span class="o">-</span><span class="n">d</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">gaia</span><span class="o">/</span><span class="n">data</span><span class="o">.</span><span class="n">fits</span> <span class="o">-</span><span class="n">z</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">membership_probs</span><span class="o">.</span><span class="n">npy</span> <span class="o">-</span><span class="n">s</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">source_ids</span><span class="o">.</span><span class="n">npy</span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
         </article>
       </div>
