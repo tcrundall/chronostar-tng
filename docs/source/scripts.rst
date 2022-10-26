@@ -55,7 +55,7 @@ Fitting a component
     # But this varies depending on the implementation of Component
 
 Example config.yaml file
-^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: yaml
 

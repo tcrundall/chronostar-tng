@@ -135,7 +135,7 @@ class SphereSpaceTimeComponent(BaseComponent):
     # `self.trace_orbit_func` without passing an instance of `self` as
     # an argument
     #: :noindex:
-    trace_orbit_func = staticmethod(trace_epicyclic_orbit)
+    trace_orbit_func = staticmethod(trace_epicyclic_orbit)  #: :noindex:
     #: :noindex:
 
     def __init__(self, params: Optional[NDArray[float64]] = None) -> None:

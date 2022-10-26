@@ -298,7 +298,7 @@ def convert_pm2heliospacevelocity(a_deg, d_deg, pi, mu_a, mu_d, rv):
     """
     Convert proper motions to space velocities
 
-    Paramters
+    Parameters
     ---------
     a_deg : (deg) right ascension in equatorial coordinates
     d_deg : (deg) declination in equatorial coordinates
@@ -342,7 +342,7 @@ def convert_pm2heliospacevelocity(a_deg, d_deg, pi, mu_a, mu_d, rv):
 def convert_heliospacevelocity2pm(a_deg, d_deg, pi, u, v, w):
     """Take the position and space velocities, return proper motions and rv
 
-    Paramters
+    Parameters
     ---------
     a_deg : (deg) right ascension
     d_deg : (deg) declination

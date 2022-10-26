@@ -58,15 +58,15 @@ def replace_cov_with_sampling(
     n_draws: int = 100,
     dim: int = 6,
 ) -> NDArray[float64]:
-    """Replace uncertainty covariances with a random sampling of the
+    r"""Replace uncertainty covariances with a random sampling of the
     implied distribution
 
     Parameters
     ----------
     data : NDArray[float64] of shape (n_samples, n_features)
-        Input data. If `covs` is None, then `data` should have
-        `dim` + `dim`th triangle number columns,
-        with the final "`dim`th triangle number" columns encoding
+        Input data. If ``covs`` is None, then ``data`` should have
+        ``dim`` + "\ ``dim``\ th triangle number" columns,
+        with the final ``dim``\ th triangle number columns encoding
         covariance matrices
     covs : Optional[NDArray[float64]] of shape (n_samples, 6, 6), optional
         An array of covariance matrices, by default None
@@ -77,7 +77,7 @@ def replace_cov_with_sampling(
 
     Returns
     -------
-    NDArray[float64] of shape (n_samples * n_draws, dim)
+    NDArray[float64] of shape (n_samples \* n_draws, dim)
         A pseudo data set, where each initial sample is replaced by a
         swarm of samples
     """
