@@ -855,9 +855,9 @@ implied distribution</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>float64</em><em>] of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input data. If <cite>covs</cite> is None, then <cite>data</cite> should have
-<cite>dim</cite> + <a href="#id1"><span class="problematic" id="id2">`</span></a>dim`th triangle number columns,
-with the final “<a href="#id3"><span class="problematic" id="id4">`</span></a>dim`th triangle number” columns encoding
+<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>float64</em><em>] of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input data. If <code class="docutils literal notranslate"><span class="pre">covs</span></code> is None, then <code class="docutils literal notranslate"><span class="pre">data</span></code> should have
+<code class="docutils literal notranslate"><span class="pre">dim</span></code> + “<code class="docutils literal notranslate"><span class="pre">dim</span></code>th triangle number” columns,
+with the final <code class="docutils literal notranslate"><span class="pre">dim</span></code>th triangle number columns encoding
 covariance matrices</p></li>
 <li><p><strong>covs</strong> (<em>Optional</em><em>[</em><em>NDArray</em><em>[</em><em>float64</em><em>]</em><em>] of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>6</em><em>, </em><em>6</em><em>)</em><em>, </em><em>optional</em>) – An array of covariance matrices, by default None</p></li>
 <li><p><strong>n_draws</strong> (<em>int</em><em>, </em><em>optional</em>) – the number of random draws to take from each star’s distribution, by default 100</p></li>

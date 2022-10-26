@@ -237,7 +237,7 @@ Plotting
 A CLI tool for plotting is provided. It has two key functions so far. One is to plot features against features. Another is to plot CMDs. In both instances points are coloured by membership.
 
 Features
-++++++++
+~~~~~~~~
 Here is an example of plotting 6 phase-space planes ('XY, XZ, YZ, XU, YV, ZW') and saving the plot in a directory `plots`.
 
 .. code::
@@ -250,7 +250,7 @@ phase-space pairs as you like, and they will be arranged top to bottom, left to 
 with as close to a square layout as possible.
 
 CMD
-+++
+~~~
 Here is an example of plotting a CMD. Since the fits file likely featured rows with incomplete data, there will likely not be a one to one mapping from the membership probability table to the astrometry table. Hence `source_ids.npy` is used. `source_ids.npy` should be of shape `(n_stars)`
 and has the gaia source id of each star in `membership_probs.npy`.
 

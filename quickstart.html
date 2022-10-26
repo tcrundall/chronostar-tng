@@ -398,6 +398,8 @@ $ fit-chronostar -c path/to/config.yml path/to/means.npy --covs path/to/covs.npy
 <section id="plotting">
 <h2>Plotting<a class="headerlink" href="#plotting" title="Permalink to this heading">#</a></h2>
 <p>A CLI tool for plotting is provided. It has two key functions so far. One is to plot features against features. Another is to plot CMDs. In both instances points are coloured by membership.</p>
+<section id="features">
+<h3>Features<a class="headerlink" href="#features" title="Permalink to this heading">#</a></h3>
 <p>Here is an example of plotting 6 phase-space planes (‘XY, XZ, YZ, XU, YV, ZW’) and saving the plot in a directory <cite>plots</cite>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span><span class="o">-</span><span class="n">features</span> <span class="o">-</span><span class="n">f</span> <span class="s1">&#39;0,1.0,2.1,2.0,3.1,4.2,5&#39;</span> <span class="o">-</span><span class="n">m</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">data</span><span class="o">.</span><span class="n">npy</span> <span class="o">-</span><span class="n">z</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">membership_probs</span><span class="o">.</span><span class="n">npy</span> <span class="o">-</span><span class="n">o</span> <span class="n">plots</span>
 </pre></div>
@@ -406,11 +408,15 @@ $ fit-chronostar -c path/to/config.yml path/to/means.npy --covs path/to/covs.npy
 <code class="code docutils literal notranslate"><span class="pre">plot1-xaxis,plot1-yaxis.plot2-xaxis,plot2-yaxis</span></code> etc. You may add as many
 phase-space pairs as you like, and they will be arranged top to bottom, left to right,
 with as close to a square layout as possible.</p>
+</section>
+<section id="cmd">
+<h3>CMD<a class="headerlink" href="#cmd" title="Permalink to this heading">#</a></h3>
 <p>Here is an example of plotting a CMD. Since the fits file likely featured rows with incomplete data, there will likely not be a one to one mapping from the membership probability table to the astrometry table. Hence <cite>source_ids.npy</cite> is used. <cite>source_ids.npy</cite> should be of shape <cite>(n_stars)</cite>
 and has the gaia source id of each star in <cite>membership_probs.npy</cite>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span><span class="o">-</span><span class="n">features</span> <span class="o">--</span><span class="n">photom</span> <span class="o">-</span><span class="n">d</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">gaia</span><span class="o">/</span><span class="n">data</span><span class="o">.</span><span class="n">fits</span> <span class="o">-</span><span class="n">z</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">membership_probs</span><span class="o">.</span><span class="n">npy</span> <span class="o">-</span><span class="n">s</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">source_ids</span><span class="o">.</span><span class="n">npy</span>
 </pre></div>
 </div>
+</section>
 </section>
 </section>
 
@@ -479,7 +485,11 @@ and has the gaia source id of each star in <cite>membership_probs.npy</cite>.</p
 <li><a class="reference internal" href="#fitting-a-component">Fitting a component</a></li>
 <li><a class="reference internal" href="#fitting-a-mixture">Fitting a mixture</a></li>
 <li><a class="reference internal" href="#finding-the-best-mixture">Finding the best mixture</a></li>
-<li><a class="reference internal" href="#plotting">Plotting</a></li>
+<li><a class="reference internal" href="#plotting">Plotting</a><ul>
+<li><a class="reference internal" href="#features">Features</a></li>
+<li><a class="reference internal" href="#cmd">CMD</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
