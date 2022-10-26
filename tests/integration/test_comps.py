@@ -34,7 +34,7 @@ def test_spacecomp():
 
     true_params = np.hstack((true_mean, true_covariance.flatten()))
 
-    SpaceComponent.configure(nthreads=1)
+    SpaceComponent.configure(nthreads=1, stellar_uncertainties=False)
     true_comp = SpaceComponent(true_params)
 
     np.random.seed(0)

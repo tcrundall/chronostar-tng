@@ -24,6 +24,7 @@ CONFIG_PARAMS: dict = {
     'component': {
         'reg_covar': 1e-3,
         'nthreads': 1,
+        'stellar_uncertainties': False
     },
     'run': {
         'nthreads': 1,

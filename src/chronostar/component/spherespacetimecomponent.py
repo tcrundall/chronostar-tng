@@ -106,7 +106,7 @@ class SphereSpaceTimeComponent(BaseComponent):
         traces forward, negative `time` backwards, configurable
     age_offset_interval: int, default 20
         After how many calls to :func:`maximize` age offsets should be explored
-    stellar_uncertaintes: bool, default True 
+    stellar_uncertainties: bool, default True
         Whether data covariance matrices are encoded in final 36 columns of
         input data X
     parameters : ndarray of shape (9)
@@ -129,13 +129,13 @@ class SphereSpaceTimeComponent(BaseComponent):
     reg_covar: float = 1e-6
     nthreads: Optional[int] = None
     age_offset_interval: int = 20
-    stellar_uncertainties: bool = True 
+    stellar_uncertainties: bool = True
 
     # We declare this as a staticmethod so that we can call
     # `self.trace_orbit_func` without passing an instance of `self` as
     # an argument
     #: :noindex:
-    trace_orbit_func = staticmethod(trace_epicyclic_orbit)  # :noindex:
+    trace_orbit_func = staticmethod(trace_epicyclic_orbit)  #: :noindex:
     #: :noindex:
 
     def __init__(self, params: Optional[NDArray[float64]] = None) -> None:
