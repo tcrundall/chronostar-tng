@@ -24,6 +24,7 @@ can be found on `github <https://github.com/tcrundall/chronostar-tng/>`_.
 
    Installation <install>
    Quickstart <quickstart>
+   Command-Line Interface <cli>
    Scripts <scripts>
    API <modules>
 
