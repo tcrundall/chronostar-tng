@@ -195,28 +195,18 @@ if __name__ == '__main__':
 
     # Run chronostar and get the best mixture
     with threadpool_limits(config_params["run"]["nthreads"], user_api='openmp'):
-        mixture = driver.run(data)
+        best_mixture = driver.run(data)
+        label = f"final-fit-{len(best_mixture.get_components()):03}comps"
 
-        # Output result
-        weights, components, *extra = mixture.get_parameters()
-        memberships = mixture.estimate_membership_prob(data)
-        np.save(savedir / "weights.npy", weights)
-        np.save(savedir / "memberships.npy", memberships)
-        for i, component in enumerate(components):
-            compdir = savedir / f"comp_{i:03}"
-            if not compdir.is_dir():
-                os.mkdir(compdir)
-
-            params = component.get_parameters()
-            outfile = compdir / "params.npy"
-            np.save(outfile, params)
+        driver.dump_mixture_result(savedir, label, best_mixture, data)
 
     # Display some simple logging info to output
-    # (obviously should be substituted for some form of logging later)
+    # TODO: substitute for some form of logging later
     print("-------------------")
     print("----- RESULTS -----")
     print("-------------------")
     np.set_printoptions(suppress=True)
+    weights, components, *extra = best_mixture.get_parameters()
     for i, (weight, comp) in enumerate(zip(weights, components)):
         print(f"--- component {i} ---")
         print(f" weight: {weight}")

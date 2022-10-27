@@ -1,6 +1,6 @@
 driver:
-  n_draws: 10
-  intermediate_dumps: False
+  intermediate_dumps: True
+  savedir: "tests/unit/test_dump"
 icpool:
   param1: 'param1'
   param2: 'param2'
