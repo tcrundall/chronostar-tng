@@ -155,7 +155,7 @@ if __name__ == '__main__':
     else:
         init_weights = np.ones(args.ncomps) / args.ncomps
 
-    init_comps = [CompClass() for _ in range(args.ncomps)]
+    init_comps = tuple([CompClass() for _ in range(args.ncomps)])
 
     with threadpool_limits(config_params["run"]["nthreads"], user_api="openmp"):
         print(f"{config_params['run']['nthreads']=}")

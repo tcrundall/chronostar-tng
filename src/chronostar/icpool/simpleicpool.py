@@ -18,7 +18,7 @@ class SimpleICPool(BaseICPool):
     ----------
     max_components : int, default 100
         The max components in an initial condition provided by
-        `SimpleICPOol`, configurable
+        `SimpleICPool`, configurable
     """
     function_parser: dict[str, Callable] = {}
     max_components = 100

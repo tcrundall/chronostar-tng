@@ -41,7 +41,7 @@ Prepare a configuration file e.g. ``config.yml`` with contents:
    run:
       savedir: "result_final"
 
-See :ref:`Command-Line Interface<cli>` for details about other command-line tools as well as complete list of configurable parameters.
+See :ref:`Command-Line Interface<cli>` for details about other command-line tools and :ref:`Configuration Settings<settings>` for a complete list of configurable parameters.
 
 Performing a run
 ----------------
@@ -51,7 +51,7 @@ Now run:
 
    $ fit-chronostar -c config.yml path/to/means.npy --covs path/to/covs.npy
 
-Chronostar will perform multiple Gaussian Mixture model fits to the data, with differing initial conditions and ever increasing number of components. Chronostar determines convergence by comparing `BICs <https://en.wikipedia.org/wiki/Bayesian_information_criterion>`_. Chronostar's :class:`Driver` stores the results of each fitted mixture model in the provided ``savedir``, which is given above as ``results_intermediate``. The Driver stores each fit's result in an informatively named subdirectory. See :ref:`Finding the best mixture<fit-chron>` for details on how to interpret the names of these subdirectories.
+Chronostar will perform multiple Gaussian Mixture model fits to the data, with differing initial conditions and ever increasing number of components. Chronostar determines convergence by comparing `BICs <https://en.wikipedia.org/wiki/Bayesian_information_criterion>`_. Chronostar's :class:`Driver` stores the results of each fitted mixture model in the provided ``savedir``, which is given above as ``results_intermediate``. The Driver stores each fit's result in an informatively named subdirectory. See :ref:`Finding the best mixture<cli_chron>` for details on how to interpret the names of these subdirectories.
 
 .. note::
 

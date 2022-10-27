@@ -39,7 +39,7 @@ matrices must be flattened and appended to the data array:
 
    input_data = np.vstack((means.T, covariances.flatten().T)).T
 
-However, if you're using the command line tool :ref:`fit-chronostar<fit-chron>`
+However, if you're using the command line tool :ref:`fit-chronostar<cli_chron>`
 this is handled for you, you need only provide the path to a stored
 :code:`(n_stars, 6, 6)` numpy array of covariance matrices.
 
@@ -85,6 +85,8 @@ flattened and appended to the data. If you don't want this file, you can skip it
 
    The `ids` array is useful for identifying which rows of the table constitute your
    data sample: :code:`subset_table = t[np.where(np.isin(t['source_id'], ids))]`
+
+.. _cli_comp:
 
 Fitting a component
 ^^^^^^^^^^^^^^^^^^^
@@ -134,6 +136,7 @@ An empty config file is valid. An example :code:`config.yml` file is:
    Make sure to include the decimal point when using scientific
    notation, or :code:`yaml` will treat the value as a string.
 
+.. _cli_mix:
 
 Fitting a mixture
 ^^^^^^^^^^^^^^^^^
@@ -191,7 +194,7 @@ configuration parameters along with those for the mixture:
    run:
       savedir: "result"
 
-.. _fit-chron:
+.. _cli_chron:
 
 Finding the best mixture
 ^^^^^^^^^^^^^^^^^^^^^^^^
