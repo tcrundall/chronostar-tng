@@ -11,20 +11,18 @@ From a parametrised gaussian distribution, generate the starting
 XYZUVW values for a given number of stars
 TODO: accommodate multiple groups
 """
+from astropy.table import Table
 from typing import Union
 import numpy as np
 from numpy import float64
 from numpy.typing import NDArray
-from chronostar.base import BaseComponent
+from scipy.stats import lognorm
 
+from chronostar.base import BaseComponent
 from chronostar.utils.transform import transform_covmatrix
 from .traceorbit import trace_epicyclic_orbit
-
-from astropy.table import Table
-
 from .utils import coordinate
 from .component.spherespacetimecomponent import SphereSpaceTimeComponent
-# from . import traceorbit
 
 
 def generate_association(
@@ -87,6 +85,18 @@ ListCompClass = list[type[BaseComponent]]
 class SynthData():
     # BASED ON MEDIAN ERRORS OF ALL GAIA STARS WITH RVS
     # AND <20% PARALLAX ERROR
+
+    # Assuming uncertainties have log normal distribution
+    # Fitted parameters of lognormal distributions: s, loc, scale
+    GERROR_LOGNORM = {
+        'ra': (0.9326176424734427, 0.005373326641596555, 0.01565039301879536),
+        'dec': (0.9927472794479908, 0.006121230978136112, 0.012207199933170874),
+        'parallax': (1.0553068948380058, 0.009589405000569536, 0.015927109119385503),
+        'pmra': (1.0155822008533941, 0.00832022191188605, 0.018180019488234677),
+        'pmdec': (1.0937471388202975, 0.009486084568941375, 0.013334923266887327),
+        'radial_velocity': (1.7244772974361064, 0.1086201828532456, 0.8925826277559717)
+    }
+
     GERROR = {
         'ra_error': 0.05,  # deg
         'dec_error': 0.05,  # deg
@@ -117,8 +127,8 @@ class SynthData():
     # Define here, because apparently i can't be trusted to type a string
     # in a correct order
     cart_labels = 'xyzuvw'
-    # m_err = 1.0
-    m_err = 0.5
+    m_err = 1.0
+    # m_err = 0.5
 
     def __init__(
         self,
@@ -222,10 +232,6 @@ class SynthData():
         values, with incorporated measurement uncertainty.
         """
         print(cls.m_err)
-        errors = cls.m_err * np.array([
-            cls.GERROR[colname + '_error']
-            for colname in cls.DEFAULT_ASTR_COLNAMES
-        ])
 
         # Get perfect astrometry
         astr = coordinate.convert_many_lsrxyzuvw2astrometry(cartesian)
@@ -234,7 +240,16 @@ class SynthData():
         # can just tile to produce uncertainty
         # TODO: Add some variation in amount of error per datum
         nstars = len(astr)
-        raw_errors = np.tile(errors, (nstars, 1))
+
+        raw_errors_ls = []
+        # For each observable, draw samples from lognormal distribution
+        for colname in cls.DEFAULT_ASTR_COLNAMES:
+            raw_errors_ls.append(
+                lognorm.rvs(*cls.GERROR_LOGNORM[colname], size=nstars)
+            )
+        raw_errors = np.vstack(raw_errors_ls).T
+
+        # raw_errors = np.tile(errors, (nstars, 1))
 
         # Generate and apply a set of offsets from a 1D Gaussian with std
         # equal to the measurement error for each value
