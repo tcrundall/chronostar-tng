@@ -6,6 +6,7 @@ from numpy.typing import NDArray
 from scipy import optimize
 from threadpoolctl import threadpool_limits
 import numba
+from numba.core.config import NUMBA_NUM_THREADS  # type: ignore
 
 from sklearn.mixture._gaussian_mixture import _estimate_gaussian_parameters
 from sklearn.mixture._gaussian_mixture import _estimate_log_gaussian_prob
@@ -141,6 +142,16 @@ class SphereSpaceTimeComponent(BaseComponent):
     def __init__(self, params: Optional[NDArray[float64]] = None) -> None:
         super().__init__(params)
         self.maximize_iter = 0
+
+    @classmethod
+    def configure(cls, **kwargs):
+        super().configure(**kwargs)
+
+        # Perform some config checks
+        if cls.nthreads is not None and cls.nthreads > NUMBA_NUM_THREADS:
+            print(f"[CONFIG] SphereSpaceTimeComponent: {cls.nthreads=}"
+                  f" > {NUMBA_NUM_THREADS=}, overriding to {NUMBA_NUM_THREADS}")
+            cls.nthreads = min(cls.nthreads, NUMBA_NUM_THREADS)
 
     def cov_lnpriors(self, cov_params) -> float:
         """Apply priors to covariance parameters
