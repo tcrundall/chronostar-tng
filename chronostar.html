@@ -932,8 +932,21 @@ introducer and component.</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="chronostar.driver.Driver.dump_all_config_params">
+<span class="sig-name descname"><span class="pre">dump_all_config_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.driver.Driver.dump_all_config_params" title="Permalink to this definition">#</a></dt>
+<dd><p>Get all configurable parameters and write them to file</p>
+<p>This method attempts to identify all class level parameters that
+could be configurable and writes them all to file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fp</strong> (<em>TextIOWrapper</em>) – File pointer to output file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="chronostar.driver.Driver.dump_mixture_result">
-<span class="sig-name descname"><span class="pre">dump_mixture_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixture</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.driver.Driver.dump_mixture_result" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">dump_mixture_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dump_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixture</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.driver.Driver.dump_mixture_result" title="Permalink to this definition">#</a></dt>
 <dd><p>Store the result of a mixture to file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1184,6 +1197,7 @@ and velocities</p>
 <li><a class="reference internal" href="#chronostar.driver.Driver.intermediate_dumps"><code class="docutils literal notranslate"><span class="pre">Driver.intermediate_dumps</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.driver.Driver.savedir"><code class="docutils literal notranslate"><span class="pre">Driver.savedir</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.driver.Driver.configure"><code class="docutils literal notranslate"><span class="pre">Driver.configure()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.driver.Driver.dump_all_config_params"><code class="docutils literal notranslate"><span class="pre">Driver.dump_all_config_params()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.driver.Driver.dump_mixture_result"><code class="docutils literal notranslate"><span class="pre">Driver.dump_mixture_result()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.driver.Driver.read_config_file"><code class="docutils literal notranslate"><span class="pre">Driver.read_config_file()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.driver.Driver.run"><code class="docutils literal notranslate"><span class="pre">Driver.run()</span></code></a></li>
