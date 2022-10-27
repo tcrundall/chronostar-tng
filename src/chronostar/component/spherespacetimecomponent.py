@@ -232,12 +232,17 @@ class SphereSpaceTimeComponent(BaseComponent):
                 return np.inf
 
             if self.stellar_uncertainties:
-                print(".", end="")
                 log_prob = estimate_log_gaussian_ol_prob(
                     X,
                     mean_now,
                     cov_now,
                 )
+                # Print out an "H" character for every 10 calls to loss
+                self.loss_iter += 1
+                if self.loss_iter % 10 == 0:
+                    print("H", end='')
+                if self.loss_iter % 500 == 0:
+                    print()
 
             else:
                 # Decompose covariance's precision with cholesky method
@@ -350,8 +355,12 @@ class SphereSpaceTimeComponent(BaseComponent):
 
             # Every now and then, check for age offsets
             if self.maximize_iter % self.age_offset_interval == 0:
+                print("Exploring many age offsets")
                 # age_offsets = [-40., -20., 0., 20., 40., 80., 160.]
                 age_offsets = [-20., 0., 20., 40., 80.]
+            elif self.maximize_iter % (self.age_offset_interval//2) == 0:
+                print("Exploring some age offsets")
+                age_offsets = [0., 20.]
             else:
                 age_offsets = [0.]
 
@@ -376,6 +385,7 @@ class SphereSpaceTimeComponent(BaseComponent):
                 init_guess[:6] = ig_mean
                 init_guess[-1] = ig_age
 
+                self.loss_iter = 0
                 res = optimize.minimize(
                     self.loss,
                     x0=init_guess,
