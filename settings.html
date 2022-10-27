@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Command-Line Interface" href="cli.html" /><link rel="prev" title="Installation" href="install.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="src" href="modules.html" /><link rel="prev" title="Scripts" href="scripts.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
-        <title>Quickstart - chronostar-tng 1.0 documentation</title>
+        <title>Configuration Settings - chronostar-tng 1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
@@ -157,10 +157,10 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Command-Line Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts.html">Scripts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="settings.html">Configuration Settings</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Configuration Settings</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="chronostar.html">chronostar package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="chronostar.component.html">chronostar.component package</a></li>
@@ -206,90 +206,144 @@
           </label>
         </div>
         <article role="main">
-          <section id="quickstart">
-<h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this heading">#</a></h1>
-<section id="preparing-a-run">
-<h2>Preparing a run<a class="headerlink" href="#preparing-a-run" title="Permalink to this heading">#</a></h2>
-<p>Prepare your stellar cartesian data as two stored numpy arrays of measurements
-(means) with dimension (<code class="docutils literal notranslate"><span class="pre">n_stars,</span> <span class="pre">6</span></code>) and uncertainties (stored as covariance matrices) with dimension (<code class="docutils literal notranslate"><span class="pre">n_stars,</span> <span class="pre">6,</span> <span class="pre">6</span></code>). Alternatively, means and uncertainties can be folded into the same array. See
-<a class="reference internal" href="cli.html#dataprep"><span class="std std-ref">Converting to Cartesian Coordinates</span></a> for more details.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If your data represents a subset of a Gaia astrometry fits file, we recommend storing the corresponding <code class="docutils literal notranslate"><span class="pre">source_id</span></code> of the stars in the cartesian data set e.g. <code class="docutils literal notranslate"><span class="pre">subset_sourceids.npy</span></code>. This can be used to extract the corresponding photometric data for plotting with the results.</p>
-</div>
-<p>Prepare a configuration file e.g. <code class="docutils literal notranslate"><span class="pre">config.yml</span></code> with contents:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span><span class="p">:</span>
-   <span class="n">component</span><span class="p">:</span> <span class="s2">&quot;SphereSpaceTimeComponent&quot;</span>
-
-<span class="n">mixture</span><span class="p">:</span>
-   <span class="n">max_iter</span><span class="p">:</span> <span class="mi">100</span>
-   <span class="n">tol</span><span class="p">:</span> <span class="mf">1e-4</span>
-   <span class="n">verbose</span><span class="p">:</span> <span class="mi">2</span>
-   <span class="n">verbose_interval</span><span class="p">:</span> <span class="mi">1</span>
-
-<span class="n">component</span><span class="p">:</span>
-   <span class="n">stellar_uncertainties</span><span class="p">:</span> <span class="kc">True</span>
-   <span class="n">nthreads</span><span class="p">:</span> <span class="mi">4</span>    <span class="c1"># or however many cores you have at disposal</span>
-
-<span class="n">driver</span><span class="p">:</span>
-   <span class="n">intermediate_dumps</span><span class="p">:</span> <span class="kc">True</span>
-   <span class="n">savedir</span><span class="p">:</span> <span class="s2">&quot;result_intermediate&quot;</span>
-
-<span class="n">run</span><span class="p">:</span>
-   <span class="n">savedir</span><span class="p">:</span> <span class="s2">&quot;result_final&quot;</span>
-</pre></div>
-</div>
-<p>See <a class="reference internal" href="cli.html#cli"><span class="std std-ref">Command-Line Interface</span></a> for details about other command-line tools and <a class="reference internal" href="settings.html#settings"><span class="std std-ref">Configuration Settings</span></a> for a complete list of configurable parameters.</p>
+          <section id="configuration-settings">
+<span id="settings"></span><h1>Configuration Settings<a class="headerlink" href="#configuration-settings" title="Permalink to this heading">#</a></h1>
+<p>Chronostar has many configurable settings. You can configure them via a config
+file or by calling each class’s <code class="code docutils literal notranslate"><span class="pre">configure</span></code> class (static) method.</p>
+<p>See <a class="reference internal" href="cli.html#cli"><span class="std std-ref">Command-Line Interface</span></a> for example config files.</p>
+<p>Here we provide an exhaustive list of all configurable settings and their uses.</p>
+<section id="components">
+<h2>Components<a class="headerlink" href="#components" title="Permalink to this heading">#</a></h2>
+<section id="spacecomponent">
+<h3><a class="reference internal" href="chronostar.component.html#chronostar.component.spacecomponent.SpaceComponent" title="chronostar.component.spacecomponent.SpaceComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceComponent</span></code></a><a class="headerlink" href="#spacecomponent" title="Permalink to this heading">#</a></h3>
+<dl class="simple">
+<dt>reg_covar<span class="classifier">float, default 1.e-6</span></dt><dd><p>A regularisation constant added to the diagonals
+of the covariance matrix</p>
+</dd>
+</dl>
 </section>
-<section id="performing-a-run">
-<h2>Performing a run<a class="headerlink" href="#performing-a-run" title="Permalink to this heading">#</a></h2>
-<p>Now run:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fit-chronostar -c config.yml path/to/means.npy --covs path/to/covs.npy
-</pre></div>
-</div>
-<p>Chronostar will perform multiple Gaussian Mixture model fits to the data, with differing initial conditions and ever increasing number of components. Chronostar determines convergence by comparing <a class="reference external" href="https://en.wikipedia.org/wiki/Bayesian_information_criterion">BICs</a>. Chronostar’s <code class="xref py py-class docutils literal notranslate"><span class="pre">Driver</span></code> stores the results of each fitted mixture model in the provided <code class="docutils literal notranslate"><span class="pre">savedir</span></code>, which is given above as <code class="docutils literal notranslate"><span class="pre">results_intermediate</span></code>. The Driver stores each fit’s result in an informatively named subdirectory. See <a class="reference internal" href="cli.html#cli-chron"><span class="std std-ref">Finding the best mixture</span></a> for details on how to interpret the names of these subdirectories.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Make sure to add these details</p>
-</div>
-<p>Depending on the size of the data, this may take up several days to converge, so it is suggested to run this with <code class="docutils literal notranslate"><span class="pre">nohup</span></code>, e.g.:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ nohup fit-chronostar -c config.yml path/to/means.npy --covs path/to/covs.npy &gt; chron-run.log &amp;
-</pre></div>
-</div>
-<p>If all goes well, you’ll have the following files in <code class="docutils literal notranslate"><span class="pre">./result_final</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># membership probabilities of each star to each component</span>
-<span class="n">membership</span><span class="o">.</span><span class="n">npy</span>
-
-<span class="c1"># The weights of each component (normalised to all sum to one)</span>
-<span class="n">weights</span><span class="o">.</span><span class="n">npy</span>
-
-<span class="c1"># Subdirectories for each component</span>
-<span class="n">comp_000</span><span class="o">/</span>
-   <span class="c1"># Best fitting parameters of the component</span>
-   <span class="n">params</span><span class="o">.</span><span class="n">npy</span>
-</pre></div>
-</div>
+<section id="spherespacetimecomponent">
+<h3><a class="reference internal" href="chronostar.component.html#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent" title="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent</span></code></a><a class="headerlink" href="#spherespacetimecomponent" title="Permalink to this heading">#</a></h3>
+<dl class="simple">
+<dt>reg_covar<span class="classifier">float, default 1.e-6</span></dt><dd><p>A regularisation constant added to the diagonals
+of the covariance matrix</p>
+</dd>
+<dt>minimize_method: str, default ‘Nelder-Mead’</dt><dd><p>The method used by <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize</span></code>. Must be one of</p>
+<ul class="simple">
+<li><p>‘Nelder-Mead’ (recommended)</p></li>
+<li><p>‘Powell’ (not receommended)</p></li>
+</ul>
+</dd>
+<dt>nthreads<span class="classifier">int, optional</span></dt><dd><p>Manually restrict how many threads openMP tries to use when
+executing optimized numpy functions</p>
+</dd>
+<dt>trace_orbit_func: Callable: f(start_loc, time), default <code class="xref py py-func docutils literal notranslate"><span class="pre">trace_epicyclic_orbit()</span></code></dt><dd><p>A function that traces a position by <cite>time</cite> Myr. Positive <cite>time</cite>
+traces forward, negative <cite>time</cite> backwards</p>
+</dd>
+<dt>age_offset_interval: int, default 20</dt><dd><p>After how many calls to <code class="xref py py-func docutils literal notranslate"><span class="pre">maximize()</span></code> age offsets should be explored</p>
+</dd>
+<dt>stellar_uncertainties: bool, default True</dt><dd><p>Whether data covariance matrices are encoded in final 36 columns of
+input data X</p>
+</dd>
+</dl>
 </section>
-<section id="plotting">
-<h2>Plotting<a class="headerlink" href="#plotting" title="Permalink to this heading">#</a></h2>
-<p>You can plot some results using the membership probabilities. To plot the astrometry (using Gaia’s <code class="docutils literal notranslate"><span class="pre">phot_g_mean_mag</span></code> and <code class="docutils literal notranslate"><span class="pre">g_rp</span></code>):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span><span class="o">-</span><span class="n">features</span> <span class="o">--</span><span class="n">photom</span> <span class="o">-</span><span class="n">d</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">gaia</span><span class="o">.</span><span class="n">fits</span> <span class="o">-</span><span class="n">z</span> <span class="n">result_final</span><span class="o">/</span><span class="n">membership</span><span class="o">.</span><span class="n">npy</span> <span class="o">-</span><span class="n">s</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">subset_sourceids</span><span class="o">.</span><span class="n">npy</span>
-</pre></div>
-</div>
-<p>This plot automatically colours each star by component membership, and sizes each point by it’s component’s weight, thereby making smaller components more visible. See <a class="reference internal" href="cli.html#cmd"><span class="std std-ref">CMD</span></a> for more info.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This plot isn’t super great at the moment, and in fact may be bugged.</p>
-</div>
-<p>To plot stars in cartesian phase-space:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span><span class="o">-</span><span class="n">features</span> <span class="o">-</span><span class="n">f</span> <span class="mi">0</span><span class="p">,</span><span class="mf">1.0</span><span class="p">,</span><span class="mf">3.1</span><span class="p">,</span><span class="mf">4.2</span><span class="p">,</span><span class="mi">5</span> <span class="o">-</span><span class="n">m</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">means</span><span class="o">.</span><span class="n">npy</span> <span class="o">-</span><span class="n">z</span> <span class="n">result_final</span><span class="o">/</span><span class="n">membership</span><span class="o">.</span><span class="n">npy</span>
-</pre></div>
-</div>
-<p>The argument following <code class="docutils literal notranslate"><span class="pre">-f</span></code> represents each phase-space subplot. For example here, we will plot X against Y, X against U, Y against V and Z against W. See <a class="reference internal" href="cli.html#feat"><span class="std std-ref">Features</span></a> for more info.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>For large data sets ( &gt; 1,000) plotting may take multiple minutes…</p>
-</div>
+</section>
+<section id="mixtures">
+<h2>Mixtures<a class="headerlink" href="#mixtures" title="Permalink to this heading">#</a></h2>
+<section id="componentmixture">
+<span id="config-mixture"></span><h3><a class="reference internal" href="chronostar.mixture.html#chronostar.mixture.componentmixture.ComponentMixture" title="chronostar.mixture.componentmixture.ComponentMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComponentMixture</span></code></a><a class="headerlink" href="#componentmixture" title="Permalink to this heading">#</a></h3>
+<dl class="simple">
+<dt>tol<span class="classifier">float, default 1e-3</span></dt><dd><p>Used to determine convergence by sklearn’s EM algorithm.
+Convergence determined if “change” between EM iterations is
+less than tol, where change is the difference between the
+average log probability of each sample</p>
+</dd>
+<dt>reg_covar<span class="classifier">float, default 1e-6</span></dt><dd><p>A regularization constant added to the diagonals of
+covariance matrices</p>
+</dd>
+<dt>max_iter<span class="classifier">int, default 100</span></dt><dd><p>The maximum iterations for sklearn’s EM algorithm</p>
+</dd>
+<dt>n_init<span class="classifier">int, default 1</span></dt><dd><p>(included only for sklearn API compatbility, ignored)</p>
+</dd>
+<dt>init_params<span class="classifier">str, default ‘random’</span></dt><dd><p>The initialization approach used by sklearn if component
+parameters aren’t pre set. Must be one of</p>
+<ul class="simple">
+<li><p>‘init_resp’ : responsibilites are taken from input</p></li>
+<li><p>‘kmeans’ : responsibilities are initialized using kmeans.</p></li>
+<li><p>‘k-means++’ : use the k-means++ method to initialize.</p></li>
+<li><p>‘random’ : responsibilities are initialized randomly.</p></li>
+<li><p>‘random_from_data’ : initial means are randomly selected data points.</p></li>
+</ul>
+</dd>
+<dt>random_state: int, default None</dt><dd><p>Controls the random seed given to the method chosen to
+initialize the parameters (see init_params). In addition, it
+controls the generation of random samples from the fitted
+distribution. Pass an int for reproducible output across multiple
+function calls.</p>
+</dd>
+<dt>warm_start: bool, default True</dt><dd><p>(leave True for correct interactions between <cite>self</cite> and
+<cite>self.sklmixture</cite>)</p>
+</dd>
+<dt>verbose: int, default 0</dt><dd><p>Whether to print sklearn statements:</p>
+<ul class="simple">
+<li><p>0 : no output</p></li>
+<li><p>1 : prints current initialization and each iteration step</p></li>
+<li><p>2 : same as 1 but also prints log probability and execution time</p></li>
+</ul>
+</dd>
+<dt>verbose_interval: int, default 10</dt><dd><p>If <cite>verbose &gt; 0</cite>, how many iterations between print statements</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="introducers">
+<h2>Introducers<a class="headerlink" href="#introducers" title="Permalink to this heading">#</a></h2>
+<section id="simpleintroducer">
+<h3><a class="reference internal" href="chronostar.introducer.html#chronostar.introducer.simpleintroducer.SimpleIntroducer" title="chronostar.introducer.simpleintroducer.SimpleIntroducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleIntroducer</span></code></a><a class="headerlink" href="#simpleintroducer" title="Permalink to this heading">#</a></h3>
+<p>None…</p>
+</section>
+</section>
+<section id="icpools">
+<h2>ICPools<a class="headerlink" href="#icpools" title="Permalink to this heading">#</a></h2>
+<section id="simpleicpool">
+<h3><a class="reference internal" href="chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool" title="chronostar.icpool.simpleicpool.SimpleICPool"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleICPool</span></code></a><a class="headerlink" href="#simpleicpool" title="Permalink to this heading">#</a></h3>
+<dl class="simple">
+<dt>max_components<span class="classifier">int, default 100</span></dt><dd><p>The max components in an initial condition provided by
+<cite>SimpleICPool</cite></p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="drivers">
+<h2>Drivers<a class="headerlink" href="#drivers" title="Permalink to this heading">#</a></h2>
+<section id="driver">
+<h3><a class="reference internal" href="chronostar.html#chronostar.driver.Driver" title="chronostar.driver.Driver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Driver</span></code></a><a class="headerlink" href="#driver" title="Permalink to this heading">#</a></h3>
+<dl class="simple">
+<dt>intermediate_dumps<span class="classifier">bool, default True</span></dt><dd><p>Whether to write to file the results of mixture model fits</p>
+</dd>
+<dt>savedir<span class="classifier">str, default ‘./result’</span></dt><dd><p>Path to the directory of where to store results</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="runs">
+<h2>Runs<a class="headerlink" href="#runs" title="Permalink to this heading">#</a></h2>
+<p>The three command line tools for fitting
+(
+<a class="reference internal" href="cli.html#cli-chron"><span class="std std-ref">fit-chronostar</span></a>,
+<a class="reference internal" href="cli.html#cli-mix"><span class="std std-ref">fit-mixture</span></a>,
+and
+<a class="reference internal" href="cli.html#cli-comp"><span class="std std-ref">fit-component</span></a>
+)
+have “run level” parameters.</p>
+<dl class="simple">
+<dt>nthreads<span class="classifier">int, default 1</span></dt><dd><p>Provided for future high-level parallelism. Currently nothing is implemented, so
+leave this at 1</p>
+</dd>
+<dt>savedir<span class="classifier">str, default “output”</span></dt><dd><p>The output directory for the final results. This can be the same directory that
+<a class="reference internal" href="#config-mixture"><span class="std std-ref">ComponentMixture</span></a> uses to store intermediate dumps.</p>
+</dd>
+</dl>
 </section>
 </section>
 
@@ -298,23 +352,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="cli.html">
+          <a class="next-page" href="modules.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Command-Line Interface</div>
+                <div class="title">src</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="install.html">
+          <a class="prev-page" href="scripts.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Installation</div>
+                <div class="title">Scripts</div>
                 
               </div>
             </a>
@@ -350,10 +404,29 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Quickstart</a><ul>
-<li><a class="reference internal" href="#preparing-a-run">Preparing a run</a></li>
-<li><a class="reference internal" href="#performing-a-run">Performing a run</a></li>
-<li><a class="reference internal" href="#plotting">Plotting</a></li>
+<li><a class="reference internal" href="#">Configuration Settings</a><ul>
+<li><a class="reference internal" href="#components">Components</a><ul>
+<li><a class="reference internal" href="#spacecomponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceComponent</span></code></a></li>
+<li><a class="reference internal" href="#spherespacetimecomponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#mixtures">Mixtures</a><ul>
+<li><a class="reference internal" href="#componentmixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComponentMixture</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#introducers">Introducers</a><ul>
+<li><a class="reference internal" href="#simpleintroducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleIntroducer</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#icpools">ICPools</a><ul>
+<li><a class="reference internal" href="#simpleicpool"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleICPool</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#drivers">Drivers</a><ul>
+<li><a class="reference internal" href="#driver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Driver</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#runs">Runs</a></li>
 </ul>
 </li>
 </ul>

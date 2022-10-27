@@ -160,6 +160,7 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Command-Line Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scripts.html">Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">Configuration Settings</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="chronostar.html">chronostar package</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="chronostar.component.html">chronostar.component package</a></li>
@@ -231,7 +232,7 @@ matrices must be flattened and appended to the data array:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">input_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">means</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">covariances</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
 </pre></div>
 </div>
-<p>However, if you’re using the command line tool <a class="reference internal" href="#fit-chron"><span class="std std-ref">fit-chronostar</span></a>
+<p>However, if you’re using the command line tool <a class="reference internal" href="#cli-chron"><span class="std std-ref">fit-chronostar</span></a>
 this is handled for you, you need only provide the path to a stored
 <code class="code docutils literal notranslate"><span class="pre">(n_stars,</span> <span class="pre">6,</span> <span class="pre">6)</span></code> numpy array of covariance matrices.</p>
 <section id="converting-to-cartesian-coordinates">
@@ -269,7 +270,7 @@ data sample: <code class="code docutils literal notranslate"><span class="pre">s
 </section>
 </section>
 <section id="fitting-a-component">
-<h2>Fitting a component<a class="headerlink" href="#fitting-a-component" title="Permalink to this heading">#</a></h2>
+<span id="cli-comp"></span><h2>Fitting a component<a class="headerlink" href="#fitting-a-component" title="Permalink to this heading">#</a></h2>
 <p>This is for fitting a single component (e.g. a 6-D Gaussian) to the data.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fit-component path/to/data.npy
 </pre></div>
@@ -309,7 +310,7 @@ notation, or <code class="code docutils literal notranslate"><span class="pre">y
 </div>
 </section>
 <section id="fitting-a-mixture">
-<h2>Fitting a mixture<a class="headerlink" href="#fitting-a-mixture" title="Permalink to this heading">#</a></h2>
+<span id="cli-mix"></span><h2>Fitting a mixture<a class="headerlink" href="#fitting-a-mixture" title="Permalink to this heading">#</a></h2>
 <p>This is for fitting a fixed number of components to some data.</p>
 <p>For example, to fit 5 components one would do:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fit-mixture 5 path/to/data.npy
@@ -357,7 +358,7 @@ configuration parameters along with those for the mixture:</p>
 </div>
 </section>
 <section id="finding-the-best-mixture">
-<span id="fit-chron"></span><h2>Finding the best mixture<a class="headerlink" href="#finding-the-best-mixture" title="Permalink to this heading">#</a></h2>
+<span id="cli-chron"></span><h2>Finding the best mixture<a class="headerlink" href="#finding-the-best-mixture" title="Permalink to this heading">#</a></h2>
 <p>This is full Chronostar.
 Chronostar begins with fitting a single component to the
 data, then progressively introduces more components, fitting

@@ -18,7 +18,7 @@ can be found on `github <https://github.com/tcrundall/chronostar-tng/>`_.
    This project is under active development
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Contents:
    :glob:
 
@@ -26,6 +26,7 @@ can be found on `github <https://github.com/tcrundall/chronostar-tng/>`_.
    Quickstart <quickstart>
    Command-Line Interface <cli>
    Scripts <scripts>
+   Configuration Settings <settings>
    API <modules>
 
 
