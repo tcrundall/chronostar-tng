@@ -23,7 +23,11 @@ def test_sphereSTC():
     ages = [0., 10., 30., 75., 120., 180., 240.]
 
     fitted_comps = []
-    SphereSpaceTimeComponent.configure(nthreads=1, age_offset_interval=1)
+    SphereSpaceTimeComponent.configure(
+        nthreads=1,
+        age_offset_interval=1,
+        stellar_uncertainties=False,
+    )
     for true_age in ages:
         print(f"----- {true_age=} -----")
         true_params = np.hstack((true_mean, true_dxyz, true_duvw, true_age))
