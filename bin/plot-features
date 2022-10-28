@@ -3,9 +3,95 @@
 import argparse
 from astropy.table import Table
 from pathlib import Path
+from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
 from matplotlib import cm
 import numpy as np
+from numpy import float64
+from numpy.typing import NDArray
+
+from chronostar.component.spherespacetimecomponent import SphereSpaceTimeComponent
+
+
+def eigsorted(cov):
+    vals, vecs = np.linalg.eigh(cov)
+    order = vals.argsort()[::-1]
+    return vals[order], vecs[:, order]
+
+def plot_cov_ellipse(
+    cov : NDArray[float64],
+    pos: NDArray[float64],
+    nstd: float = 2.,
+    ax: Axes = None,
+    with_line: bool = True,
+    zorder: int = 4,
+    **kwargs
+):
+    """
+    Plots an `nstd` sigma error ellipse based on the specified covariance
+    matrix (`cov`). Additional keyword arguments are passed on to the
+    ellipse patch artist.
+    Parameters
+    ----------
+        cov : The 2x2 covariance matrix to base the ellipse on
+        pos : The location of the center of the ellipse. Expects a 2-element
+            sequence of [x0, y0].
+        nstd : The radius of the ellipse in numbers of standard deviations.
+            Defaults to 2 standard deviations.
+        ax : The axis that the ellipse will be plotted on. Defaults to the
+            current axis.
+        zorder: Integer
+            The priority of overlay. The higher the number, the more 'ontop
+            of' the plot the ellipse will be.
+        Additional keyword arguments are pass on to the ellipse patch.
+    Returns
+    -------
+        A matplotlib ellipse artist
+    """
+    if ax is None:
+        ax = plt.gca()
+
+    # largest eigenvalue is first
+    vals, vecs = eigsorted(cov)
+
+    theta = np.degrees(np.arctan2(*vecs[:, 0][::-1]))
+
+    # Width and height are "full" widths, not radius
+    width, height = 2 * nstd * np.sqrt(vals)
+    ellip = Ellipse(xy=pos, width=width, height=height, angle=theta, **kwargs)
+
+    if 'alpha' not in kwargs.keys():
+        ellip.set_alpha(0.3)
+    if 'color' not in kwargs.keys():# and 'c' not in kwargs.keys():
+        ellip.set_facecolor('red')
+
+    ellip.zorder = zorder
+
+    ax.add_patch(ellip)
+
+    # THEN just f***ing plot an invisible line across the ellipse.
+    if with_line:
+        # brute forcing axes limits so they contain ellipse patch
+        # maybe a cleaner way of doing this, but I couldn't work it out
+        x_extent = 0.5*(abs(width*np.cos(np.radians(theta))) +
+                        abs(height*np.sin(np.radians(theta))))
+        y_extent = 0.5*(abs(width*np.sin(np.radians(theta))) +
+                        abs(height*np.cos(np.radians(theta))))
+
+        lx = pos[0] - x_extent
+        ux = pos[0] + x_extent
+        ly = pos[1] - y_extent
+        uy = pos[1] + y_extent
+        ax.plot((lx, ux), (ly, uy), alpha=0.)
+
+    return ellip
+
+
+def plot_comp(ax, comp, dim1, dim2, **kwargs):
+    pos = comp.mean[np.ix_([dim1, dim2])]
+    cov_2d = np.copy(comp.covariance[np.ix_([dim1,dim2],[dim1,dim2])])
+    plot_cov_ellipse(cov_2d, pos, ax=ax, **kwargs)
 
 
 def init_argparse() -> argparse.ArgumentParser:
@@ -55,6 +141,12 @@ def init_argparse() -> argparse.ArgumentParser:
         "--output",
         help="Output directory",
         default=".",
+    )
+    parser.add_argument(
+        "-r",
+        "--results",
+        help="Path to the final results directory, holding the parameters"
+             " of the components"
     )
     parser.add_argument(
         "-s",
@@ -110,7 +202,49 @@ if __name__ == '__main__':
     if args.sourceids and Path(args.sourceids).is_file():
         source_ids = np.load((Path(args.sourceids)))
 
+    # Construct component objects from stored parameters
+    # Currently hardcoded only for SphereSpaceTimeComponent
+    comps = []
+    if args.results and Path(args.results).is_dir():
+        results_dir = Path(args.results)
+        comp_pars = []
+        comp_ix = 0
+        while True:
+            try:
+                pars_file = results_dir / f"comp_{comp_ix:03}" / "params.npy"
+                comp_pars.append(np.load(pars_file))
+                comp_ix += 1
+            except FileNotFoundError:
+                break
+
+        for comp_par in comp_pars:
+            comps.append(SphereSpaceTimeComponent(comp_par))
+
     labels = args.labels.split(',')
+
+    # Consts for plotting alphas
+    ALPHA_MAX = 0.7
+    ALPHA_MIN = 0.1
+    ALPHA_SPAN = ALPHA_MAX - ALPHA_MIN
+
+    # Consts for scatter plot marker sizes
+    MARKERSIZE_MAX = 20
+    MARKERSIZE_MIN = 0.1
+    MARKERSIZE_SPAN = MARKERSIZE_MAX - MARKERSIZE_MIN
+
+    # Prepare colors
+    n_comps = len(membership.T)
+    colors = cm.jet(np.arange(n_comps) / n_comps)
+    np.random.seed(0)
+    np.random.shuffle(colors)
+
+    # Prepare component-size dependent alphas and markersizes
+    comp_weights = membership.sum(axis=0) / membership.sum()
+    weight_span = max(comp_weights) - min(comp_weights)
+    scale_w2a = ALPHA_SPAN / weight_span
+    alphas = ALPHA_MAX - (comp_weights - min(comp_weights)) * scale_w2a
+    scale_w2m = MARKERSIZE_SPAN / weight_span
+    marker_sizes = MARKERSIZE_MAX - (comp_weights - min(comp_weights)) * scale_w2m
 
     # Plot photometry
     if args.photom:
@@ -119,7 +253,7 @@ if __name__ == '__main__':
 
         # Absolute magnitude apparent magnitude - 5 × log_10(distance) + 5
         # MAX_STARS = 10_000
-        distance = 1. / astro_data['parallax']
+        distance = 1000. / astro_data['parallax']
         abs_mag = astro_data['phot_g_mean_mag'] - 5*np.log10(distance) + 5
 
         fig, ax = plt.subplots()
@@ -127,22 +261,30 @@ if __name__ == '__main__':
             membership = np.ones((len(astro_data), 1))
 
         n_comps = len(membership.T)
+        comp_weights = membership.sum(axis=0) / membership.sum()
+        weight_span = np.ptp(comp_weights)
         for comp_ix, comp_membs in enumerate(membership.T):
-            comp_weight = np.sum(comp_membs) / len(comp_membs)
+            comp_weight = comp_weights[comp_ix]
             # Scale each point size by number of members for component
             # Apply colour based on membership
             cmp_msk = np.where(comp_membs > 0.5)
+            alpha = ALPHA_MAX - ALPHA_SPAN/weight_span * (comp_weight - min(comp_weights))
             ax.scatter(
-                -astro_data['g_rp'],
-                abs_mag,
+                astro_data['g_rp'][cmp_msk],
+                abs_mag[cmp_msk],
                 s=1/comp_weight,
-                color=cm.jet(comp_ix/n_comps),      # type: ignore
-                alpha=0.3,
+                color=colors[comp_ix],      # type: ignore
+                alpha=alpha,
+                label=f'Comp {comp_ix}',
             )
             ax.set_xlabel('G - R')
             ax.set_ylabel('G Mag')
+            ax.set_xlim(-0.1, 1.5)
+            ax.invert_yaxis()
 
-        fig.savefig(str(outdir / 'photometry.png'))
+        ax.legend()
+
+        fig.savefig(str(outdir / 'photometry.pdf'))
 
     if args.features:
         plt.clf()
@@ -169,11 +311,9 @@ if __name__ == '__main__':
 
         # Plot each plane on an axis
         for (x_feat, y_feat), ax in zip(feat_ixs, axes.reshape(-1)):
-            n_comps = len(membership.T)
-
             # Plot each component's members separately
             for comp_ix, comp_membs in enumerate(membership.T):
-                comp_weight = np.sum(comp_membs) / len(comp_membs)
+                comp_weight = comp_weights[comp_ix]
 
                 # Infer membership probabilty > 50% as member
                 cmp_msk = np.where(comp_membs > 0.5)
@@ -182,12 +322,35 @@ if __name__ == '__main__':
                 ax.scatter(
                     data_means[:, x_feat][cmp_msk],
                     data_means[:, y_feat][cmp_msk],
-                    s=1/comp_weight,
-                    color=cm.jet(comp_ix/n_comps),      # type: ignore
-                    alpha=0.5,
+                    s=marker_sizes[comp_ix],
+                    # color=cm.jet(comp_ix/n_comps),      # type: ignore
+                    color=colors[comp_ix],      # type: ignore
+                    alpha=alphas[comp_ix],
+                    label=f'Comp {comp_ix}'
                 )
-                ax.set_xlabel(labels[x_feat])
-                ax.set_ylabel(labels[y_feat])
+            # Do this because we don't want component ellipses to change plot span
+            xlim = ax.get_xlim()
+            ylim = ax.get_ylim()
+
+            # Plot each component, if provided
+            for comp_ix, comp in enumerate(comps):
+                plot_comp(
+                    ax, comp, x_feat, y_feat, color=colors[comp_ix],
+                    fill=False,
+                    ls='--',
+                    alpha=alphas[comp_ix],
+                    with_line=False,
+                    lw=1.,
+                    nstd=1.5,
+                )
+            
+            ax.set_xlim(xlim)
+            ax.set_ylim(ylim)
+
+            ax.set_xlabel(labels[x_feat])
+            ax.set_ylabel(labels[y_feat])
+
+        ax.legend()
 
         fig.set_size_inches(n_cols * 4.5, n_rows * 4)
         fig.tight_layout()

@@ -75,6 +75,18 @@ def construct_params_from_cov(
     )
 
 
+# def update_progress_bar(iter_count: int, ncols: int = 50) -> None:
+#     chars = ".-~+=!|?OH"
+#     nchars = len(chars)
+#     tail_char = chars[iter_count % nchars]
+#     head_chars = (iter_count % (ncols * nchars) // nchars) * chars[-1]
+#     if iter_count >= ncols * nchars:
+#         print()
+#     print(f"{head_chars}{tail_char}", end='\r')
+#     # print(f"{head_chars}{tail_char}", end='\x1b[1K\r')
+#     return iter_count % (ncols * nchars)
+
+
 class SphereSpaceTimeComponent(BaseComponent):
     """A 6D phase-space Gaussian component with age.
 
@@ -141,7 +153,8 @@ class SphereSpaceTimeComponent(BaseComponent):
 
     def __init__(self, params: Optional[NDArray[float64]] = None) -> None:
         super().__init__(params)
-        self.maximize_iter = 0
+        self.maximize_iter: int = 0
+        self.loss_iter: int = 0
 
     @classmethod
     def configure(cls, **kwargs):
