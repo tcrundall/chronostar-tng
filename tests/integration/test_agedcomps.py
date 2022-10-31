@@ -52,7 +52,7 @@ def test_sphereSTC():
         assert np.allclose(
             true_params[-1],
             fitted_comp.parameters[-1],
-            rtol=0.05,
+            rtol=0.1,
             atol=1.,
         )
 
