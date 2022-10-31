@@ -27,7 +27,7 @@ def plot_cov_ellipse(
     with_line: bool = True,
     zorder: int = 4,
     **kwargs
-):
+) -> Ellipse:
     """
     Plots an `nstd` sigma error ellipse based on the specified covariance
     matrix (`cov`). Additional keyword arguments are passed on to the
@@ -161,6 +161,14 @@ def init_argparse() -> argparse.ArgumentParser:
         default='X [pc],Y [pc],Z [pc],U [km/s],V [km/s],W [km/s]',
     )
 
+    parser.add_argument(
+        "-b",
+        "--background",
+        help="Color background comps as grey. Note, need to provide component"
+             " results",
+        action=argparse.BooleanOptionalAction,
+    )
+
     return parser
 
 
@@ -177,8 +185,9 @@ if __name__ == '__main__':
     membership = None
     if Path(args.membership).is_file():
         membership = np.load(Path(args.membership))
+        n_comps = len(membership.T)
     else:
-        print(f"No {args.membership=} file provided.")
+        print(f"No {args.membership=} file provided. I think this is required...")
 
     data_means = None
     if Path(args.means).is_file():
@@ -220,6 +229,13 @@ if __name__ == '__main__':
         for comp_par in comp_pars:
             comps.append(SphereSpaceTimeComponent(comp_par))
 
+    if args.background:
+        assert comps, "If toggling background, results directory must be provided"
+        aged_comps_map = [c.age > 1 for c in comps]
+        bg_comps_map = [not m for m in aged_comps_map]
+    else:
+        aged_comps_map = n_comps * [True]
+
     labels = args.labels.split(',')
 
     # Consts for plotting alphas
@@ -233,10 +249,14 @@ if __name__ == '__main__':
     MARKERSIZE_SPAN = MARKERSIZE_MAX - MARKERSIZE_MIN
 
     # Prepare colors
-    n_comps = len(membership.T)
-    colors = cm.jet(np.arange(n_comps) / n_comps)
+    GRAY_COLOR = np.array([0.8, 0.8, 0.8, 1])
+    n_aged_comps = sum(aged_comps_map)
+    aged_colors = cm.jet(np.arange(n_aged_comps) / n_aged_comps)
     np.random.seed(0)
-    np.random.shuffle(colors)
+    np.random.shuffle(aged_colors)
+    colors = np.tile(GRAY_COLOR, (n_comps, 1))
+    colors[aged_comps_map] = aged_colors
+
 
     # Prepare component-size dependent alphas and markersizes
     comp_weights = membership.sum(axis=0) / membership.sum()
@@ -318,6 +338,10 @@ if __name__ == '__main__':
                 # Infer membership probabilty > 50% as member
                 cmp_msk = np.where(comp_membs > 0.5)
 
+                label = None
+                if aged_comps_map[comp_ix]:
+                    label = f'{comp_ix:>2}: {comps[comp_ix].age:5.1f}Myr'
+
                 # Scale each point size by number of members for component
                 ax.scatter(
                     data_means[:, x_feat][cmp_msk],
@@ -326,8 +350,9 @@ if __name__ == '__main__':
                     # color=cm.jet(comp_ix/n_comps),      # type: ignore
                     color=colors[comp_ix],      # type: ignore
                     alpha=alphas[comp_ix],
-                    label=f'Comp {comp_ix}'
+                    label=label,
                 )
+
             # Do this because we don't want component ellipses to change plot span
             xlim = ax.get_xlim()
             ylim = ax.get_ylim()
