@@ -87,10 +87,9 @@ def plot_cov_ellipse(
 
     return ellip
 
-
-def plot_comp(ax, comp, dim1, dim2, **kwargs):
-    pos = comp.mean[np.ix_([dim1, dim2])]
-    cov_2d = np.copy(comp.covariance[np.ix_([dim1,dim2],[dim1,dim2])])
+def plot_covariance(ax, mean, covariance, dim1, dim2, **kwargs):
+    pos = mean[np.ix_([dim1, dim2])]
+    cov_2d = np.copy(covariance[np.ix_([dim1,dim2],[dim1,dim2])])
     plot_cov_ellipse(cov_2d, pos, ax=ax, **kwargs)
 
 
@@ -132,6 +131,7 @@ def init_argparse() -> argparse.ArgumentParser:
         default="membership.npy"
     )
     parser.add_argument(
+        "-c",
         "--covs",
         help="Covariances of data in feature space",
         default="data_covs.npy",
@@ -353,20 +353,42 @@ if __name__ == '__main__':
                     label=label,
                 )
 
-            # Do this because we don't want component ellipses to change plot span
+            # Plot covariance ellipses for component members
             xlim = ax.get_xlim()
             ylim = ax.get_ylim()
+            if data_covs is not None:
+                for comp_ix, comp_membs in enumerate(membership.T):
+                    if aged_comps_map[comp_ix]:
+                        cmp_msk = np.where(comp_membs > 0.5)
+                        for star_mean, star_cov in zip(
+                            data_means[cmp_msk], data_covs[cmp_msk]
+                        ):
+                            plot_covariance(
+                                ax, star_mean, star_cov, x_feat, y_feat,
+                                color=colors[comp_ix],
+                                ls='-',
+                                with_line=False,
+                                alpha=0.2,
+                                fill=True,
+                                nstd=1,
+                            )
+            # ax.set_xlim(xlim)
+            # ax.set_ylim(ylim)
+
+            # # Do this because we don't want component ellipses to change plot span
+            # xlim = ax.get_xlim()
+            # ylim = ax.get_ylim()
 
             # Plot each component, if provided
             for comp_ix, comp in enumerate(comps):
-                plot_comp(
-                    ax, comp, x_feat, y_feat, color=colors[comp_ix],
+                plot_covariance(
+                    ax, comp.mean, comp.covariance, x_feat, y_feat, color=colors[comp_ix],
                     fill=False,
                     ls='--',
                     alpha=alphas[comp_ix],
                     with_line=False,
                     lw=1.,
-                    nstd=1.5,
+                    nstd=2,
                 )
             
             ax.set_xlim(xlim)
@@ -375,7 +397,7 @@ if __name__ == '__main__':
             ax.set_xlabel(labels[x_feat])
             ax.set_ylabel(labels[y_feat])
 
-        ax.legend()
+        ax.legend(loc=3)
 
         fig.set_size_inches(n_cols * 4.5, n_rows * 4)
         fig.tight_layout()
