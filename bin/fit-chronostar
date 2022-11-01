@@ -23,7 +23,6 @@ from chronostar.base import (
     BaseICPool,
     BaseComponent,
     BaseMixture,
-    BaseIntroducer,
 )
 
 from chronostar.driver import Driver
@@ -53,14 +52,6 @@ def import_icpool(icpool) -> Type[BaseICPool]:
         return SimpleICPool
     else:
         raise UserWarning(f"Implementation {icpool=} not found.")
-
-
-def import_introducer(introducer) -> Type[BaseIntroducer]:
-    if introducer == 'SimpleIntroducer':
-        from chronostar.introducer.simpleintroducer import SimpleIntroducer
-        return SimpleIntroducer
-    else:
-        raise UserWarning(f"Implementation {introducer=} not found.")
 
 
 def import_component(component) -> Type[BaseComponent]:
@@ -169,6 +160,9 @@ if __name__ == '__main__':
     membership = None
     if args.membership and Path(args.membership).is_file():
         membership = np.load(args.membership)
+        assert \
+            config_params["mixture"]["init_params"] == "init_resp",\
+            "If providing membership, must configure mixture-init_params: 'init_resp'"
 
     # Import appropriate component implementation
     CompClass = import_component(
@@ -176,9 +170,6 @@ if __name__ == '__main__':
     )
     MixtureClass = import_mixture(
         config_params["modules"]["mixture"]
-    )
-    IntroducerClass = import_introducer(
-        config_params["modules"]["introducer"]
     )
     ICPoolClass = import_icpool(
         config_params["modules"]["icpool"]
@@ -189,13 +180,12 @@ if __name__ == '__main__':
         config_file=config_params,
         component_class=CompClass,
         mixture_class=MixtureClass,
-        introducer_class=IntroducerClass,
         icpool_class=ICPoolClass,
     )
 
     # Run chronostar and get the best mixture
     with threadpool_limits(config_params["run"]["nthreads"], user_api='openmp'):
-        best_mixture = driver.run(data)
+        best_mixture = driver.run(data, init_resp=membership)
         label = f"final-fit-{len(best_mixture.get_components()):03}comps"
 
         driver.dump_mixture_result(savedir, label, best_mixture, data)

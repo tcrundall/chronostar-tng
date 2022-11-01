@@ -330,6 +330,15 @@ class SphereSpaceTimeComponent(BaseComponent):
         minimiztion at the location of the component's current best
         fitting parameters.
         """
+        # Catch common user error:
+        if self.stellar_uncertainties and X.shape[-1] <= 6:
+            raise UserWarning(
+                "[ERROR] [SphereSpaceTimeComponent]: You set "
+                f"{self.stellar_uncertainties=} but {X.shape=}. "
+                "Either you forgot to provide data covariances, "
+                " or you should configure stellar_uncertainties: 'False'"
+            )
+
         # Effectively set OMP_NUM_THREADS = self.nthreads
         # Allowing numpy to use multiple threads for its c implementations
         # destroys performance. So we force it not to.
@@ -339,7 +348,7 @@ class SphereSpaceTimeComponent(BaseComponent):
             # TODO: properly manage the different layers of parallelisation
             if self.nthreads is not None:
                 numba.set_num_threads(self.nthreads)
-            print(f'[SphereComp.maximize] {self.nthreads=}')
+            print(f'[SphereSpaceTimeComponent.maximize] {self.nthreads=}')
 
             # --------------------------------------------------
             # Choosing initial guess for optimize routine
