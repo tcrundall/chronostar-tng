@@ -158,7 +158,7 @@ The result should look a little like this:
 
 
 Fitting a component
--------------------
+^^^^^^^^^^^^^^^^^^^
 
 For fun, lets fit a single component to the data. Since the data should
 be dominated by the background, we should get a component that describes
