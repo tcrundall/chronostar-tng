@@ -2,7 +2,7 @@
 Mixture Guide
 =============
 
-Chronostar's Mixture Models will match the interface of `scikit-learn's mixture models <https://scikit-learn.org/stable/modules/mixture.html#gmm>`_ as closely as possible, with the default mixture model :class:`ComponentMixture` even inheriting from `sklearn.mixture.BaseMixture <https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html#sklearn.base.BaseEstimator>`_. For reference of a class that inherits from BaseMixture, see `sklearn.mixture.GaussianMixture <https://scikit-learn.org/stable/modules/generated/sklearn.mixture.GaussianMixture.html#sklearn.mixture.GaussianMixture>`_.
+Chronostar's Mixture Models match the interface of `scikit-learn's mixture models <https://scikit-learn.org/stable/modules/mixture.html#gmm>`_ as closely as possible, , with the default mixture model :class:`ComponentMixture` even inheriting from `sklearn.mixture.BaseMixture <https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html#sklearn.base.BaseEstimator>`_. For reference of a class that inherits from BaseMixture, see `sklearn.mixture.GaussianMixture <https://scikit-learn.org/stable/modules/generated/sklearn.mixture.GaussianMixture.html#sklearn.mixture.GaussianMixture>`_.
 
 I predict there will only need to be one implementation of this class, as customisation of data features, component features, fitting approaches and overall model extensions can be done elsewhere (i.e. in :class:`Component` or :class:`BaseICPool`).
 

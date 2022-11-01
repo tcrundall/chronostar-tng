@@ -2,73 +2,75 @@
 Component Guide
 ===============
 
-A Component object encapsulates the current estimated parameters and the methods required to fit to data.
+A Component object models a simple distribution, typically a mutli-variate normal (i.e. Gaussian) distribution. A Component class encapsulates the parameters that define the distribution and the methods that determine the best parameters given input data.
 
-For example, a :class:`SpaceTimeComponent` would store its weight (a.k.a. amplitude), age, initial mean and initial covariance matrix. It would also have methods for calculating the log probability of stars :func:`~SpaceTimeComponent.estimate_log_prob` and fitting its parameters :func:`~SpaceTimeComponent.maximize`. It also has an :func:`~SpaceTimeComponent._project_orbit` method for calculating orbits. If a user wishes to use a custom orbit method, they could write a new class that inherits form :class:`SpaceTimeComponent` and override the :func:`_project_orbit` method.
+For example, a :class:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent` is defined by an age, birth mean and birth covariance matrix, parameterised by a single array `parameters` (as used in Paper 1). It also has methods for calculating the log probability of stars :func:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.estimate_log_prob` and estimating its parameters :func:`~SpaceTimeComponent.maximize`. For more details, see the API.
 
 .. note::
+
   The intention is to not differentiate between *Background* components and *stellar association* components. The difference will be implicit in the components' parameterization and fitting method. For example, an association component could have an age parameter, where as a background component would have none. Some other methods could be employed such as enforcing a large minimum position spread for background components and a small minimum position spread for association components. If one wishes to get fancy, one could choose to implement a :class:`BaseIntroducer` which can convert background components to association components and vica verse, based on some "failure" criteria.
 
-Age fitting with a twist
-------------------------
 
-In this section I explain how we can implement a Component class that reproduce the same fitting power of Paper I and II components, but with only one free parameter (age), thereby drastically simplifying (and hence speeding up) parameter maximization.
-
-If we ignore data uncertainties, the age is the only free parameter in the maximisation step. To explain this further, consider no age parameter (or equivalently fixing the age at 0). In this case we could use `sklearn.mixture.GaussianMixture` out of the box. There is no parameter exploration needed, because the maximisation step estimates the mean :math:`\mu_c'` and covariance :math:`\Sigma_c'` through dot products and element-wise arithematic. I use :math:`'` to denote values calculated or infered from the data without any parameter maximization.
-
-:class:`SpaceTimeComponent` introduces a free age parameter :math:`t` to a component. Lets say we go ahead and calculate :math:`\mu_c'` and :math:`\Sigma_c'` like above. The key remaining **time dependent** parameters of a component are its initial mean :math:`\mu_0` and initial covariance matrix :math:`\Sigma_0`. :math:`\mu_0` is constrained completely by the age and data, since we just project :math:`\mu_c'` back in time by :math:`t`. From similar logic, :math:`\mu_c` is constrained completely by the data and :math:`\mu_c = \mu_c'`. :math:`\Sigma_0` is less apparent, but with some assumptions can be equally constrained. We have :math:`\Sigma_c'` from the assigned members. We project this back in time by :math:`t` (e.g. by using a Jacobian). We now have a :math:`\Sigma_0'`.
-
-:math:`\Sigma_0'` cannot actually represent the origin of an association, because it may have position-velocity correlations imprinted by the time projection that are unrealistic for an unbound stellar association.
-
-Therefore the penultimate step is to impose the core assumptions of a Component - e.g. that there is no positional-velocity correlation - and impose assumptions specific to the chosen component class - e.g. the :class:`SphereComponent` assumes spherical in position space and spherical in velocity space. Therefore in this case we can derive :math:`\Sigma_0` by finding the total space-volume of :math:`\Sigma_0'` and inferring the required radius of an equal volume sphere in position space. With similar treatment we can derive the radius in velocity space.
-
-The final step would be to project :math:`\Sigma_0` forward by :math:`t` to attain :math:`\Sigma_c`, a covariance matrix centred on :math:`\mu_c`, that matches the extent and shape of :math:`\Sigma_c'` as closely as possible, but with the appropriate position-velocity correlations imprinted by :math:`t` Myrs of unbound dispersal through the Galaxy. In relevant log probability calculations, :class:`SpaceTimeComponent` would use :math:`\mu_c` and :math:`\Sigma_c`.
-
-Hence, :math:`\mu_0` and :math:`\Sigma_0` are constrained completely by the data and by the age parameter :math:`t`. Therefore, any parameter exploration or maximisation approach need only explore one (easily charecterisable) parameter.
-
-
-Example SpaceTimeComponent Usage
---------------------------------
+Example SphereSpaceTimeComponent Usage
+--------------------------------------
 
 A simple usage will look something like this::
 
   resp = # ... assume we have responsibilities (i.e. Z or membership probabilites)
   X = # ... assume we have data, array-like with shape (n_samples, n_features)
-  config_params = # ... assume we have Component specific config params, e.g. which feature is in which column
+  config_params = # ... assume we have Component specific config params as a dict
 
-  c = SpaceTimeComponent(config_params)
+  SphereSpaceTimeComponent.configure(config_params)
+
+  c = SphereSpaceTimeComponent()
   c.maximize(X, resp) 
   log_probs = c.estimate_log_prob(X)
 
-.. note::
-  work out when (and why) `log_resp` is used vs `resp`.
+  # If you have a specific parameters for the component (i.e. taken from a paper)
+  # you can set the parameters yourself, but note that SphereSpaceTimeComponent
+  paper_mean = np.array([])
+  params = np.array([...])  # parameterise as best you can
 
-Suggested SpaceComponent implementation
--------------------------------------------
 
-This would effectively be the same as some of the calculation in `sklearn.mixture.GaussianMixture`. The difference is they store weights, means and covariances in the Mixture object itself, and use a module level function to maximize these parameters from the data. In a :class:`BaseComponent` implementation, each component tracks its own weight, means and covariances, and uses its own method to maximize the parameters.
+If you desire a specific set of parameters, e.g. because you would like to match a component to that provided in paper, you can initialise a component by parameters. Note that this is non-trivial, since the components are typically parameterised by their *birth* distribution, and projecting arbitrary covariance matrices backwards through time rarely leads to a contracting distribution in space. This is how I would propose to do it::
 
-.. note::
-  Perhaps `weight` should be stored in the :class:`BaseMixture` implementation...
+  # Define current day mean and covariance
+  paper_mean = np.array([...])
+  paper_covariance = np.array([[...]])
+  paper_age = ...
 
-These could be done as follows::
+  birth_mean = SphereSpaceTimeComponent.trace_orbit_func(paper_mean, -paper_age)
 
-  def maximize(self, X, log_resp):
-    resp = np.exp(log_resp)
-    self.mean = np.dot(resp, X) / np.sum(resp)
-    diff = X - self.mean
-    self.covariance = np.dot(resp * diff.T, diff) / nk[k]
-    self.prec_chol = self._compute_precision_cholesky(self.covariance)
+  # For birth velocity spread, estimate current day spherical velocity spread
+  # and assume minimal change
+  birth_duvw = np.sqrt(np.mean(np.linalg.eigvals(paper_covariance[3:, 3:])))
 
-.. note::
-  `sklearn.mixture.GaussianMixture` uses the cholesky decomposition of precisions. A precision is the inverse of covariance. For simplicity I duplicate their calcualtions here.
+  # For birth position spread, estimate current day spherical position spread
+  # and assume linear expansion
+  paper_dxyz = np.sqrt(np.mean(np.linalg.eigvals(paper_covariance[:3, :3])))
+  birth_dxyz = paper_xyz - age * birth_duvw
+  assert birth_dxyz > 0.
 
-Estimating the log probability of each sample would be calculated by evaluating the Gaussain at the point of sample::
+  params = np.hstack((birth_mean, birth_dxyz, birth_duvw, paper_age))
 
-  def estimate_log_prob(X):
-    log_det = _compute_log_det_cholesky(precisions_chol, self.n_features)
+  # Configuring is likely unnecessary, since we're not fitting to data
+  # SphereSpaceTimeComponent.configure(config_params)
+  
+  paper_comp = SphereSpaceTimeComponent(params)
+  log_probs = paper_comp.estimate_log_prob(X)
 
-    y = np.dot(X, self.prec_chol) - np.dot(mu, prec_chol)
-    log_prob = np.sum(np.square(y), axis=1)
-    return -0.5 * (self.n_features * np.log(2 * np.pi) + log_prob) + log_det
 
+Deriving New Component Classes
+------------------------------
+The hope is that implementing a new component class is relatively straightforward.
+
+A new component class must inherit from :class:`~chronostar.base.BaseComponent`. If you have an IDE (e.g. Visual Studio Code) and are using type hints, then the IDE will prompt you into completing all the necessary aspects.
+
+:class:`~chronostar.base.BaseComponent` has three abstract methods and one property you must implement:
+
+- :func:`~chronostar.base.BaseComponent.estimate_log_prob`: given your component's current distribution, estimate the log probability of a data point. i.e. if the distribution is a normalised PDF, evaluate it at the location of the data point, and take the log of the result.
+- :func:`~chronostar.base.BaseComponent.maximize`: given input data, determine the best values for the component's parameters
+- :func:`~chronostar.base.BaseComponent.split`: split the current component into two similar, overlapping components that when combined more or less describe the original. This is the key mechanism used to by :class:`~chronostar.introducer.simpleintroducer.SimpleIntroducer` to introduce new components.
+- :func:`~chronostar.base.BaseComponent.n_params`: define how many parameters are needed to parameterise the component. Calculations of BIC and AIC need to know this.
+
+Check the API for the required function signatures and return types.

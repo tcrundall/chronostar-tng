@@ -10,7 +10,11 @@ Chronostar: The Next Generation
    :caption: Guides:
    :glob:
 
-   guides/*
+   guides/componentguide
+   guides/mixtureguide
+   guides/introducerguide
+   guides/icpoolguide
+   guides/driverguide
 
 .. note::
 
