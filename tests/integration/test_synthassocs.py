@@ -11,7 +11,6 @@ from chronostar.traceorbit import trace_epicyclic_orbit
 from chronostar.component.spherespacetimecomponent import\
     SphereSpaceTimeComponent
 from chronostar.icpool.simpleicpool import SimpleICPool
-from chronostar.introducer.simpleintroducer import SimpleIntroducer
 from chronostar.mixture.componentmixture import ComponentMixture
 
 
@@ -75,7 +74,6 @@ def test_twoassocs():
         config_file=config_file,
         mixture_class=ComponentMixture,
         icpool_class=SimpleICPool,
-        introducer_class=SimpleIntroducer,
         component_class=SphereSpaceTimeComponent,
     )
 
@@ -153,7 +151,6 @@ def test_one_assoc_one_gaussian_background():
         config_file=config_file,
         mixture_class=ComponentMixture,
         icpool_class=SimpleICPool,
-        introducer_class=SimpleIntroducer,
         component_class=SphereSpaceTimeComponent,
     )
 
@@ -225,7 +222,6 @@ def test_one_assoc_one_uniform_background():
         config_file=config_file,
         mixture_class=ComponentMixture,
         icpool_class=SimpleICPool,
-        introducer_class=SimpleIntroducer,
         component_class=SphereSpaceTimeComponent,
     )
 
@@ -305,7 +301,6 @@ def test_uncertain_one_assoc_one_gaussian_background():
         config_file=config_file,
         mixture_class=ComponentMixture,
         icpool_class=SimpleICPool,
-        introducer_class=SimpleIntroducer,
         component_class=SphereSpaceTimeComponent,
     )
 

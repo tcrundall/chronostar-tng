@@ -1,6 +1,5 @@
 driver: {}
 icpool: {}
-introducer: {}
 mixture:
   tol: 3.e-5
   verbose: 2

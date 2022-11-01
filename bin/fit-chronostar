@@ -99,13 +99,13 @@ def init_argparse() -> argparse.ArgumentParser:
         help="The covariance file, an (n_sample, n_feature, n_feature) "
              "array stored as a .npy file.",
     )
-    # parser.add_argument(
-    #     "membership",
-    #     nargs='?',
-    #     default=None,
-    #     help="Optional file of membership probabilities, an "
-    #     "(n_samples, n_components) array, stored as a .npy file.",
-    # )
+    parser.add_argument(
+        "-z",
+        "--membership",
+        default=None,
+        help="Optional file of membership probabilities, an "
+        "(n_samples, n_components) array, stored as a .npy file.",
+    )
 
     return parser
 
@@ -165,10 +165,10 @@ if __name__ == '__main__':
         covs = np.load(args.covs)
         data = np.vstack((data.T, covs.reshape(-1, 36).T)).T
 
-    # # Read in membership array
-    # membership = None
-    # if args.membership:
-    #     membership = np.load(args.membership)
+    # Read in membership array
+    membership = None
+    if args.membership and Path(args.membership).is_file():
+        membership = np.load(args.membership)
 
     # Import appropriate component implementation
     CompClass = import_component(

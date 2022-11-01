@@ -11,15 +11,13 @@ from chronostar.base import (
     BaseComponent,
     BaseMixture,
     BaseICPool,
-    BaseIntroducer,
     ScoredMixture,
     InitialCondition,
 )
 
 
-CONFIG_PARAMS: dict = {
+CONFIG_PARAMS: dict[str, Any] = {
     'icpool': {'a': 1, 'b': 2, 'c': 3},
-    'introducer': {'a': 1, 'b': 2, 'c': 3},
     'mixture': {'a': 1, 'b': 2, 'c': 3},
     'component': {
         'reg_covar': 1e-3,
@@ -92,7 +90,7 @@ class FooMixture(BaseMixture):
         self.weights = self.init_weights
 
     @classmethod
-    def configure(cls, **kwargs):
+    def configure(cls, **kwargs) -> None:               # type: ignore
         if kwargs:
             print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
 
@@ -123,34 +121,6 @@ class FooMixture(BaseMixture):
     def estimate_weighted_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
         return np.ones((len(X), len(self.comps)))
 
-    # def estimate_membership_prob(
-    #     self,
-    #     X: NDArray[float64]
-    # ) -> NDArray[float64]:
-    #     return self.memberships
-
-
-class FooIntroducer(BaseIntroducer):
-    def __init__(
-        self,
-        *args: tuple[Any],
-        **kwargs: dict[Any, Any],
-    ) -> None:
-        super().__init__(*args, **kwargs)       # type: ignore
-
-    @classmethod
-    def configure(cls, **kwargs) -> None:
-        if kwargs:
-            print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
-
-    def next_gen(
-        self,
-        prev_components: Union[None, list[InitialCondition], InitialCondition],
-    ) -> list[InitialCondition]:
-        init_comps = tuple([FooComponent(params=None) for _ in range(5)])
-        label = 'fooic_5'
-        return [InitialCondition(label, init_comps)]
-
 
 class FooICPool(BaseICPool):
     def __init__(self, *args, **kwargs) -> None:        # type: ignore
@@ -163,6 +133,14 @@ class FooICPool(BaseICPool):
     def configure(cls, **kwargs):
         if kwargs:
             print(f"{cls} config: Extra keyword arguments provided:\n{kwargs}")
+
+    def next_gen(
+        self,
+        prev_components: Union[None, list[InitialCondition], InitialCondition],
+    ) -> list[InitialCondition]:
+        init_comps = tuple([FooComponent(params=None) for _ in range(5)])
+        label = 'fooic_5'
+        return [InitialCondition(label, init_comps)]
 
     def has_next(self):
         return len(self.queue) > 0

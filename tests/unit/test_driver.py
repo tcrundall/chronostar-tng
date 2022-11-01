@@ -4,7 +4,7 @@ from pathlib import Path
 from ..context import chronostar     # noqa
 
 from chronostar.driver import Driver
-from .fooclasses import FooComponent, FooICPool, FooIntroducer, FooMixture
+from .fooclasses import FooComponent, FooICPool, FooMixture
 from .fooclasses import DATA
 
 
@@ -15,7 +15,6 @@ def test_construction() -> None:
         config_file=foo_configfile,
         mixture_class=FooMixture,
         icpool_class=FooICPool,
-        introducer_class=FooIntroducer,
         component_class=FooComponent,
     )
 
@@ -29,7 +28,6 @@ def test_run() -> None:
         config_file=foo_configfile,
         mixture_class=FooMixture,
         icpool_class=FooICPool,
-        introducer_class=FooIntroducer,
         component_class=FooComponent,
     )
 

@@ -1,14 +1,15 @@
 import numpy as np
 from queue import Queue
-from typing import Callable, Optional
+from typing import Optional, Type, Union
 
 from ..base import (
+    BaseComponent,
     BaseMixture,
     BaseICPool,
-    BaseIntroducer,
     ScoredMixture,
     InitialCondition,
 )
+from ..utils.bookkeeping import generate_label
 
 
 class SimpleICPool(BaseICPool):
@@ -20,24 +21,27 @@ class SimpleICPool(BaseICPool):
         The max components in an initial condition provided by
         `SimpleICPool`, configurable
     """
-    function_parser: dict[str, Callable] = {}
     max_components = 100
 
-    def __init__(self, *args, **kwargs) -> None:        # type: ignore
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        component_class: Type[BaseComponent],
+        start_init_comps: Optional[tuple[BaseComponent, ...]] = None,
+    ) -> None:
         """Constructor method
         """
+        super().__init__(component_class, start_init_comps)
 
-        # Perhaps do this in pool()?
-        self.introducer: BaseIntroducer = self.introducer_class(
-            self.component_class
-        )
         self.queue: Queue[InitialCondition] = Queue()
         self.best_mixture_: Optional[BaseMixture] = None
         self.best_score_: float = -np.inf
 
-        self.first_pass = True
-        self.generation = 0
+        self.n_initconds = 0
+        self.n_generations = 0
+
+        if start_init_comps is not None:
+            self.put_in_queue(start_init_comps, parent_label='XXX', extra='input')
+            self.n_generations += 1
 
     def register_result(
         self,
@@ -71,13 +75,12 @@ class SimpleICPool(BaseICPool):
         best mixture and adds the next generation to the queue.
         """
         # If this is our first pass, let our introducer provide starting point
-        if self.first_pass:
+        if not self.registry:
             print("Letting introducer generate first IC")
-            for init_conds in self.introducer.next_gen(None):
-                self.queue.put(init_conds)
+            self.next_gen(None)
             self.first_pass = False
-            print(f"{self.generation=}")
-            self.generation += 1
+            print(f"{self.n_generations=}")
+            self.n_generations += 1
             return
 
         # Otherwise, check registry, see if we should generate next generation
@@ -91,9 +94,9 @@ class SimpleICPool(BaseICPool):
         # If we have improved previous best mixture, save current best and
         # repopulate queue
         if best_score > self.best_score_:
-            print(f"{self.generation=}")
+            print(f"{self.n_generations=}")
             print(f"{best_score=}")
-            self.generation += 1
+            self.n_generations += 1
 
             self.best_mixture_ = best_mixture
             self.best_score_ = best_score
@@ -106,13 +109,7 @@ class SimpleICPool(BaseICPool):
                 tuple(best_mixture.get_components())
             )
 
-            for init_condition in self.introducer.next_gen(base_init_condition):
-                if len(init_condition.components) <= self.max_components:
-                    self.queue.put(init_condition)
-                else:
-                    print(f"[SimpleICPool]:"
-                          f"Discarded IC {init_condition.label} "
-                          f"{len(init_condition.components)} > {self.max_components=}")
+            self.next_gen(base_init_condition)
 
     def has_next(self) -> bool:
         """Return True if (after populating if needed) queue is non-empty
@@ -138,19 +135,83 @@ class SimpleICPool(BaseICPool):
         """
         return self.queue.get()
 
-    def provide_start(self, init_cond: InitialCondition):
-        """Use the provided InitialCondition to start the queue
+    def put_in_queue(
+        self,
+        components: tuple[BaseComponent, ...],
+        parent_label: str,
+        extra: str,
+    ) -> None:
+        label = generate_label(
+            self.n_initconds,
+            self.n_generations,
+            components=components,
+            parent_label=parent_label,
+            extra=extra,
+        )
+        self.queue.put(InitialCondition(label, components))
+        self.n_initconds += 1
+
+    def next_gen(
+        self,
+        prev_comp_sets: Union[list[InitialCondition], InitialCondition, None],
+    ) -> None:
+        """Generate the next generation of initial conditions by splitting
+        each existing component into two
 
         Parameters
         ----------
-        init_conds : InitialCondition
-            Some initial condition provided from outside of the ICPool
-        """
-        self.queue.put(init_cond)
+        prev_comp_sets : list[BaseComponent] (optional)
+            A list of components from a previous fit. If none provided,
+            a single (uninitialised) component will be returned.
 
-        # Set this to false, so ICPool doesn't try to generate its own
-        # first initial condition
-        self.first_pass = False
+        Returns
+        -------
+        list[list[BaseComponent]]
+            A list of initial conditions, where each initial condition
+            is a list of components
+
+        Raises
+        ------
+        UserWarning
+            This introducer can only handle one set of components
+        """
+        if prev_comp_sets is None:
+            components = (self.component_class(params=None),)
+            self.put_in_queue(components, parent_label='XXX', extra='auto')
+            return
+
+        if isinstance(prev_comp_sets, list):
+            raise UserWarning("This Introducer only accepts one InitialCondition")
+
+        for target_ix in range(len(prev_comp_sets.components)):
+            # Perform a deep copy of components, using their class to
+            # construct a replica
+            next_ic_components = [
+                c.__class__(c.get_parameters()) for c in prev_comp_sets.components
+            ]
+
+            # Replace the ith component by splitting it in two
+            target_comp = next_ic_components.pop(target_ix)
+            c1, c2 = target_comp.split()
+
+            next_ic_components.insert(target_ix, c2)
+            next_ic_components.insert(target_ix, c1)
+
+            if len(next_ic_components) <= self.max_components:
+                self.put_in_queue(
+                    components=tuple(next_ic_components),
+                    parent_label=prev_comp_sets.label,
+                    extra=str(target_ix),
+                )
+            else:
+                print(f"[SimpleICPool]:"
+                      f"Discarded IC derived from {prev_comp_sets.label} "
+                      f"{len(next_ic_components)} > {self.max_components=}")
+
+        self.n_generations += 1
+        print(f"[SimpleIntroducer] After next_gen {self.n_generations=}")
+
+        return
 
     @property
     def best_mixture(self) -> BaseMixture:

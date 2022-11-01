@@ -2,7 +2,7 @@ from collections import defaultdict
 import inspect
 from io import TextIOWrapper
 from pathlib import Path
-from typing import Any, Callable, Type, Union
+from typing import Any, Callable, Optional, Type, Union
 import yaml
 
 import numpy as np
@@ -13,16 +13,14 @@ from .base import (
     BaseComponent,
     BaseMixture,
     BaseICPool,
-    BaseIntroducer,
 )
 
 from .component.spherespacetimecomponent import SphereSpaceTimeComponent
 from .mixture.componentmixture import ComponentMixture
-from .introducer.simpleintroducer import SimpleIntroducer
 from .icpool.simpleicpool import SimpleICPool
 
 
-def heading_str(heading, sym='-', top=True):
+def heading_str(heading: str, sym: str = '-', top: bool = True) -> str:
     line = sym * len(heading)
     if top:
         return f'\n{line}\n{heading}\n{line}\n'
@@ -61,10 +59,9 @@ class Driver:
 
     def __init__(
         self,
-        config_file: Union[dict, str, Path],
+        config_file: Union[dict[str, Any], str, Path],
         mixture_class: Type[BaseMixture] = ComponentMixture,
         icpool_class: Type[BaseICPool] = SimpleICPool,
-        introducer_class: Type[BaseIntroducer] = SimpleIntroducer,
         component_class: Type[BaseComponent] = SphereSpaceTimeComponent,
     ) -> None:
         if isinstance(config_file, dict):
@@ -75,19 +72,17 @@ class Driver:
         self.component_class = component_class
         self.mixture_class = mixture_class
         self.icpool_class = icpool_class
-        self.introducer_class = introducer_class
 
         self.configure(**self.config_params["driver"])
 
         self.component_class.configure(**self.config_params["component"])
         self.mixture_class.configure(**self.config_params["mixture"])
         self.icpool_class.configure(**self.config_params["icpool"])
-        self.introducer_class.configure(**self.config_params["introducer"])
 
-    def configure(self, **kwargs) -> None:
+    def configure(self, **kwargs) -> None:              # type: ignore
         """Set any configurable class attributes
         """
-        function_parser: dict[str, Callable] = {}
+        function_parser: dict[str, Callable] = {}       # type: ignore
 
         for param, val in kwargs.items():
             if hasattr(self, param):
@@ -103,7 +98,8 @@ class Driver:
     def run(
         self,
         data: NDArray[float64],
-        first_init_conds=None
+        start_init_comps: Optional[tuple[BaseComponent, ...]] = None,
+        init_resp: Optional[NDArray[float64]] = None,
     ) -> BaseMixture:
         """Run a fit on the input data
 
@@ -111,6 +107,11 @@ class Driver:
         ----------
         data : NDArray[float64] of shape (n_samples, n_features)
             The input data
+        start_init_comps : InitialCondition, optional
+            Parameters defining a mixture model, which serves as a
+            starting point for the entire run.
+        init_resp : NDArray[float64] of shape (n_samples, n_comps), optional
+            Starting point for component memberships
 
         Returns
         -------
@@ -124,18 +125,21 @@ class Driver:
             self.savedir_path = Path(self.savedir)
             self.savedir_path.mkdir(parents=True, exist_ok=True)
 
-        # # If we have covariances, merge with data array
-        # if covariances is not None:
-        #     data = np.vstack((data.T, covariances.reshape(-1, 36).T)).T
+        # Initial conditions for all mixture model fits come from the ICPool,
+        # therefore, if we want a specific starting point from input, it must
+        # be fed to the ICPool
+
+        # Handle initial conditions defined by membership probability
+        if init_resp is not None:
+            assert start_init_comps is None
+            assert getattr(self.mixture_class, 'init_params') == 'init_resp'
+            n_comps = init_resp.shape[-1]
+            start_init_comps = tuple(self.component_class() for _ in range(n_comps))
 
         icpool = self.icpool_class(
-            introducer_class=self.introducer_class,
             component_class=self.component_class,
+            start_init_comps=start_init_comps,
         )
-
-        if first_init_conds is not None:
-            print(f"[DRIVER] {first_init_conds[0].parameters_set=}")
-            icpool.provide_start(first_init_conds)
 
         # icpool maintains an internal queue of sets of initial conditions
         # iterate through, fitting to each set, and registering the result
@@ -144,12 +148,15 @@ class Driver:
             print(f"[DRIVER] Fitting {label}")
             print(f"[DRIVER] {init_comps[0].parameters_set=}")
 
-            ncomps = len(init_comps)
-            init_weights = np.ones(ncomps)/ncomps
-            m = self.mixture_class(
-                init_weights,
-                init_comps,
-            )
+            # If init_resp was provided, we use it to initialise the *very first* mixture
+            if init_resp is not None:
+                init_weights = np.copy(init_resp)
+                init_resp = None
+            else:
+                ncomps = len(init_comps)
+                init_weights = np.ones(ncomps)/ncomps
+
+            m = self.mixture_class(init_weights, init_comps)
             m.fit(data)
             icpool.register_result(label, m, -m.bic(data))
 
@@ -186,7 +193,7 @@ class Driver:
             If the file has an unrecognised key at top-most level
         """
         # We use a default dict to gracefully handle empty config file
-        config_params: dict[str, dict] = defaultdict(dict)
+        config_params: dict[str, dict[str, Any]] = defaultdict(dict)
         with open(config_file, "r") as stream:
             try:
                 config_params.update(yaml.safe_load(stream))
@@ -195,7 +202,7 @@ class Driver:
 
         # Fail loudly if config file improperly structured
         acceptable_keys = [
-            'driver', 'icpool', 'component', 'introducer', 'mixture', 'run',
+            'driver', 'icpool', 'component', 'mixture', 'run',
         ]
         for key in config_params:
             if key == 'run':
@@ -207,7 +214,7 @@ class Driver:
 
     def dump_mixture_result(
         self,
-        dump_dir,
+        dump_dir: Path,
         label: str,
         mixture: BaseMixture,
         data: NDArray[float64],
@@ -251,7 +258,7 @@ class Driver:
             fp.write(heading_str("Configuration settings"))
             self.dump_all_config_params(fp)
 
-    def dump_all_config_params(self, fp: TextIOWrapper):
+    def dump_all_config_params(self, fp: TextIOWrapper) -> None:
         """Get all configurable parameters and write them to file
 
         This method attempts to identify all class level parameters that
@@ -263,7 +270,7 @@ class Driver:
             File pointer to output file
         """
 
-        def get_simple_attributes(target_class):
+        def get_simple_attributes(target_class: Any) -> list[tuple[str, Any]]:
             # Get everything in class which isn't a routine
             attributes = inspect.getmembers(
                 target_class, lambda x: not inspect.isroutine(x)
@@ -287,7 +294,6 @@ class Driver:
             "driver": self,
             "component": self.component_class,
             "mixture": self.mixture_class,
-            "introducer": self.introducer_class,
             "icpool": self.icpool_class,
         }
         for cname, cl in classes.items():

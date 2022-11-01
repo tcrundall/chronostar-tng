@@ -48,28 +48,22 @@ class BaseICPool(metaclass=ABCMeta):
     component_class : Type[BaseComponent]
         A class derived from BaseComponent
     """
-    function_parser: dict[str, Callable] = {}
 
     def __init__(
         self,
-        introducer_class: Type[BaseIntroducer],
         component_class: Type[BaseComponent],
+        start_init_comps: Optional[tuple[BaseComponent, ...]] = None,
     ) -> None:
-        self.introducer_class = introducer_class
         self.component_class = component_class
-
         self.registry: dict[Union[str, int], ScoredMixture] = {}
 
     @classmethod
-    def configure(cls, **kwargs) -> None:
+    def configure(cls, **kwargs) -> None:       # type: ignore
         """Set any configurable class attributes
         """
         for param, val in kwargs.items():
             if hasattr(cls, param):
-                if val in cls.function_parser:
-                    setattr(cls, param, cls.function_parser[val])
-                else:
-                    setattr(cls, param, val)
+                setattr(cls, param, val)
             else:
                 print(f"[CONFIG]:{cls} unexpected config param: {param}={val}")
 
@@ -95,17 +89,6 @@ class BaseICPool(metaclass=ABCMeta):
         InitialCondition
             An initial condition: a tuple of components, paired with
             a unique, informative id
-        """
-        pass
-
-    @abstractmethod
-    def provide_start(self, init_conds: InitialCondition) -> None:
-        """Provide the ICPool with a starting initial condition
-
-        Parameters
-        ----------
-        init_conds : InitialCondition
-            The starting initial condition
         """
         pass
 
@@ -146,64 +129,6 @@ class BaseICPool(metaclass=ABCMeta):
         pass
 
 
-class BaseIntroducer(metaclass=ABCMeta):
-    """A class repsonsible for constructing new sets of
-    initial conditions by introducing components
-
-    Parameters
-    ----------
-    component_class : Type[BaseComponent]
-        A derived class from BaseComponent
-    """
-
-    function_parser: dict[str, Callable] = {}
-
-    def __init__(
-        self,
-        component_class: Type[BaseComponent],
-    ) -> None:
-        self.component_class = component_class
-
-    @classmethod
-    def configure(cls, **kwargs) -> None:
-        """Set any configurable class attributes
-        """
-        for param, val in kwargs.items():
-            if hasattr(cls, param):
-                if val in cls.function_parser:
-                    setattr(cls, param, cls.function_parser[val])
-                else:
-                    setattr(cls, param, val)
-            else:
-                print(f"[CONFIG]:{cls} unexpected config param: {param}={val}")
-
-    @abstractmethod
-    def next_gen(
-        self,
-        prev_comp_sets: Union[
-            list[InitialCondition],
-            InitialCondition,
-            None
-        ],
-    ) -> list[InitialCondition]:
-        """Generate the next "generation" of runs, as sets of
-        initial conditions
-
-        Parameters
-        ----------
-        prev_comp_sets : list[InitialCondition] | InitialCondition, optional
-            One or multiple fitted initial conditions
-
-        Returns
-        -------
-        list[InitialCondition]
-            Returns sets of initial conditions as a list, where each set of initial
-            conditions is a list of components paired with a unique,
-            informative label.
-        """
-        pass
-
-
 class BaseComponent(metaclass=ABCMeta):
     """Abstract class for a (assumed-to-be Gaussian)
     component to be used in a mixture model
@@ -217,7 +142,7 @@ class BaseComponent(metaclass=ABCMeta):
         The model parameters, as a 1 dimensional arra
     """
 
-    function_parser: dict[str, Callable] = {}
+    function_parser: dict[str, Callable] = {}       # type: ignore
 
     def __init__(self, params: Optional[NDArray[float64]] = None) -> None:
         # If ``parameters_set`` is false, components may get auto-initialized
@@ -228,15 +153,12 @@ class BaseComponent(metaclass=ABCMeta):
             self.parameters_set = False
 
     @classmethod
-    def configure(cls, **kwargs) -> None:
+    def configure(cls, **kwargs) -> None:           # type: ignore
         """Set any configurable class attributes
         """
         for param, val in kwargs.items():
             if hasattr(cls, param):
-                if val in cls.function_parser:
-                    setattr(cls, param, cls.function_parser[val])
-                else:
-                    setattr(cls, param, val)
+                setattr(cls, param, val)
             else:
                 print(f"[CONFIG]:{cls} unexpected config param: {param}={val}")
 
@@ -330,8 +252,6 @@ class BaseMixture(metaclass=ABCMeta):
         pre-set parameters.
     """
 
-    function_parser: dict[str, Callable] = {}
-
     def __init__(
         self,
         init_weights: NDArray[float64],
@@ -341,15 +261,12 @@ class BaseMixture(metaclass=ABCMeta):
         self.init_weights = init_weights
 
     @classmethod
-    def configure(cls, **kwargs) -> None:
+    def configure(cls, **kwargs) -> None:            # type: ignore
         """Set any configurable class attributes
         """
         for param, val in kwargs.items():
             if hasattr(cls, param):
-                if val in cls.function_parser:
-                    setattr(cls, param, cls.function_parser[val])
-                else:
-                    setattr(cls, param, val)
+                setattr(cls, param, val)
             else:
                 print(f"[CONFIG]:{cls} unexpected config param: {param}={val}")
 
@@ -455,4 +372,4 @@ class BaseMixture(metaclass=ABCMeta):
         weighted_prob = np.exp(weighted_log_prob)
 
         # Normalize such that each row sums to 1
-        return (weighted_prob.T / weighted_prob.sum(axis=1)).T
+        return np.transpose((weighted_prob.T / weighted_prob.sum(axis=1)))

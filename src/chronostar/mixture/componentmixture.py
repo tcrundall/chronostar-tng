@@ -1,4 +1,4 @@
-from typing import Any, Callable, Tuple
+from typing import Any, Tuple
 from numpy import float64
 from numpy.typing import NDArray
 
@@ -62,8 +62,6 @@ class ComponentMixture(BaseMixture):
     verbose_interval: int, default 10
         If `verbose > 0`, how many iterations between print statements
     """
-
-    function_parser: dict[str, Callable] = {}
 
     # Configurable class attributes
     tol: float = 1e-3
@@ -163,7 +161,7 @@ class ComponentMixture(BaseMixture):
         _, components = self.get_parameters()
         return components
 
-    def estimate_weighted_log_prob(self, X: NDArray[float64]):
+    def estimate_weighted_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:
         """Estimate the weighted log-probabilities, log P(X | Z) + log weights.
 
         Parameters
@@ -174,4 +172,4 @@ class ComponentMixture(BaseMixture):
         -------
         weighted_log_prob : array, shape (n_samples, n_component)
         """
-        return self.sklmixture._estimate_weighted_log_prob(X)
+        return self.sklmixture._estimate_weighted_log_prob(X)   # type: ignore
