@@ -133,13 +133,11 @@ We can convert this back into cartesian space, complete with covariance matrices
     $ prepare-data synth_astro.fits
 
 This will generate 4 files:
+
 - ``data_means.npy``: the cartesian means of the data, with shape ``(n_stars, 6)``
 - ``data_covs.npy``: the cartesian covariances of the data, with shape ``(n_stars, 6, 6)``
-- ``ids.npy``: a 1D array of the stars' gaia ``source_id``. This is useful for bookkeeping in
-the event some stars were discarded due to bad/missing data.
-- ``all_data.npy``: a convenience file, equivalent to ``np.vstack((data_means.T, data_covs.flatten().T)).T``,
-which is how :class:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent` will
-expect the data
+- ``ids.npy``: a 1D array of the stars' gaia ``source_id``. This is useful for bookkeeping in the event some stars were discarded due to bad/missing data.
+- ``all_data.npy``: a convenience file, equivalent to ``np.vstack((data_means.T, data_covs.flatten().T)).T``, which is how :class:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent` will expect the data
 
 You can check what this cartesian data looks like by plotting it:
 
