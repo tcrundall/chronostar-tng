@@ -281,7 +281,7 @@
 <li class="toctree-l4"><a class="reference internal" href="chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.best_mixture"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.best_mixture</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.get_next"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.get_next()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.has_next"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.has_next()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.provide_start"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.provide_start()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.next_gen"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.next_gen()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.register_result"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.register_result()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.try_populate_queue"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.try_populate_queue()</span></code></a></li>
 </ul>
@@ -293,15 +293,8 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="chronostar.introducer.html">chronostar.introducer package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="chronostar.introducer.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="chronostar.introducer.html#module-chronostar.introducer.simpleintroducer">chronostar.introducer.simpleintroducer module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="chronostar.introducer.html#chronostar.introducer.simpleintroducer.SimpleIntroducer"><code class="docutils literal notranslate"><span class="pre">SimpleIntroducer</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="chronostar.introducer.html#chronostar.introducer.simpleintroducer.SimpleIntroducer.next_gen"><code class="docutils literal notranslate"><span class="pre">SimpleIntroducer.next_gen()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="chronostar.introducer.html#chronostar.introducer.simpleintroducer.convert_num2alpha"><code class="docutils literal notranslate"><span class="pre">convert_num2alpha()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="chronostar.introducer.html#module-chronostar.introducer">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chronostar.introducer.html#chronostar-introducer-simpleintroducer-module">chronostar.introducer.simpleintroducer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chronostar.introducer.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="chronostar.mixture.html">chronostar.mixture package</a><ul>
@@ -480,13 +473,13 @@ half as wide and offset from mean</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="chronostar.base.BaseICPool">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chronostar.base.</span></span><span class="sig-name descname"><span class="pre">BaseICPool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">introducer_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.base.BaseICPool" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chronostar.base.</span></span><span class="sig-name descname"><span class="pre">BaseICPool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_init_comps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.base.BaseICPool" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A pool of sets of initial conditions, stored as a queue</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>introducer_class</strong> (<em>Type</em><em>[</em><a class="reference internal" href="#chronostar.base.BaseIntroducer" title="chronostar.base.BaseIntroducer"><em>BaseIntroducer</em></a><em>]</em>) – A class derived from BaseIntroducer, this determines how
+<li><p><strong>introducer_class</strong> (<em>Type</em><em>[</em><em>BaseIntroducer</em><em>]</em>) – A class derived from BaseIntroducer, this determines how
 new sets of initial conditions are generated</p></li>
 <li><p><strong>component_class</strong> (<em>Type</em><em>[</em><a class="reference internal" href="#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent"><em>BaseComponent</em></a><em>]</em>) – A class derived from BaseComponent</p></li>
 </ul>
@@ -553,20 +546,6 @@ repopulate as needed.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="chronostar.base.BaseICPool.provide_start">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">provide_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_conds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.base.BaseICPool.provide_start" title="Permalink to this definition">#</a></dt>
-<dd><p>Provide the ICPool with a starting initial condition</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>init_conds</strong> (<a class="reference internal" href="#chronostar.base.InitialCondition" title="chronostar.base.InitialCondition"><em>InitialCondition</em></a>) – The starting initial condition</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="chronostar.base.BaseICPool.register_result">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">register_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unique_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixture</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.base.BaseICPool.register_result" title="Permalink to this definition">#</a></dt>
 <dd><p>Register a finished mixture fit with its score</p>
@@ -580,50 +559,6 @@ repopulate as needed.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="chronostar.base.BaseIntroducer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chronostar.base.</span></span><span class="sig-name descname"><span class="pre">BaseIntroducer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.base.BaseIntroducer" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A class repsonsible for constructing new sets of
-initial conditions by introducing components</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>component_class</strong> (<em>Type</em><em>[</em><a class="reference internal" href="#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent"><em>BaseComponent</em></a><em>]</em>) – A derived class from BaseComponent</p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="chronostar.base.BaseIntroducer.configure">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.base.BaseIntroducer.configure" title="Permalink to this definition">#</a></dt>
-<dd><p>Set any configurable class attributes</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="chronostar.base.BaseIntroducer.next_gen">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">next_gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prev_comp_sets</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.base.BaseIntroducer.next_gen" title="Permalink to this definition">#</a></dt>
-<dd><p>Generate the next “generation” of runs, as sets of
-initial conditions</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>prev_comp_sets</strong> (<em>list</em><em>[</em><a class="reference internal" href="#chronostar.base.InitialCondition" title="chronostar.base.InitialCondition"><em>InitialCondition</em></a><em>] </em><em>| </em><a class="reference internal" href="#chronostar.base.InitialCondition" title="chronostar.base.InitialCondition"><em>InitialCondition</em></a><em>, </em><em>optional</em>) – One or multiple fitted initial conditions</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Returns sets of initial conditions as a list, where each set of initial
-conditions is a list of components paired with a unique,
-informative label.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list[<a class="reference internal" href="#chronostar.base.InitialCondition" title="chronostar.base.InitialCondition">InitialCondition</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -894,7 +829,7 @@ swarm of samples</p>
 <span id="chronostar-driver-module"></span><h2>chronostar.driver module<a class="headerlink" href="#module-chronostar.driver" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="chronostar.driver.Driver">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chronostar.driver.</span></span><span class="sig-name descname"><span class="pre">Driver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixture_class=&lt;class</span> <span class="pre">'chronostar.mixture.componentmixture.ComponentMixture'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">icpool_class=&lt;class</span> <span class="pre">'chronostar.icpool.simpleicpool.SimpleICPool'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">introducer_class=&lt;class</span> <span class="pre">'chronostar.introducer.simpleintroducer.SimpleIntroducer'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_class=&lt;class</span> <span class="pre">'chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.driver.Driver" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chronostar.driver.</span></span><span class="sig-name descname"><span class="pre">Driver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixture_class=&lt;class</span> <span class="pre">'chronostar.mixture.componentmixture.ComponentMixture'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">icpool_class=&lt;class</span> <span class="pre">'chronostar.icpool.simpleicpool.SimpleICPool'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_class=&lt;class</span> <span class="pre">'chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.driver.Driver" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Top level class of Chronostar which drives the
 entire fitting process</p>
@@ -953,6 +888,9 @@ could be configurable and writes them all to file.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>fp</strong> (<em>TextIOWrapper</em>) – File pointer to output file</p>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -1001,11 +939,16 @@ introducer and component.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="chronostar.driver.Driver.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_init_conds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.driver.Driver.run" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_init_comps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_resp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.driver.Driver.run" title="Permalink to this definition">#</a></dt>
 <dd><p>Run a fit on the input data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>float64</em><em>] of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – The input data</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>NDArray</em><em>[</em><em>float64</em><em>] of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – The input data</p></li>
+<li><p><strong>start_init_comps</strong> (<a class="reference internal" href="#chronostar.base.InitialCondition" title="chronostar.base.InitialCondition"><em>InitialCondition</em></a><em>, </em><em>optional</em>) – Parameters defining a mixture model, which serves as a
+starting point for the entire run.</p></li>
+<li><p><strong>init_resp</strong> (<em>NDArray</em><em>[</em><em>float64</em><em>] of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_comps</em><em>)</em><em>, </em><em>optional</em>) – Starting point for component memberships</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A mixture object containing the best fitting parameters,
@@ -1166,13 +1109,7 @@ and velocities</p>
 <li><a class="reference internal" href="#chronostar.base.BaseICPool.configure"><code class="docutils literal notranslate"><span class="pre">BaseICPool.configure()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.base.BaseICPool.get_next"><code class="docutils literal notranslate"><span class="pre">BaseICPool.get_next()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.base.BaseICPool.has_next"><code class="docutils literal notranslate"><span class="pre">BaseICPool.has_next()</span></code></a></li>
-<li><a class="reference internal" href="#chronostar.base.BaseICPool.provide_start"><code class="docutils literal notranslate"><span class="pre">BaseICPool.provide_start()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.base.BaseICPool.register_result"><code class="docutils literal notranslate"><span class="pre">BaseICPool.register_result()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#chronostar.base.BaseIntroducer"><code class="docutils literal notranslate"><span class="pre">BaseIntroducer</span></code></a><ul>
-<li><a class="reference internal" href="#chronostar.base.BaseIntroducer.configure"><code class="docutils literal notranslate"><span class="pre">BaseIntroducer.configure()</span></code></a></li>
-<li><a class="reference internal" href="#chronostar.base.BaseIntroducer.next_gen"><code class="docutils literal notranslate"><span class="pre">BaseIntroducer.next_gen()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#chronostar.base.BaseMixture"><code class="docutils literal notranslate"><span class="pre">BaseMixture</span></code></a><ul>

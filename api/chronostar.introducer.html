@@ -223,69 +223,11 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
 </section>
-<section id="module-chronostar.introducer.simpleintroducer">
-<span id="chronostar-introducer-simpleintroducer-module"></span><h2>chronostar.introducer.simpleintroducer module<a class="headerlink" href="#module-chronostar.introducer.simpleintroducer" title="Permalink to this heading">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="chronostar.introducer.simpleintroducer.SimpleIntroducer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chronostar.introducer.simpleintroducer.</span></span><span class="sig-name descname"><span class="pre">SimpleIntroducer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.introducer.simpleintroducer.SimpleIntroducer" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="chronostar.html#chronostar.base.BaseIntroducer" title="chronostar.base.BaseIntroducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseIntroducer</span></code></a></p>
-<p>An Introducer object that introduces components into
-previous sets and thereby generates new sets of initial
-conditions</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="chronostar.introducer.simpleintroducer.SimpleIntroducer.next_gen">
-<span class="sig-name descname"><span class="pre">next_gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prev_comp_sets</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.introducer.simpleintroducer.SimpleIntroducer.next_gen" title="Permalink to this definition">#</a></dt>
-<dd><p>Generate the next generation of initial conditions by splitting
-each existing component into two</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>prev_comp_sets</strong> (<em>list</em><em>[</em><a class="reference internal" href="chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent"><em>BaseComponent</em></a><em>] </em><em>(</em><em>optional</em><em>)</em>) – A list of components from a previous fit. If none provided,
-a single (uninitialised) component will be returned.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A list of initial conditions, where each initial condition
-is a list of components</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list[list[<a class="reference internal" href="chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent">BaseComponent</a>]]</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>UserWarning</strong> – This introducer can only handle one set of components</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="chronostar.introducer.simpleintroducer.convert_num2alpha">
-<span class="sig-prename descclassname"><span class="pre">chronostar.introducer.simpleintroducer.</span></span><span class="sig-name descname"><span class="pre">convert_num2alpha</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.introducer.simpleintroducer.convert_num2alpha" title="Permalink to this definition">#</a></dt>
-<dd><p>Convert an integer count to a three “digit” character counter</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – An integer value</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The input, converted to base 26, and represented in characters</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">convert_num2alpha</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="go">&#39;AAA&#39;</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">convert_num2alpha</span><span class="p">(</span><span class="mi">26</span><span class="p">)</span>
-<span class="go">&#39;ABA&#39;</span>
-</pre></div>
-</div>
-</dd></dl>
-
+<section id="chronostar-introducer-simpleintroducer-module">
+<h2>chronostar.introducer.simpleintroducer module<a class="headerlink" href="#chronostar-introducer-simpleintroducer-module" title="Permalink to this heading">#</a></h2>
 </section>
-<section id="module-chronostar.introducer">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-chronostar.introducer" title="Permalink to this heading">#</a></h2>
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">#</a></h2>
 </section>
 </section>
 
@@ -348,15 +290,8 @@ is a list of components</p>
             <ul>
 <li><a class="reference internal" href="#">chronostar.introducer package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-chronostar.introducer.simpleintroducer">chronostar.introducer.simpleintroducer module</a><ul>
-<li><a class="reference internal" href="#chronostar.introducer.simpleintroducer.SimpleIntroducer"><code class="docutils literal notranslate"><span class="pre">SimpleIntroducer</span></code></a><ul>
-<li><a class="reference internal" href="#chronostar.introducer.simpleintroducer.SimpleIntroducer.next_gen"><code class="docutils literal notranslate"><span class="pre">SimpleIntroducer.next_gen()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#chronostar.introducer.simpleintroducer.convert_num2alpha"><code class="docutils literal notranslate"><span class="pre">convert_num2alpha()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-chronostar.introducer">Module contents</a></li>
+<li><a class="reference internal" href="#chronostar-introducer-simpleintroducer-module">chronostar.introducer.simpleintroducer module</a></li>
+<li><a class="reference internal" href="#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>

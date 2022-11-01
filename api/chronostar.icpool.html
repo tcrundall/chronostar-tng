@@ -227,7 +227,7 @@
 <span id="chronostar-icpool-simpleicpool-module"></span><h2>chronostar.icpool.simpleicpool module<a class="headerlink" href="#module-chronostar.icpool.simpleicpool" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="chronostar.icpool.simpleicpool.SimpleICPool">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chronostar.icpool.simpleicpool.</span></span><span class="sig-name descname"><span class="pre">SimpleICPool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.icpool.simpleicpool.SimpleICPool" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chronostar.icpool.simpleicpool.</span></span><span class="sig-name descname"><span class="pre">SimpleICPool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_init_comps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.icpool.simpleicpool.SimpleICPool" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="chronostar.html#chronostar.base.BaseICPool" title="chronostar.base.BaseICPool"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseICPool</span></code></a></p>
 <p>Manager and populator of a pool of initial conditions</p>
 <dl class="py attribute">
@@ -285,12 +285,24 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="chronostar.icpool.simpleicpool.SimpleICPool.provide_start">
-<span class="sig-name descname"><span class="pre">provide_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_cond</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.icpool.simpleicpool.SimpleICPool.provide_start" title="Permalink to this definition">#</a></dt>
-<dd><p>Use the provided InitialCondition to start the queue</p>
+<dt class="sig sig-object py" id="chronostar.icpool.simpleicpool.SimpleICPool.next_gen">
+<span class="sig-name descname"><span class="pre">next_gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prev_comp_sets</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.icpool.simpleicpool.SimpleICPool.next_gen" title="Permalink to this definition">#</a></dt>
+<dd><p>Generate the next generation of initial conditions by splitting
+each existing component into two</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>init_conds</strong> (<a class="reference internal" href="chronostar.html#chronostar.base.InitialCondition" title="chronostar.base.InitialCondition"><em>InitialCondition</em></a>) – Some initial condition provided from outside of the ICPool</p>
+<dd class="field-odd"><p><strong>prev_comp_sets</strong> (<em>list</em><em>[</em><a class="reference internal" href="chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent"><em>BaseComponent</em></a><em>] </em><em>(</em><em>optional</em><em>)</em>) – A list of components from a previous fit. If none provided,
+a single (uninitialised) component will be returned.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of initial conditions, where each initial condition
+is a list of components</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[list[<a class="reference internal" href="chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent">BaseComponent</a>]]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>UserWarning</strong> – This introducer can only handle one set of components</p>
 </dd>
 </dl>
 </dd></dl>
@@ -403,7 +415,7 @@ best mixture and adds the next generation to the queue.</p>
 <li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.best_mixture"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.best_mixture</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.get_next"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.get_next()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.has_next"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.has_next()</span></code></a></li>
-<li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.provide_start"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.provide_start()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.next_gen"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.next_gen()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.register_result"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.register_result()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.try_populate_queue"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.try_populate_queue()</span></code></a></li>
 </ul>
