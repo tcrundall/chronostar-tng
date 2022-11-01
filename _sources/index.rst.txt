@@ -10,6 +10,14 @@ unbound stellar associations (aka "moving groups") and their members using
 features such as kinematics, age markers, chemical composition. The code 
 can be found on `github <https://github.com/tcrundall/chronostar-tng/>`_.
 
+These docs will sketch out the structure of the next generation of Chronostar
+code.
+
+
+It turns out fitting Gaussian Mixture Models is quite complex, so a lot of
+the design will be shamelessly *inspired* by 
+`scikit-learn <https://scikit-learn.org/stable/auto_examples/mixture/plot_gmm_selection.html>`_.
+
 ..
    Check out the :doc:`usage` section for further information, including how to :ref:`install <installation>` the project.
 
@@ -22,12 +30,10 @@ can be found on `github <https://github.com/tcrundall/chronostar-tng/>`_.
    :caption: Contents:
    :glob:
 
-   Installation <install>
-   Quickstart <quickstart>
-   Command-Line Interface <cli>
-   Scripts <scripts>
-   Configuration Settings <settings>
-   API <modules>
+   introduction
+   Getting Started <gettingstarted>
+   General Overview <generaloverview>
+   API <api/modules>
 
 
 ..

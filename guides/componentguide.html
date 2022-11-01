@@ -1,0 +1,370 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Mixture Guide" href="mixtureguide.html" /><link rel="prev" title="General Overview" href="../generaloverview.html" />
+
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
+        <title>Component Guide - chronostar-tng 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">chronostar-tng 1.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">chronostar-tng 1.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction to Chronostar</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../gettingstarted.html">Getting Started</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../userdocs/install.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userdocs/quickstart.html">Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userdocs/cli.html">Command-Line Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userdocs/scripts.html">Scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../userdocs/settings.html">Configuration Settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../generaloverview.html">General Overview</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Component Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mixtureguide.html">Mixture Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introducerguide.html">Introducer Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="icpoolguide.html">Initial Conditions Pool Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="driverguide.html">Driver Guide</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/modules.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/chronostar.html">chronostar package</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/chronostar.component.html">chronostar.component package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/chronostar.icpool.html">chronostar.icpool package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/chronostar.introducer.html">chronostar.introducer package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/chronostar.mixture.html">chronostar.mixture package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/chronostar.utils.html">chronostar.utils package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="component-guide">
+<h1>Component Guide<a class="headerlink" href="#component-guide" title="Permalink to this heading">#</a></h1>
+<p>A Component object models a simple distribution, typically a mutli-variate normal (i.e. Gaussian) distribution. A Component class encapsulates the parameters that define the distribution and the methods that determine the best parameters given input data.</p>
+<p>For example, a <a class="reference internal" href="../api/chronostar.component.html#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent" title="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent</span></code></a> is defined by an age, birth mean and birth covariance matrix, parameterised by a single array <cite>parameters</cite> (as used in Paper 1). It also has methods for calculating the log probability of stars <a class="reference internal" href="../api/chronostar.component.html#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.estimate_log_prob" title="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.estimate_log_prob"><code class="xref py py-func docutils literal notranslate"><span class="pre">estimate_log_prob()</span></code></a> and estimating its parameters <code class="xref py py-func docutils literal notranslate"><span class="pre">maximize()</span></code>. For more details, see the API.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The intention is to not differentiate between <em>Background</em> components and <em>stellar association</em> components. The difference will be implicit in the components’ parameterization and fitting method. For example, an association component could have an age parameter, where as a background component would have none. Some other methods could be employed such as enforcing a large minimum position spread for background components and a small minimum position spread for association components. If one wishes to get fancy, one could choose to implement a <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseIntroducer</span></code> which can convert background components to association components and vica verse, based on some “failure” criteria.</p>
+</div>
+<section id="example-spherespacetimecomponent-usage">
+<h2>Example SphereSpaceTimeComponent Usage<a class="headerlink" href="#example-spherespacetimecomponent-usage" title="Permalink to this heading">#</a></h2>
+<p>A simple usage will look something like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">resp</span> <span class="o">=</span> <span class="c1"># ... assume we have responsibilities (i.e. Z or membership probabilites)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="c1"># ... assume we have data, array-like with shape (n_samples, n_features)</span>
+<span class="n">config_params</span> <span class="o">=</span> <span class="c1"># ... assume we have Component specific config params as a dict</span>
+
+<span class="n">SphereSpaceTimeComponent</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">config_params</span><span class="p">)</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">SphereSpaceTimeComponent</span><span class="p">()</span>
+<span class="n">c</span><span class="o">.</span><span class="n">maximize</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
+<span class="n">log_probs</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">estimate_log_prob</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+<span class="c1"># If you have a specific parameters for the component (i.e. taken from a paper)</span>
+<span class="c1"># you can set the parameters yourself, but note that SphereSpaceTimeComponent</span>
+<span class="n">paper_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+<span class="n">params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">...</span><span class="p">])</span>  <span class="c1"># parameterise as best you can</span>
+</pre></div>
+</div>
+<p>If you desire a specific set of parameters, e.g. because you would like to match a component to that provided in paper, you can initialise a component by parameters. Note that this is non-trivial, since the components are typically parameterised by their <em>birth</em> distribution, and projecting arbitrary covariance matrices backwards through time rarely leads to a contracting distribution in space. This is how I would propose to do it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define current day mean and covariance</span>
+<span class="n">paper_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">...</span><span class="p">])</span>
+<span class="n">paper_covariance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">...</span><span class="p">]])</span>
+<span class="n">paper_age</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="n">birth_mean</span> <span class="o">=</span> <span class="n">SphereSpaceTimeComponent</span><span class="o">.</span><span class="n">trace_orbit_func</span><span class="p">(</span><span class="n">paper_mean</span><span class="p">,</span> <span class="o">-</span><span class="n">paper_age</span><span class="p">)</span>
+
+<span class="c1"># For birth velocity spread, estimate current day spherical velocity spread</span>
+<span class="c1"># and assume minimal change</span>
+<span class="n">birth_duvw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvals</span><span class="p">(</span><span class="n">paper_covariance</span><span class="p">[</span><span class="mi">3</span><span class="p">:,</span> <span class="mi">3</span><span class="p">:])))</span>
+
+<span class="c1"># For birth position spread, estimate current day spherical position spread</span>
+<span class="c1"># and assume linear expansion</span>
+<span class="n">paper_dxyz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvals</span><span class="p">(</span><span class="n">paper_covariance</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">])))</span>
+<span class="n">birth_dxyz</span> <span class="o">=</span> <span class="n">paper_xyz</span> <span class="o">-</span> <span class="n">age</span> <span class="o">*</span> <span class="n">birth_duvw</span>
+<span class="k">assert</span> <span class="n">birth_dxyz</span> <span class="o">&gt;</span> <span class="mf">0.</span>
+
+<span class="n">params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">birth_mean</span><span class="p">,</span> <span class="n">birth_dxyz</span><span class="p">,</span> <span class="n">birth_duvw</span><span class="p">,</span> <span class="n">paper_age</span><span class="p">))</span>
+
+<span class="c1"># Configuring is likely unnecessary, since we&#39;re not fitting to data</span>
+<span class="c1"># SphereSpaceTimeComponent.configure(config_params)</span>
+
+<span class="n">paper_comp</span> <span class="o">=</span> <span class="n">SphereSpaceTimeComponent</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+<span class="n">log_probs</span> <span class="o">=</span> <span class="n">paper_comp</span><span class="o">.</span><span class="n">estimate_log_prob</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="deriving-new-component-classes">
+<h2>Deriving New Component Classes<a class="headerlink" href="#deriving-new-component-classes" title="Permalink to this heading">#</a></h2>
+<p>The hope is that implementing a new component class is relatively straightforward.</p>
+<p>A new component class must inherit from <a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseComponent</span></code></a>. If you have an IDE (e.g. Visual Studio Code) and are using type hints, then the IDE will prompt you into completing all the necessary aspects.</p>
+<p><a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseComponent</span></code></a> has three abstract methods and one property you must implement:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent.estimate_log_prob" title="chronostar.base.BaseComponent.estimate_log_prob"><code class="xref py py-func docutils literal notranslate"><span class="pre">estimate_log_prob()</span></code></a>: given your component’s current distribution, estimate the log probability of a data point. i.e. if the distribution is a normalised PDF, evaluate it at the location of the data point, and take the log of the result.</p></li>
+<li><p><a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent.maximize" title="chronostar.base.BaseComponent.maximize"><code class="xref py py-func docutils literal notranslate"><span class="pre">maximize()</span></code></a>: given input data, determine the best values for the component’s parameters</p></li>
+<li><p><a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent.split" title="chronostar.base.BaseComponent.split"><code class="xref py py-func docutils literal notranslate"><span class="pre">split()</span></code></a>: split the current component into two similar, overlapping components that when combined more or less describe the original. This is the key mechanism used to by <a class="reference internal" href="../api/chronostar.introducer.html#chronostar.introducer.simpleintroducer.SimpleIntroducer" title="chronostar.introducer.simpleintroducer.SimpleIntroducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleIntroducer</span></code></a> to introduce new components.</p></li>
+<li><p><a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent.n_params" title="chronostar.base.BaseComponent.n_params"><code class="xref py py-func docutils literal notranslate"><span class="pre">n_params()</span></code></a>: define how many parameters are needed to parameterise the component. Calculations of BIC and AIC need to know this.</p></li>
+</ul>
+<p>Check the API for the required function signatures and return types.</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="mixtureguide.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Mixture Guide</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../generaloverview.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">General Overview</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, Timothy Crundall
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Component Guide</a><ul>
+<li><a class="reference internal" href="#example-spherespacetimecomponent-usage">Example SphereSpaceTimeComponent Usage</a></li>
+<li><a class="reference internal" href="#deriving-new-component-classes">Deriving New Component Classes</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/furo.js"></script>
+    </body>
+</html>

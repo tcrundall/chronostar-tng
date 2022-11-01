@@ -1,0 +1,371 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Component Guide" href="guides/componentguide.html" /><link rel="prev" title="Configuration Settings" href="userdocs/settings.html" />
+
+    <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
+        <title>General Overview - chronostar-tng 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">chronostar-tng 1.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">chronostar-tng 1.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction to Chronostar</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="gettingstarted.html">Getting Started</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="userdocs/install.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userdocs/quickstart.html">Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userdocs/cli.html">Command-Line Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userdocs/scripts.html">Scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="userdocs/settings.html">Configuration Settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">General Overview</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="guides/componentguide.html">Component Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guides/mixtureguide.html">Mixture Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guides/introducerguide.html">Introducer Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guides/icpoolguide.html">Initial Conditions Pool Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guides/driverguide.html">Driver Guide</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/modules.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/chronostar.html">chronostar package</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/chronostar.component.html">chronostar.component package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/chronostar.icpool.html">chronostar.icpool package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/chronostar.introducer.html">chronostar.introducer package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/chronostar.mixture.html">chronostar.mixture package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/chronostar.utils.html">chronostar.utils package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="general-overview">
+<h1>General Overview<a class="headerlink" href="#general-overview" title="Permalink to this heading">#</a></h1>
+<section id="chronostar-the-next-generation">
+<h2>Chronostar: The Next Generation<a class="headerlink" href="#chronostar-the-next-generation" title="Permalink to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="guides/componentguide.html">Component Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/mixtureguide.html">Mixture Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/introducerguide.html">Introducer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/icpoolguide.html">Initial Conditions Pool Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guides/driverguide.html">Driver Guide</a></li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All the guides are slightly out of date with the code. The general approach and algorithms are correct, but the specific module and class names may slightly differ.</p>
+</div>
+<p>The next generation of Chronostar prioritises simplicity, flexibility and extensibility. The default behaviour addresses the simplest scenario but the means of extending the capabilties for more complex scenarios is straight forward; by default Chronostar-TNG (will) provide abstract base classes which clearly dictate required interfaces as well as many different example reifications for the most basic scenarios. How one actually extends these example implementations to address complex scenarios is left to the user. ;)</p>
+<p>The framework of Chronostar TNG consists of 5 classes. A <a class="reference internal" href="guides/driverguide.html"><span class="doc">Driver</span></a>, a <a class="reference internal" href="guides/icpoolguide.html"><span class="doc">Initial Conditions Pool</span></a>, an <a class="reference internal" href="guides/introducerguide.html"><span class="doc">Introducer</span></a>, a <a class="reference internal" href="guides/mixtureguide.html"><span class="doc">Mixture</span></a> and a <a class="reference internal" href="guides/componentguide.html"><span class="doc">Component</span></a>.</p>
+<a class="reference internal image-reference" href="_images/simple_snapshot.svg"><img alt="A graphical representation of how the classes connect." src="_images/simple_snapshot.svg" width="800" /></a>
+<p>The goal of Chronostar is to be a flexible framework for fitting Gaussian
+Mixture Models to astronomical data. This will be achieved by utilising
+“injected dependencies”. The <a class="reference internal" href="guides/driverguide.html"><span class="doc">Driver</span></a> is composed of a collection
+of 4 classes (<a class="reference internal" href="guides/icpoolguide.html"><span class="doc">ICPool</span></a>, <a class="reference internal" href="guides/introducerguide.html"><span class="doc">Introducer</span></a>, <a class="reference internal" href="guides/mixtureguide.html"><span class="doc">Mixture</span></a> and <a class="reference internal" href="guides/componentguide.html"><span class="doc">Component</span></a>) for which
+Chronostar provides many implementations. Anyone wishing to modify
+aspects of Chronostar (e.g. input data, fitting method, models of
+components) simply needs to provide the <a class="reference internal" href="guides/driverguide.html"><span class="doc">driver</span></a> with their own
+class that matches the required interface, whether that be by writing
+the class from scratch, or by using inheritance to extend pre-existing
+classes.</p>
+<p>Here we provide a <a class="reference internal" href="#"><span class="doc">general overview</span></a> of the framework.</p>
+<section id="summary-of-driver">
+<h3>Summary of Driver<a class="headerlink" href="#summary-of-driver" title="Permalink to this heading">#</a></h3>
+<p>The <a class="reference internal" href="guides/driverguide.html"><span class="doc">Driver</span></a> is the top level manager of the entire process. It parses the config file, instantiates classes where appropriate, passes on the initialization parameters as necessary, and then runs the primary loop.
+The primary loop is only 4 lines long because the majority of the work is neatly delegated to the other classes. In a multiprocessor implementation, the Driver would also manage the MPI Pool.</p>
+</section>
+<section id="driver-icpool-interface">
+<h3>Driver-ICPool interface<a class="headerlink" href="#driver-icpool-interface" title="Permalink to this heading">#</a></h3>
+<p>The <a class="reference internal" href="guides/icpoolguide.html"><span class="doc">Initial Conditions Pool</span></a> or <em>ICPool</em> serves as (perhaps surprisingly) a pool of initial conditions. An ICPool generates set after set of plausible initial conditions. An initial conditions set is a list of <a class="reference internal" href="guides/componentguide.html"><span class="doc">Components</span></a>. For each set of initial conditions the <cite>Driver</cite> initializes a <a class="reference internal" href="guides/mixtureguide.html"><span class="doc">Mixture Model</span></a> (Gaussian or otherwise). The Mixture Model fits itself to the data by maximizing the parameters of its list of <cite>Components</cite>. Once fit the Mixture Model calculates its final score (AIC, BIC, etc.). The <cite>Driver</cite> registers each fit to the <cite>ICPool</cite> along with its score. The primary loop repeats and the Driver acquires the next set of initial conditions. When the <cite>ICPool</cite> runs out of plausible initial conditions, the primary loop ends and the <cite>Driver</cite> returns the best fit.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The interaction between Driver and ICPool lends itself well to parallelisation, an aspect sorely lacking in the original Chronostar. The number of processes that can fit a mixture model in parallel is only capped by the number of sets of initial conditions sitting in the ICPool.</p>
+</div>
+</section>
+<section id="icpool-introducer-interface">
+<h3>ICPool-Introducer interface<a class="headerlink" href="#icpool-introducer-interface" title="Permalink to this heading">#</a></h3>
+<p>Lets explore how the <cite>ICPool</cite> cultivates this pool of initial conditions and determines when to trigger an end to the primary loop. The <cite>ICPool</cite> builds up a <em>registry</em> of previous fits and their scores as registered by the <cite>Driver</cite>. The <cite>ICPool</cite> generates the next initial conditions based on this registry, perhaps by introducing one ore more extra components. The precise mechanism by which the <cite>ICPool</cite> introduces <cite>Components</cite> is determined by the <a class="reference internal" href="guides/introducerguide.html"><span class="doc">Introducer</span></a>. The <cite>Introducer</cite> takes one or more previous fits, and returns one or more plausible sets of initial conditions to the <cite>ICPool</cite>. The <cite>ICPool</cite> in turn <em>yields</em> each set to the <cite>Driver</cite>. By using the keyword <em>yield</em> we’ve turned <cite>ICPool</cite> (or more precisely one of its methods) into an iterable object which can be looped over. By inspecting the scores in the registry, the <cite>ICPool</cite> can determine when scores are conisitently failing to improve. At this point the <cite>ICPool</cite> stops yielding which triggers a <code class="docutils literal notranslate"><span class="pre">Stop</span> <span class="pre">Iteration</span></code> exception, thereby ending the primary loop.</p>
+</section>
+<section id="summary-of-mixture">
+<h3>Summary of Mixture<a class="headerlink" href="#summary-of-mixture" title="Permalink to this heading">#</a></h3>
+<p>Lets focus now on how a Mixture Model fits itself to the data. We acknowledge the expert craftspersonship of <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.mixture.GaussianMixture.html#sklearn.mixture.GaussianMixture">sklearn.mixture.GaussianMixture</a> and so our Mixture Models follow their interface closely, with our example implementation even inheriting from <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html#sklearn.base.BaseEstimator">sklearn.mixture.BaseMixture</a>. Our Mixture Model expects the inputdata to be array-like of floats. The Mixture Model runs an Expectation-Maximization (EM) algorithm on the data and its list of Components. The interesting parts of the EM algorithm (how the various features in the data is interpreted, how the Component parameters are maximized) are delegated to the Components themselves. The Mixture Model handles only the boring, tedious, delicate business of membership probabilities and EM convergence. It is unlikely the user will need to write their own Mixture Model.</p>
+</section>
+<section id="summary-of-component">
+<h3>Summary of Component<a class="headerlink" href="#summary-of-component" title="Permalink to this heading">#</a></h3>
+<p>The Component class is where the most variation will likely appear. The Component implementation determines what features we’re fitting to, and how we find the best parameters. If you want age dependency, you got it. If you want <code class="docutils literal notranslate"><span class="pre">emcee</span></code>, you got it. If you want Nelder-Mead, you got it. If you want a flat background component, you got it. If you want a background component that just reads off a column in the input data, you got it. If you want your stars to have uncertainties and correlations stored in the input data which you can use to constract star covariance matrices, you got it. If you want to propogate through time with galpy, epicyclic, or just a straight bloody line, you got it.</p>
+<p>As long as the data has the columns your Component expects, your Component can do whatever it likes, completley independently from the Chronostar.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>TODO: Finish this section…</p>
+</div>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="guides/componentguide.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Component Guide</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="userdocs/settings.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Configuration Settings</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, Timothy Crundall
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">General Overview</a><ul>
+<li><a class="reference internal" href="#chronostar-the-next-generation">Chronostar: The Next Generation</a><ul>
+<li><a class="reference internal" href="#summary-of-driver">Summary of Driver</a></li>
+<li><a class="reference internal" href="#driver-icpool-interface">Driver-ICPool interface</a></li>
+<li><a class="reference internal" href="#icpool-introducer-interface">ICPool-Introducer interface</a></li>
+<li><a class="reference internal" href="#summary-of-mixture">Summary of Mixture</a></li>
+<li><a class="reference internal" href="#summary-of-component">Summary of Component</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    </body>
+</html>
