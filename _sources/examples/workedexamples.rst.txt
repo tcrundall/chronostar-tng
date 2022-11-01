@@ -1,0 +1,303 @@
+Worked Examples
+===============
+
+Here we outline a couple of worked examples which demonstrate how to use
+Chronstar.
+
+Synthetic Example
+-----------------
+
+For testing purposes, Chronostar has a built in synthetic data generator,
+:class:`~chronostar.synthdata.SynthData`.
+
+.. note::
+
+    Don't look too closely at the source since it's still a bit of a mess...
+
+Generating Synthetic Data
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The process of synth data generation is as follows:
+
+- Define the initial mean and covariance of one or more independent 6D Gaussian stellar distributions in cartesian space (right-handed system, centered on the local standard of rest, such that ``X`` points towards the Galactic Center)
+- Randomly sample points from the distributions, this are the stars' birth places
+- Project each star forward through time by the age of its component to get the cartesian data of their current positions
+- Convert cartesian data into observables by "measuring"
+- Assign measurement uncertainties to the observables based on log-normal distributions fitted to Gaia data
+- Offset each measurment by some amount, where the amount is drawn from a normal distribution, with :math:`\mu=0` and :math:`\sigma` equal to the assigned measurement uncertainty.
+
+
+This process will provide us with a relatively realistic astrometry dataset, formatted like
+a fits file downloaded from Gaia. In code, this looks like the following:
+
+.. code:: python
+
+    import numpy as np
+    from chronostar import synthdata
+    from chronostar import datatools
+
+    # Define a "background" component
+    DIM = 6
+    bg_mean = np.zeros(DIM)
+    bg_stdev_pos = 500.
+    bg_stdev_vel = 30.
+    bg_cov = np.eye(DIM)
+    bg_cov[:3] *= bg_stdev_pos**2
+    bg_cov[3:] *= bg_stdev_vel**2
+
+    bg_age = 0.
+    bg_nstars = 1_000
+
+    # Define an "association" component
+    assoc_mean = np.ones(DIM)
+    assoc_stdev_pos = 50.
+    assoc_stdev_vel = 1.5
+    assoc_age = 30.
+    assoc_nstars = 200
+
+    assoc_cov = np.eye(DIM)
+    assoc_cov[:3] *= assoc_stdev_pos**2
+    assoc_cov[3:] *= assoc_stdev_vel**2
+
+    # Generate each component stars' current positions in cartesian space
+    seed = 0
+    rng = np.random.default_rng(seed)
+
+    # Generate a component with current day mean `bg_mean`, and with a birth covariance
+    # of `bg_cov`
+    bg_stars = synthdata.generate_association(
+        bg_mean, bg_cov, bg_age, bg_nstars, rng=rng,
+    )
+    assoc_stars = synthdata.generate_association(
+        assoc_mean, assoc_cov, assoc_age, assoc_nstars, rng=rng,
+    )
+    stars = np.vstack((assoc_stars, bg_stars))
+
+    # To make things easy, we scale down typical Gaia uncertainties by 70%
+    synthdata.SynthData.m_err = 0.3
+
+    # Measure astrometry and get a fits table, this will be the input into `prepare-data`
+    astrometry = synthdata.SynthData.measure_astrometry(stars)
+
+    # Lets just quickly check for bad data, in particular, bad parallaxes
+    # we know the stars have a position spread of 1000 pc, so shouldn't be
+    # many stars beyond 1,000 pc, therefore we ignore any stars with parallax
+    # less than 1 mas
+    subset_astrometry = astrometry[np.where(astrometry['parallax'] > 1.)]
+    subset_astrometry.write('synth_astro.fits')
+
+    # Just for fun, lets save the "true memberships", but mask out stars with bad
+    # parallax
+    true_membs = np.zeros((assoc_nstars + bg_nstars, 2))
+    true_membs[:assoc_nstars, 0] = 1.
+    true_membs[assoc_nstars:, 1] = 1.
+    subset_true_membs = np.copy(true_membs[np.where(astrometry['parallax'] > 1.)])
+    np.save('true_membs.npy', subset_true_membs)
+
+    # And if you want the data in arrays for whatever reason...
+    astro_data = datatools.extract_array_from_table(astrometry)
+    astro_means, astro_covs = datatools.construct_covs_from_data(astro_data)
+
+Now we have a synthetic data set. You may inspect it by:
+
+.. code:: python
+
+    >>> from astropy.table import Table
+    >>> t = Table.read('synth_astro.fits')
+    >>> t.info
+
+    <Table length=1200>
+             name          dtype
+    --------------------- -------
+                source_id   int64
+                       ra float64
+                 ra_error float64
+                      dec float64
+                dec_error float64
+                 parallax float64
+           parallax_error float64
+                     pmra float64
+               pmra_error float64
+                    pmdec float64
+              pmdec_error float64
+          radial_velocity float64
+    radial_velocity_error float64
+
+Using Prepare Data
+^^^^^^^^^^^^^^^^^^
+
+We can convert this back into cartesian space, complete with covariance matrices,by the following command-line tool:
+
+.. code:: bash
+
+    $ prepare-data synth_astro.fits
+
+This will generate 4 files:
+- ``data_means.npy``: the cartesian means of the data, with shape ``(n_stars, 6)``
+- ``data_covs.npy``: the cartesian covariances of the data, with shape ``(n_stars, 6, 6)``
+- ``ids.npy``: a 1D array of the stars' gaia ``source_id``. This is useful for bookkeeping in
+the event some stars were discarded due to bad/missing data.
+- ``all_data.npy``: a convenience file, equivalent to ``np.vstack((data_means.T, data_covs.flatten().T)).T``,
+which is how :class:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent` will
+expect the data
+
+You can check what this cartesian data looks like by plotting it:
+
+.. code:: bash
+
+    $ plot-features -m data_means.npy -c data_covs.npy -z true_membs.npy -f 0,1.0,2.1,2.0,3.1,4.2,5 -o synth_plots
+
+Note that this may take a few seconds, since we're plotting so many points. This will
+generate a file ``synth_plots/features.pdf``.
+
+The result should look a little like this:
+
+.. image:: ../images/synth-features.svg
+  :width: 800
+  :alt: A phase-space plot of synthetic data.
+
+
+Fitting a component
+-------------------
+
+For fun, lets fit a single component to the data. Since the data should
+be dominated by the background, we should get a component that describes
+the background, with similar mean and covariance to what we used to 
+generate the data.
+
+.. code:: bash
+
+    fit-component all_data.npy
+
+You'll get some raw output to the screen detailing the progress of a call 
+to :func:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.maximize`.
+Each 'H' character represents 10 calls to the loss function, therefore each row
+represents 500 such calls.
+
+Since there are local minima every 20 Myr, we start the maximizations at
+various different ages.
+
+The results should look a little like this:
+
+.. code:: bash
+
+    age: 0.010
+    -------------------
+    ----- RESULTS -----
+    -------------------
+      - params
+    [ -0.98046999  13.9609434   13.77419365   0.05277412   0.76612056
+      -0.80328497 344.95381506  26.0845931    0.01014714]
+
+This says that the age is ``0.01``, the mean is near-ish ``0`` for all but ``Y`` and ``Z``, and
+that the birth position standard deviation (``dxyz``) is ~\ ``345`` and the
+birth velocity standard deviation (``duvw``) is ~\ ``26``. Both of which are
+relatively near the initial conditions of ``500`` and ``30`` respectively.
+
+The cause of the smaller standard deviations is likely attributable to the
+overdenisty caused by the association stars. We didn't expect anything useful
+from this fit though, it was just for fun.
+
+Fitting a Mixture
+^^^^^^^^^^^^^^^^^
+
+Lets fit a mixture model. For starters, lets help things start off by providing
+the true memberships as the initial memberships. For this we need to configure
+some settings. Write a `config-mixture.yaml` file with the following contents:
+
+.. code:: yaml
+
+    mixture:
+        init_params: init_resp
+
+    run:
+        savedir: output-mixture
+
+Now call:
+
+.. code:: bash
+
+    $ fit-mixture c config-mixture.yaml 2 all_data.npy true_membs.npy
+
+This will kick off a 2-component mixture fit. The first component to be fit
+will be the association. Watch the output carefully. See that the maximize
+with `age_offset=0.0` gets an age of 0.0 (`res.x[-1]=0.00`), but the later
+offsets get larger ages, and indeed the best age is determined to be ~\ `30`.
+
+The final results should look a little something like this:
+
+.. code::
+
+    -------------------
+    ----- RESULTS -----
+    -------------------
+    --- component 0 ---
+     weight: 0.21557755108623822
+     params:
+    [-47.28802468   3.81141519  -6.19299571   1.74412884  -0.1221947
+      -0.66227324  51.55373574   1.54039683  30.28259584]
+    --- component 1 ---
+     weight: 0.7844224489137618
+     params:
+    [  0.29853494  17.91797311  18.17695939  -0.18002624   0.72729977
+      -1.1947355  388.74496962  29.45825668   0.00000144]
+
+You can compare the standard deviations (the 3rd and 2nd last array elements)
+and see they all match well except for the background component's ``dxyz``,
+most likely because we discarded stars with low parallax (large distance) and
+shrunk our dataset down.
+
+We can go ahead and plot this now:
+
+.. code:: bash
+
+    $ plot-features -m data_means.npy -c data_covs.npy -z output-mixture/memberships.npy -r output-mixture/ -f 0,1.0,2.1,2.0,3.1,4.2,5 -o plots-mixture -b
+
+The ``-r`` option points to the results of the fit, specifically the stored parameters of the components. The ``-b`` flag makes all components with ages less than ``0`` coloured grey.
+
+The result should look a little like this:
+
+.. image:: ../images/synth-mixture-features.svg
+  :width: 800
+  :alt: A phase-space plot of synthetic data.
+
+
+We could hypothetically also try a mixture fit with no initial help. Modify the `config-mixture.yml` file
+like so:
+
+.. code::
+
+    mixture:
+        init_params: random 
+        verbose: 2
+        verbose_interval: 1
+        tol: 1.e-5
+
+    run:
+        savedir: output-mixture-nohelp
+
+This will use scikit-learn's kmeans implementation to initialise memberships
+to the components. See :ref:`settings` for a complete list of all configuration settings.
+We must reduce the tolerance from sklearn's default of ``1.e-3`` down to ``1.e-5`` because the change in
+average log probability is very subtle in the early EM iterations. In general,
+this value should be ``1.e-4`` or lower.
+
+However, this is not Chronostar's intended purpose, so there's no guarantee this will yield useful results...
+
+Fitting Chronostar
+^^^^^^^^^^^^^^^^^^
+
+``config-chron.yaml`` file:
+
+.. code:: yaml
+    mixture:
+        tol: 1.e-4
+        verbose: 2
+        verbose_interval: 1
+
+    run:
+        savedir: output-chron
+
+.. code::
+
+    $ fit-chronostar -c config-chron.yml data_all.npy

@@ -33,7 +33,9 @@ the design will be shamelessly *inspired* by
    introduction
    Getting Started <gettingstarted>
    General Overview <generaloverview>
+   Worked Examples <examples/workedexamples>
    API <api/modules>
+   FAQ <faq>
 
 
 ..
