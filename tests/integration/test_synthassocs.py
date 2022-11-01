@@ -243,7 +243,7 @@ def test_one_assoc_one_uniform_background():
     return best_mixture, stars
 
 
-# @pytest.mark.skip("Takes over 6 hours to run")
+# @pytest.mark.skip("Takes around 1 hour to run")
 def test_uncertain_one_assoc_one_gaussian_background():
     DIM = 6
     bg_mean = np.zeros(DIM)
@@ -279,7 +279,7 @@ def test_uncertain_one_assoc_one_gaussian_background():
 
     stars = np.vstack((assoc_stars, bg_stars))
 
-    synthdata.SynthData.m_err = 0.3
+    synthdata.SynthData.m_err = 0.6
     astrometry = synthdata.SynthData.measure_astrometry(stars)
     astro_data = datatools.extract_array_from_table(astrometry)
     astro_means, astro_covs = datatools.construct_covs_from_data(astro_data)

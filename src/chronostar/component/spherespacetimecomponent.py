@@ -68,8 +68,8 @@ def construct_params_from_cov(
     NDArray[float64] of shape(2)
         The standard deviations in space and velocity: (dxyz, duvw)
     """
-    dxyz = np.power(np.prod(np.linalg.eigvals(covariance[:3, :3])), 1./6.)
-    duvw = np.power(np.prod(np.linalg.eigvals(covariance[3:, 3:])), 1./6.)
+    dxyz = np.real(np.power(np.prod(np.linalg.eigvals(covariance[:3, :3])), 1./6.))
+    duvw = np.real(np.power(np.prod(np.linalg.eigvals(covariance[3:, 3:])), 1./6.))
     return np.hstack(
         [dxyz, duvw],
     )

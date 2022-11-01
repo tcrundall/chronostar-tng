@@ -9,7 +9,6 @@ Subpackages
 
    chronostar.component
    chronostar.icpool
-   chronostar.introducer
    chronostar.mixture
    chronostar.utils
 

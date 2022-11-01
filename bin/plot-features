@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+from typing import Optional
 from astropy.table import Table
 from pathlib import Path
 from matplotlib.patches import Ellipse
@@ -23,7 +24,7 @@ def plot_cov_ellipse(
     cov : NDArray[float64],
     pos: NDArray[float64],
     nstd: float = 2.,
-    ax: Axes = None,
+    ax: Optional[Axes] = None,
     with_line: bool = True,
     zorder: int = 4,
     **kwargs
@@ -185,9 +186,11 @@ if __name__ == '__main__':
     membership = None
     if Path(args.membership).is_file():
         membership = np.load(Path(args.membership))
-        n_comps = len(membership.T)
     else:
-        print(f"No {args.membership=} file provided. I think this is required...")
+        raise UserWarning(
+            f"No {args.membership=} file provided. I think this is required..."
+        )
+    n_comps = len(membership.T)
 
     data_means = None
     if Path(args.means).is_file():
@@ -239,17 +242,17 @@ if __name__ == '__main__':
     labels = args.labels.split(',')
 
     # Consts for plotting alphas
-    ALPHA_MAX = 0.7
-    ALPHA_MIN = 0.1
+    ALPHA_MAX = 0.5
+    ALPHA_MIN = 0.2
     ALPHA_SPAN = ALPHA_MAX - ALPHA_MIN
 
     # Consts for scatter plot marker sizes
-    MARKERSIZE_MAX = 20
-    MARKERSIZE_MIN = 0.1
+    MARKERSIZE_MAX = 10
+    MARKERSIZE_MIN = 0.3
     MARKERSIZE_SPAN = MARKERSIZE_MAX - MARKERSIZE_MIN
 
     # Prepare colors
-    GRAY_COLOR = np.array([0.8, 0.8, 0.8, 1])
+    GRAY_COLOR = np.array([0.4, 0.4, 0.4, 1])
     n_aged_comps = sum(aged_comps_map)
     aged_colors = cm.jet(np.arange(n_aged_comps) / n_aged_comps)
     np.random.seed(0)
@@ -339,7 +342,7 @@ if __name__ == '__main__':
                 cmp_msk = np.where(comp_membs > 0.5)
 
                 label = None
-                if aged_comps_map[comp_ix]:
+                if comps and aged_comps_map[comp_ix]:
                     label = f'{comp_ix:>2}: {comps[comp_ix].age:5.1f}Myr'
 
                 # Scale each point size by number of members for component
@@ -402,3 +405,4 @@ if __name__ == '__main__':
         fig.set_size_inches(n_cols * 4.5, n_rows * 4)
         fig.tight_layout()
         fig.savefig(str(outdir / 'features.pdf'))
+        fig.savefig(str(outdir / 'features.svg'))

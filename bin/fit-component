@@ -15,7 +15,7 @@ from threadpoolctl import threadpool_limits
 
 DEFAULT_CONFIG_PARAMS = {
     "modules": {
-        "component": "SpaceTimeComponent",
+        "component": "SphereSpaceTimeComponent",
     },
     "component": {},
     "run": {
@@ -117,7 +117,7 @@ if __name__ == "__main__":
     component = CompClass()
 
     with threadpool_limits(limits=config_params["run"]["nthreads"], user_api="openmp"):
-        component.maximize(data, np.log(membership))
+        component.maximize(data, membership)
 
     # Output result
     params = component.get_parameters()

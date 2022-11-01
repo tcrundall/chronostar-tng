@@ -20,7 +20,7 @@ def test_sphereSTC():
     true_mean = np.ones(6)
     true_dxyz = 10.  # pc
     true_duvw = 2.   # km/s
-    ages = [0., 10., 30., 75., 120., 180., 240.]
+    ages = [0., 10., 30., 75., 120., 180.]
 
     fitted_comps = []
     SphereSpaceTimeComponent.configure(
