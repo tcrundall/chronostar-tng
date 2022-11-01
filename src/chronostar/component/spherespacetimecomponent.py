@@ -295,7 +295,7 @@ class SphereSpaceTimeComponent(BaseComponent):
             'STDEV': (0., 30_000.,),
             'INV_STDEV': (0., np.inf),
             'CORR': (-1, 1),
-            'AGE': (-50, 1_100),
+            'AGE': (0, 200),
         }
 
         par_types = 6*['MEAN'] + 2*['STDEV'] + ['AGE']
@@ -395,6 +395,11 @@ class SphereSpaceTimeComponent(BaseComponent):
             for age_offset in age_offsets:
                 # Offset initial guess age by a certain amount
                 ig_age = base_init_guess[-1] + age_offset
+
+                # Skip negative ages
+                if ig_age < 0:
+                    continue
+
                 print(f"[SphereSpaceTimeComponent.maximize] {age_offset=}")
                 print(f"[SphereSpaceTimeComponent.maximize] {ig_age=}")
 
