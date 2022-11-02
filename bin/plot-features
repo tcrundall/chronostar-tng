@@ -190,15 +190,6 @@ if __name__ == '__main__':
 
     # Load in relevant data
 
-    membership = None
-    if Path(args.membership).is_file():
-        membership = np.load(Path(args.membership))
-    else:
-        raise UserWarning(
-            f"No {args.membership=} file provided. I think this is required..."
-        )
-    n_comps = len(membership.T)
-
     data_means = None
     if Path(args.means).is_file():
         data_means = np.load(Path(args.means))
@@ -210,6 +201,18 @@ if __name__ == '__main__':
         data_covs = np.load(Path(args.covs))
     else:
         print(f"No {args.covs=} file provided.")
+
+    membership = None
+    if Path(args.membership).is_file():
+        membership = np.load(Path(args.membership))
+    else:
+        if data_means is not None:
+            membership = np.ones((len(data_means), 1))
+        else:
+            raise UserWarning(
+                f"No {args.membership=} file provided. I think this is required..."
+            )
+    n_comps = len(membership.T)
 
     astro_data = None
     if args.astrodata and Path(args.astrodata).is_file():
@@ -276,7 +279,7 @@ if __name__ == '__main__':
 
     # Prepare component-size dependent alphas and markersizes
     comp_weights = membership.sum(axis=0) / membership.sum()
-    weight_span = max(comp_weights) - min(comp_weights)
+    weight_span = max(max(comp_weights) - min(comp_weights), 0.01)
     scale_w2a = ALPHA_SPAN / weight_span
     alphas = ALPHA_MAX - (comp_weights - min(comp_weights)) * scale_w2a
     scale_w2m = MARKERSIZE_SPAN / weight_span
@@ -419,3 +422,4 @@ if __name__ == '__main__':
         fig.tight_layout()
         fig.savefig(str(outdir / 'features.pdf'))
         fig.savefig(str(outdir / 'features.svg'))
+        fig.savefig(str(outdir / 'features.png'))

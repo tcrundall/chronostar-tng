@@ -2,6 +2,7 @@
 import argparse
 from astropy.table import Table
 import numpy as np
+from pathlib import Path
 
 from chronostar import datatools
 from chronostar.utils import coordinate, transform
@@ -58,6 +59,18 @@ def init_argparse() -> argparse.ArgumentParser:
         help="Whether to skip merging means and covariances into one data array",
         action="store_true",
     )
+    parser.add_argument(
+        "-f",
+        "--fakervs",
+        help="Replace missing RVs with fake ones",
+        action="store_true",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        help="Output directory",
+        default=".",
+    )
 
     return parser
 
@@ -67,46 +80,66 @@ if __name__ == '__main__':
     parser = init_argparse()
     args = parser.parse_args()
 
+    # Set up save directory (lest we simply crash at the end)
+    savedir = Path(args.output)
+
+    if not savedir.is_dir():
+        savedir.mkdir(parents=True)
+
     # Read in astropy table
     t = Table.read(args.astrodata)
 
-    # Assume RVs are the only missing data
-    msk = np.where(np.isfinite(t['radial_velocity']))
+    COLUMN_STEMS = [
+        'ra', 'dec', 'parallax', 'pmra', 'pmdec', 'radial_velocity'
+    ]
+
+    # Substitute fake radial velocities for any that are missing
+    fake_rv = np.mean(t['radial_velocity'])
+    FAKE_RV_ERROR = 10_000.  # km/s
+    if args.fakervs:
+        missing_mask = ~ np.isfinite(t['radial_velocity'])
+        np.save(savedir / "fake_rvs_ids.npy", t['source_id'][np.where(missing_mask)])
+        t['radial_velocity'][missing_mask] = fake_rv
+        t['radial_velocity_error'][missing_mask] = FAKE_RV_ERROR
+
+    # Define mask for all valid rows
+    msk = np.isfinite(t['radial_velocity'])
+    for column in COLUMN_STEMS:
+        msk &= np.isfinite(t[column])
+
+    import ipdb; ipdb.set_trace()
 
     # Extract astrometry data, 6 measurements, 6 errors, 15 correlations
     # Assume gaia formatting
-    astrodata = np.zeros((len(msk[0]), 6 + 6 + 15))
+    astrodata = np.zeros((len(msk), 6 + 6 + 15))
 
-    column_stems = [
-        'ra', 'dec', 'parallax', 'pmra', 'pmdec', 'radial_velocity'
-    ]
-    dim = len(column_stems)
+    dim = len(COLUMN_STEMS)
     # Insert measurements
-    for i, stem in enumerate(column_stems):
+    for i, stem in enumerate(COLUMN_STEMS):
         astrodata[:, i] = t[stem][msk]
 
     # Insert errors
     error_col_offset = dim
-    for i, stem in enumerate(column_stems):
+    for i, stem in enumerate(COLUMN_STEMS):
         error_col_name = f"{stem}_error"
         astrodata[:, error_col_offset + i] = t[error_col_name][msk]
 
     # Insert correlations
     corr_col = 2 * dim
-    for i in range(len(column_stems)):
-        for j in range(i+1, len(column_stems)):
-            corr_col_name = f"{column_stems[i]}_{column_stems[j]}_corr"
+    for i in range(len(COLUMN_STEMS)):
+        for j in range(i+1, len(COLUMN_STEMS)):
+            corr_col_name = f"{COLUMN_STEMS[i]}_{COLUMN_STEMS[j]}_corr"
             if corr_col_name in t.keys():
                 astrodata[:, corr_col] = t[corr_col_name][msk]
             corr_col += 1
 
     # Insert covariances
     corr_col = 2 * dim
-    for i in range(len(column_stems)):
-        for j in range(i+1, len(column_stems)):
-            corr_col_name = f"{column_stems[i]}_{column_stems[j]}_corr"
-            error_1 = f"{column_stems[i]}_error"
-            error_2 = f"{column_stems[j]}_error"
+    for i in range(len(COLUMN_STEMS)):
+        for j in range(i+1, len(COLUMN_STEMS)):
+            corr_col_name = f"{COLUMN_STEMS[i]}_{COLUMN_STEMS[j]}_corr"
+            error_1 = f"{COLUMN_STEMS[i]}_error"
+            error_2 = f"{COLUMN_STEMS[j]}_error"
             if corr_col_name in t.keys():
                 astrodata[:, corr_col] =\
                     t[corr_col_name][msk] * t[error_1][msk] * t[error_2][msk]
@@ -122,9 +155,9 @@ if __name__ == '__main__':
     cart_covs = np.empty(astro_covs.shape)
 
     print("Converting to cartesian coordinates")
-    for i in range(len(msk[0])):
+    for i in range(len(msk)):
         if i % 100 == 0:
-            print(f"Converted {i/len(msk[0])*100:5.1f}% of input", end='\r')
+            print(f"Converted {i/len(msk)*100:5.1f}% of input", end='\r')
         cart_means[i], cart_covs[i] = convert_astro2cart(
             astro_means[i], astro_covs[i],
         )
@@ -132,13 +165,13 @@ if __name__ == '__main__':
     print("\nDone!")
 
     # Store data in numpy arrays
-    np.save("data_means.npy", cart_means)
-    np.save("data_covs.npy", cart_covs)
+    np.save(savedir / "data_means.npy", cart_means)
+    np.save(savedir / "data_covs.npy", cart_covs)
 
     # Store ids
-    np.save("ids.npy", t['source_id'][msk])
+    np.save(savedir / "ids.npy", t['source_id'][msk])
 
     # Merge into one data array if requested
     if not args.nomerge:
         cart_all = np.vstack((cart_means.T, cart_covs.flatten().reshape(-1, 36).T)).T
-        np.save("data_all.npy", cart_all)
+        np.save(savedir / "data_all.npy", cart_all)
