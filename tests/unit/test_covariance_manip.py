@@ -11,7 +11,7 @@ def test_construction_from_eigenvals():
     true_stdev = 30.
     true_cov = true_stdev**2 * np.eye(dim)
     nsamples = 100
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(seed=0)
     data = rng.multivariate_normal(mean=true_mean, cov=true_cov, size=nsamples)
     return data
 

@@ -55,7 +55,8 @@ def test_twoassocs():
         ))
     )
 
-    rng = np.random.default_rng()
+    seed = 0
+    rng = np.random.default_rng(seed)
     stars_1 = rng.multivariate_normal(
         true_comp_1.mean, true_comp_1.covariance, size=n_stars_1
     )

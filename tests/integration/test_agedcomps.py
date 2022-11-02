@@ -33,8 +33,8 @@ def test_sphereSTC():
         true_params = np.hstack((true_mean, true_dxyz, true_duvw, true_age))
         true_comp = SphereSpaceTimeComponent(true_params)
 
-        np.random.seed(0)
-        rng = np.random.default_rng()
+        seed = 0
+        rng = np.random.default_rng(seed)
 
         n_stars = 1_000
         stars = rng.multivariate_normal(

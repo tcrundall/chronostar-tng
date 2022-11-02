@@ -37,8 +37,7 @@ def test_spacecomp():
     SpaceComponent.configure(nthreads=1, stellar_uncertainties=False)
     true_comp = SpaceComponent(true_params)
 
-    np.random.seed(0)
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(seed=0)
 
     n_stars = 1_000
     stars = rng.multivariate_normal(

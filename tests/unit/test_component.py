@@ -84,7 +84,7 @@ def test_usage() -> None:
     true_stdev = 30.
     true_cov = true_stdev**2 * np.eye(6)
     nsamples = 100
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(seed=0)
     data = rng.multivariate_normal(mean=true_mean, cov=true_cov, size=nsamples)
 
     true_log_probs = multivariate_normal.logpdf(
