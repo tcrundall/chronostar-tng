@@ -11,7 +11,7 @@ def read(fname):
 
 
 setup(
-    name="chronostar-trial",
+    name="chronostar",
     version="0.0.1",
     author="Timothy Crundall",
     author_email="tim.crundall@gmail.com",
@@ -39,5 +39,6 @@ setup(
         'bin/fit-chronostar',
         'bin/prepare-data',
         'bin/plot-features',
+        'bin/calc-memberships',
     ]
 )
