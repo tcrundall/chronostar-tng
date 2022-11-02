@@ -341,14 +341,13 @@ a fits file downloaded from Gaia. In code, this looks like the following:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ prepare-data synth_astro.fits
 </pre></div>
 </div>
-<p>This will generate 4 files:
-- <code class="docutils literal notranslate"><span class="pre">data_means.npy</span></code>: the cartesian means of the data, with shape <code class="docutils literal notranslate"><span class="pre">(n_stars,</span> <span class="pre">6)</span></code>
-- <code class="docutils literal notranslate"><span class="pre">data_covs.npy</span></code>: the cartesian covariances of the data, with shape <code class="docutils literal notranslate"><span class="pre">(n_stars,</span> <span class="pre">6,</span> <span class="pre">6)</span></code>
-- <code class="docutils literal notranslate"><span class="pre">ids.npy</span></code>: a 1D array of the stars’ gaia <code class="docutils literal notranslate"><span class="pre">source_id</span></code>. This is useful for bookkeeping in
-the event some stars were discarded due to bad/missing data.
-- <code class="docutils literal notranslate"><span class="pre">all_data.npy</span></code>: a convenience file, equivalent to <code class="docutils literal notranslate"><span class="pre">np.vstack((data_means.T,</span> <span class="pre">data_covs.flatten().T)).T</span></code>,
-which is how <a class="reference internal" href="../api/chronostar.component.html#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent" title="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent</span></code></a> will
-expect the data</p>
+<p>This will generate 4 files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">data_means.npy</span></code>: the cartesian means of the data, with shape <code class="docutils literal notranslate"><span class="pre">(n_stars,</span> <span class="pre">6)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data_covs.npy</span></code>: the cartesian covariances of the data, with shape <code class="docutils literal notranslate"><span class="pre">(n_stars,</span> <span class="pre">6,</span> <span class="pre">6)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ids.npy</span></code>: a 1D array of the stars’ gaia <code class="docutils literal notranslate"><span class="pre">source_id</span></code>. This is useful for bookkeeping in the event some stars were discarded due to bad/missing data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">all_data.npy</span></code>: a convenience file, equivalent to <code class="docutils literal notranslate"><span class="pre">np.vstack((data_means.T,</span> <span class="pre">data_covs.flatten().T)).T</span></code>, which is how <a class="reference internal" href="../api/chronostar.component.html#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent" title="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent</span></code></a> will expect the data</p></li>
+</ul>
 <p>You can check what this cartesian data looks like by plotting it:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ plot-features -m data_means.npy -c data_covs.npy -z true_membs.npy -f <span class="m">0</span>,1.0,2.1,2.0,3.1,4.2,5 -o synth_plots
 </pre></div>
