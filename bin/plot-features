@@ -52,6 +52,7 @@ def plot_cov_ellipse(
     """
     if ax is None:
         ax = plt.gca()
+    assert ax is not None
 
     # largest eigenvalue is first
     vals, vecs = eigsorted(cov)
@@ -60,7 +61,13 @@ def plot_cov_ellipse(
 
     # Width and height are "full" widths, not radius
     width, height = 2 * nstd * np.sqrt(vals)
-    ellip = Ellipse(xy=pos, width=width, height=height, angle=theta, **kwargs)
+    ellip = Ellipse(
+        xy=pos,         # type: ignore
+        width=width,
+        height=height,
+        angle=theta,
+        **kwargs
+    )
 
     if 'alpha' not in kwargs.keys():
         ellip.set_alpha(0.3)
@@ -216,18 +223,24 @@ if __name__ == '__main__':
 
     # Construct component objects from stored parameters
     # Currently hardcoded only for SphereSpaceTimeComponent
-    comps = []
+    comps: list[SphereSpaceTimeComponent] = []
     if args.results and Path(args.results).is_dir():
         results_dir = Path(args.results)
         comp_pars = []
         comp_ix = 0
-        while True:
+        for comp_ix in range(n_comps):
+            # Attempt to read a nested file structure
             try:
                 pars_file = results_dir / f"comp_{comp_ix:03}" / "params.npy"
                 comp_pars.append(np.load(pars_file))
-                comp_ix += 1
             except FileNotFoundError:
-                break
+                pass
+            # Attempt to read a flat file structure
+            try:
+                pars_file = results_dir / f"comp_{comp_ix:03}_params.npy"
+                comp_pars.append(np.load(pars_file))
+            except FileNotFoundError:
+                pass 
 
         for comp_par in comp_pars:
             comps.append(SphereSpaceTimeComponent(comp_par))
@@ -254,7 +267,7 @@ if __name__ == '__main__':
     # Prepare colors
     GRAY_COLOR = np.array([0.4, 0.4, 0.4, 1])
     n_aged_comps = sum(aged_comps_map)
-    aged_colors = cm.jet(np.arange(n_aged_comps) / n_aged_comps)
+    aged_colors = cm.jet(np.arange(n_aged_comps) / n_aged_comps)    # type: ignore
     np.random.seed(0)
     np.random.shuffle(aged_colors)
     colors = np.tile(GRAY_COLOR, (n_comps, 1))
@@ -333,7 +346,7 @@ if __name__ == '__main__':
             membership = np.ones((len(data_means), 1))
 
         # Plot each plane on an axis
-        for (x_feat, y_feat), ax in zip(feat_ixs, axes.reshape(-1)):
+        for (x_feat, y_feat), ax in zip(feat_ixs, axes.flat):
             # Plot each component's members separately
             for comp_ix, comp_membs in enumerate(membership.T):
                 comp_weight = comp_weights[comp_ix]
@@ -400,7 +413,7 @@ if __name__ == '__main__':
             ax.set_xlabel(labels[x_feat])
             ax.set_ylabel(labels[y_feat])
 
-        ax.legend(loc=3)
+        axes.flat[-1].legend(loc=3)
 
         fig.set_size_inches(n_cols * 4.5, n_rows * 4)
         fig.tight_layout()

@@ -80,7 +80,6 @@ class SimpleICPool(BaseICPool):
             self.next_gen(None)
             self.first_pass = False
             print(f"{self.n_generations=}")
-            self.n_generations += 1
             return
 
         # Otherwise, check registry, see if we should generate next generation
@@ -96,7 +95,6 @@ class SimpleICPool(BaseICPool):
         if best_score > self.best_score_:
             print(f"{self.n_generations=}")
             print(f"{best_score=}")
-            self.n_generations += 1
 
             self.best_mixture_ = best_mixture
             self.best_score_ = best_score
@@ -178,6 +176,7 @@ class SimpleICPool(BaseICPool):
         if prev_comp_sets is None:
             components = (self.component_class(params=None),)
             self.put_in_queue(components, parent_label='XXX', extra='auto')
+            self.n_generations += 1
             return
 
         if isinstance(prev_comp_sets, list):

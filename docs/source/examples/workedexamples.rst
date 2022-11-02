@@ -289,12 +289,15 @@ Fitting Chronostar
 
 .. code:: yaml
     mixture:
-        tol: 1.e-4
+        tol: 1.e-5
         verbose: 2
         verbose_interval: 1
 
+    driver:
+        savedir: output-chron/intermediate
+
     run:
-        savedir: output-chron
+        savedir: output-chron/final
 
 .. code::
 
