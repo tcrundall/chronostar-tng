@@ -434,6 +434,8 @@ To keep things tidy, we store these files in a subdirectory. You may keep your d
 
     mkdir data-full
     mv *.npy data-full
+    mkdir rvs-subset-data
+    mkdir rvless-subset-data
 
 When that's done, we can apply the cartesian data cuts on all stars:
 
