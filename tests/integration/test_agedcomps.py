@@ -24,7 +24,7 @@ def test_sphereSTC():
 
     fitted_comps = []
     SphereSpaceTimeComponent.configure(
-        nthreads=1,
+        nthreads=4,
         age_offset_interval=1,
         stellar_uncertainties=False,
     )

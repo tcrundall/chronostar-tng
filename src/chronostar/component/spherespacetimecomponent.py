@@ -161,7 +161,12 @@ class SphereSpaceTimeComponent(BaseComponent):
         super().configure(**kwargs)
 
         # Perform some config checks
-        if cls.nthreads is not None and cls.nthreads > NUMBA_NUM_THREADS:
+
+        # Numba is sole source of parallelisation
+        # Default nthreads is max available
+        if cls.nthreads is None:
+            cls.nthreads = NUMBA_NUM_THREADS
+        elif cls.nthreads > NUMBA_NUM_THREADS:
             print(f"[CONFIG] SphereSpaceTimeComponent: {cls.nthreads=}"
                   f" > {NUMBA_NUM_THREADS=}, overriding to {NUMBA_NUM_THREADS}")
             cls.nthreads = min(cls.nthreads, NUMBA_NUM_THREADS)

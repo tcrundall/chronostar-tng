@@ -21,7 +21,7 @@ CONFIG_PARAMS: dict[str, Any] = {
     'mixture': {'a': 1, 'b': 2, 'c': 3},
     'component': {
         'reg_covar': 1e-3,
-        'nthreads': 1,
+        'nthreads': 4,
         'stellar_uncertainties': False
     },
     'run': {
