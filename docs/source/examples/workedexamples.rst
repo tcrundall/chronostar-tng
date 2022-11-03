@@ -389,7 +389,7 @@ Navigate to Gaia DR3's Advanced ADQL query and submit the following query:
     -- Radial velocities 
     g.radial_velocity, g.radial_velocity_error
     FROM gaiadr3.gaia_source as g
-    -- ScoCen: stars between 83 and 222 pc (eta Cha is at 97 pc)
+    -- BPMG: stars closer than 100pc and 3% or better error
     WHERE (g.parallax > 10 AND g.parallax_error/g.parallax < 0.03)
 
 This should get you 285,885 rows.
