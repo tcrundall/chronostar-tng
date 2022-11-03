@@ -340,7 +340,7 @@ match (n_stars, n_components)</p>
 </div>
 <p>Since a mixture model utilises components, one can provide component
 configuration parameters along with those for the mixture:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span><span class="p">:</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">modules</span><span class="p">:</span>
    <span class="n">component</span><span class="p">:</span> <span class="s2">&quot;SpaceComponent&quot;</span>      <span class="c1"># 6D Gaussian with no age</span>
    <span class="n">mixture</span><span class="p">:</span> <span class="s2">&quot;ComponentMixture&quot;</span>      <span class="c1"># Default mixture (currently no alterantives anyway)</span>
 
@@ -383,7 +383,7 @@ $ fit-chronostar -c path/to/config.yml path/to/means.npy --covs path/to/covs.npy
 </pre></div>
 </div>
 <p>An example config file is:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span><span class="p">:</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">modules</span><span class="p">:</span>
    <span class="n">component</span><span class="p">:</span> <span class="s2">&quot;SpaceComponent&quot;</span>      <span class="c1"># 6D Gaussian with no age</span>
    <span class="n">mixture</span><span class="p">:</span> <span class="s2">&quot;ComponentMixture&quot;</span>      <span class="c1"># Default mixture (currently no alterantives anyway)</span>
    <span class="n">introducer</span><span class="p">:</span> <span class="s2">&quot;SimpleIntroducer&quot;</span>   <span class="c1"># Determines how components are introduced into future fits</span>

@@ -288,12 +288,19 @@ Fitting Chronostar
 ``config-chron.yaml`` file:
 
 .. code:: yaml
+
+    component:
+        # Default is total number of cores, and controlled by environment variable
+        # NUMBA_NUM_THREADS
+        nthreads: 4
+
     mixture:
         tol: 1.e-5
         verbose: 2
         verbose_interval: 1
 
     driver:
+        intermediate_dumps: True
         savedir: output-chron/intermediate
 
     run:
@@ -302,3 +309,311 @@ Fitting Chronostar
 .. code::
 
     $ fit-chronostar -c config-chron.yml data_all.npy
+
+This takes on the order of a couple of hours. You may want to run it in the background:
+
+.. code::
+
+    $ nohup fit-chronostar -c config-chron.yml data_all.npy > logs-chron.out &
+
+Your standard out (or ``logs-chron.out`` file) should begin like this:
+
+.. code::
+    :number-lines:
+
+    Letting introducer generate first IC
+    self.n_generations=0
+    [DRIVER] Fitting AAA-XXX-0000-0001-auto
+    [DRIVER] init_comps[0].parameters_set=False
+    --------------------------------------------------
+    Fitting 1-comp mixture
+    --------------------------------------------------
+    Initialization 0
+    [SKLMixture._initialize_parameters]: Initializing parameters!
+    [SKLMixture._initialize_parameters]: self.init_params='random'
+    [SphereSpaceTimeComponent.maximize] self.nthreads=None
+
+At the moment the output are arbitrary print statements, so will likely change as logging becomes more sophisticated. Line 0 tells us that the ``ICPool`` was responsible for generating the first :class:`~chronostar.base.InitialCondition`.
+Line 2 tells us which mixture the :class:`~chronostar.driver.Driver` is fitting.
+The name of the mixture is very descriptive and is intended to remain applicable regardless of the specific classes used by the driver.
+
+The first part is a 3 digit unique identifier, which counts upwards from ``AAA`` for each mixture. The second part is the 3 digit unique identify of this mixtures "parent", i.e. the previous mixture which the ``ICPool`` used to generate this mixture's generation. Since this is the first mixture, it has no parent, and is thus labeled ``XXX``. The third part is the generation number of this mixture. The fourth part is the number of components in this mixture. The final part is an optional extra chosen by the ``ICPool`` in use. In this case, it will tell us which component of the parent mixture ``ICPool`` split in two in order to generate this mixture. Again, since this is the first mixture, this doesn't have a useful value.
+
+For reference, the next mixture label will be ``AAB-AAA-0001-0002-0``. It is the ``AAB``\ th mixture. Its parent was ``AAA``, it is from generation ``1``, has ``2`` components and was initialised by splitting component ``0`` (the only component) of mixture ``AAA``.
+
+The ``ICPool`` uses this label for bookkeeping and for receiving score reports from the ``Driver``. The label also serves as the directory names of intermediate dumps.
+
+If all goes well, ``fit-chronostar`` should terminate after trialling two 3-component mixtures and rejecting them in favour of the sole 2-component mixture (``AAB``), meaning your ``output-chron/intermediate`` directory looks like this:
+
+.. code::
+    :number-lines:
+
+    AAA-XXX-0000-0001-auto
+    AAB-AAA-0001-0002-0
+    AAC-AAB-0002-0003-0
+    AAD-AAB-0002-0003-1
+
+Assuming the run has terminated successfully, the best fitting mixture is implicitly ``AAB``, because the 3-component fits (lines 2 and 3) were the last mixtures attempted (therefore failed to improve the BIC) and their parent was ``AAB``.
+
+In each of these subdirectories, you will find a text file with detailed description of the configuration parameters, BIC score, weights, member counts and component parameters. You will also find a collection of numpy arrays: one for each component with their best fitting parameters, one for the relative weights of the components, and one for the membership probabilities.
+
+In your ``output-chron/final`` directory you'll find the same information and the same files but for the best fit.
+
+
+Beta Pictoris Moving Group
+--------------------------
+
+Here we detail how one could go about fitting to the Beta Pictoris Moving Group.
+
+The process is as follows:
+
+- query Gaia DR3 for all stars' kinematics within 100pc with decent parallaxes (errors better than 3%)
+- use `prepare-data` :ref:`(a CLI tool) <dataprep>` to convert astrometry to cartesian coordinates, ignoring stars with highly uncertain (or missing) radial velocities for now
+- apply some data cuts based on known cartesian fits
+- fit a gaussian to this data
+- find the top 2,000 candidates for this region (using overlap integrals)
+- unleash chronostar on the prepared data
+
+Querying Gaia DR3
+^^^^^^^^^^^^^^^^^
+
+Navigate to Gaia DR3's Advanced ADQL query and submit the following query:
+
+.. code::
+
+    SELECT 
+    -- Astrometry 
+    g.source_id, g.ra, g.ra_error, g.dec, g.dec_error, g.l, g.b, g.parallax, g.parallax_error, g.pmra, g.pmra_error, g.pmdec, g.pmdec_error, g.ra_dec_corr, g.ra_parallax_corr, g.ra_pmra_corr, g.ra_pmdec_corr, g.dec_parallax_corr, g.dec_pmra_corr, g.dec_pmdec_corr, g.parallax_pmra_corr, g.parallax_pmdec_corr, g.pmra_pmdec_corr, g.ruwe, 
+    -- Gaia photometry 
+    g.phot_g_mean_mag, g.phot_bp_mean_mag, g.phot_rp_mean_mag, g.bp_rp, g.g_rp,
+    -- Radial velocities 
+    g.radial_velocity, g.radial_velocity_error
+    FROM gaiadr3.gaia_source as g
+    -- ScoCen: stars between 83 and 222 pc (eta Cha is at 97 pc)
+    WHERE (g.parallax > 10 AND g.parallax_error/g.parallax < 0.03)
+
+This should get you 285,885 rows.
+
+Because BPMG surrounds the Earth it is tricky to apply any meaningful data cuts, and hence we get a very large dataset.
+
+Download this data as a fits file.
+
+Extract the file::
+
+    gunzip xxxxxxxxxxxxxxx-result.fits.gz
+
+Rename the file to something memorable::
+
+    mv xxxxxxxxxxxxxxx-result.fits betapic-100pc.fits
+
+Converting to Cartesian
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Chronostar comes with a command line tool ``prepare-data``. This tool reads in a fits file from Gaia and converts the data into cartesian coordinates.
+
+Lets do that::
+
+    prepare-data -fw betapic-100pc.fits
+
+The ``-f`` flag tells ``prepare-data`` to replace any missing radial velocities with a fake value (determined by averaging the available radial velocities) with an uncertainty of 10,000 km/s. The ``-w`` flag tells ``prepare-data`` to overwrite the fits file with any modifications. Since we're inserting some fake rvs, we would like the file to remember this.
+
+The conversion should take around 5 minutes.
+
+As a result you should get the following files:
+
+- ``data_means.npy``: the cartesian means of each converted star
+- ``data_covs.npy``: the cartesian covariances of each converted star
+- ``data_all.npy``: the full cartesian data (``np.vstack((data_means.T, data_covs.reshape(-1,36).T)).T``)
+- ``ids.npy``: the source ids of all stars successfully converted
+- ``fake_rvs_id.npy``: the source ids of all stars provided with fake radial velocities
+- ``fake_rvs_mask.npy``: a boolean mask of all the converted stars that were given fake rvs
+
+To keep things tidy, we store these files in a subdirectory. You may keep your directory structure flat if you like, but make sure to modify the paths appropriately in the following snippets.
+
+.. code::
+
+    mkdir data-full
+    mv *.npy data-full
+
+When that's done, we can apply the cartesian data cuts on all stars:
+
+.. code:: python
+
+    from astropy.table import Table
+    import numpy as np
+
+    datadir = 'data-full/'
+    rvsdir = 'rvs-subset-data/'
+
+    means = np.load(datadir + 'data_means.npy')
+    covs = np.load(datadir + 'data_covs.npy')
+    all = np.load(datadir + 'data_all.npy')
+    fake_rvs_mask = np.load(datadir + 'fake_rvs_mask.npy')
+    t = Table.read('betapic-100pc.fits')
+
+    upper_bound = np.array([110.,  50.,  60., 10.,  1.,  3.])
+    lower_bound = np.array([-60., -60., -30., -5., -8., -7.])
+
+    # Extract stars that are both within bounds and have real rvs
+    mask = (means > lower_bound).all(axis=1) & (means < upper_bound).all(axis=1)\
+           & ~fake_rvs_mask
+
+    print(sum(mask))    # should be ~725 stars
+
+    np.save(rvsdir + 'rvs_subset_mask.npy', mask)
+    np.save(rvsdir + 'rvs_subset_means.npy', means[mask])
+    np.save(rvsdir + 'rvs_subset_covs.npy', covs[mask])
+    np.save(rvsdir + 'rvs_subset_all.npy', all[mask])
+    subset_t = t[mask]
+    subset_t.write(rvsdir + 'rvs-subset-betapic-100pc.fits')
+
+Fitting a single Gaussian
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Now lets fit a single component to the subset data.
+First write a simple ``config-comp.yml`` file::
+
+    modules:
+        component: SpaceComponent
+
+    run:
+        savedir: result-comp
+
+Since we're not bothering with age, we can fit a free 6D gaussian, which is implemented by :class:`~chronostar.component.spacecomponent.SpaceComponent`.
+This class doesn't consider uncertainties, so we just give it the means::
+
+    fit-component -c config-comp.yml rvs-subset-data/rvs_subset_means.npy
+
+We'll get a result in ``result-comp`` directory as well as some output text.
+The first 6 parameters of a ``SpaceComponent`` are its cartesian mean, the remaining 36 are its flattend covariance matrix, i.e. ``params = np.hstack(mean, cov.flatten())``, and equivalently: ``mean = params[:6]; cov = params[6:].reshape(6,6)``.
+
+Fitting RV Only Chronostar
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If stars without rvs aren't important to you, you could run chronostar on this subset.
+
+Make a ``config-chron-rvs.yml`` file
+
+    modules:
+        component: SphereSpaceTimeComponent     # default
+        mixture: ComponentMixture               # default
+
+    mixture:
+        init_parmas: random                     # default
+        verbose: 2                              # defaut
+        verbose_interval: 1
+        tol: 1.e-5
+
+    component:
+        nthreads: 8     # or leave out in order to use all available cores by default
+
+    driver:
+        savedir: result-chron-rvs/intermediate
+
+    run:
+        savedir: result-chron-rvs/final
+
+And run chronostar on the data::
+
+    $ fit-chronostar -c config-chron-rvs.yml rvs-subset-data/rvs_subset_all.npy
+
+Apply data cuts to rvless stars
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The simplest means I can think of for how to apply a data restriction to the tens of thousands of rv-less stars which fall within the positional data bounds, is to evaluate their overlap integrals with our dataset with rvs, and pick the top N stars. Lets say the top 500, such that the majority of our data still has RVs.
+
+.. code:: python
+
+    from astropy.table import Table
+    import numpy as np
+    from chronostar.component.spacecomponent import SpaceComponent
+    from chronostar.maths import estimate_log_gaussian_ol_prob
+    # If you face issues with the jit compiled version, there's a pure python:
+    # from chronostar.maths import estimate_log_gaussian_ol_prob_py
+
+    datadir = 'data-full/'
+    rvsdir = 'rvs-subset-data/'
+    rvlessdir = 'rvless-subset-data/'
+
+    params = np.load('result-comp/params.npy')
+    comp = SpaceComponent(params)
+
+    means = np.load(datadir + 'data_means.npy')
+    covs = np.load(datadir + 'data_covs.npy')
+    all = np.load(datadir + 'data_all.npy')
+
+    fake_rvs_mask = np.load(datadir + 'fake_rvs_mask.npy')
+    ids = np.load(datadir + 'ids.npy')
+
+    ln_overlaps = estimate_log_gaussian_ol_prob(
+        data_all,
+        comp.mean,
+        comp.covariance
+    )
+
+    n_stars = 500
+    n_rvless_stars = sum(fake_rvs_mask)
+
+    # Calculate the cut off percentile for the top 500 ln_overlaps for rv-less stars
+    percentile = 100 * (1 - n_stars / n_rvless_stars)       # the required percentile
+    cut_off = np.percentile(ln_overlaps[fake_rvs_mask], percentile)
+
+    # Sanity check:
+    print(f"Wanted {n_stars} rvless stars,")
+    print(f"got {sum(ln_overlaps[fake_rvs_mask] > cut_off)} rvless stars.")
+
+    top_rvless_mask = (ln_overlaps > cut_off) & fake_rvs_mask
+
+    bound_stars_with_rvs_mask = np.load(rvsdir + 'rvs_subset_mask.npy')
+
+    # Build mask for stars with rvs within bounds as well as the top rvless stars
+    top_stars = bound_stars_with_rvs_mask | top_rvless_mask
+
+    np.save(rvlessdir + 'rvless_subset_means.npy', means[top_stars])
+    np.save(rvlessdir + 'rvless_subset_covs.npy', covs[top_stars])
+    np.save(rvlessdir + 'rvless_subset_all.npy', all[top_stars])
+    np.save(rvlessdir + 'rvless_subset_ids.npy', ids[top_stars])
+
+    # If you like you could also store a subset of the table
+    t = Table.read('betapic-100pc.fits')
+    rvless_subset_t = t[np.where(np.isin(t['source_id'], ids[top_stars]))]
+    rvless_subset_t.write(rvlessdir + 'rvless_subset_t.fits')
+
+    # It's a lot of files....
+    # perhaps some cleaner approach is needed with subdirectories...
+
+Now, we have 1,500 stars, all within the vicinity of BPMG, with every rv-less star that is plausibly a member!
+
+Running Chronostar
+^^^^^^^^^^^^^^^^^^
+
+Without further ado, lets run chronostar! Make a ``config-chron.yml`` file:
+
+.. code:: yaml
+
+    modules:
+        component: SphereSpaceTimeComponent     # default
+        mixture: ComponentMixture               # default
+
+    mixture:
+        init_parmas: random                     # default
+        verbose: 2                              # defaut
+        verbose_interval: 1
+        tol: 1.e-5
+
+    component:
+        nthreads: 8     # or leave out in order to use all available cores by default
+
+    driver:
+        savedir: result-chron/intermediate
+
+    run:
+        savedir: result-chron/final
+
+aaaaannnnndd lets go!
+
+.. code::
+
+    $ fit-chronostar -c config-chron.yml rvless-subset-data/rvless_subset_all.npy
+
+The authors haven't gotten this far yet, so who knows what will happen! Good luck!

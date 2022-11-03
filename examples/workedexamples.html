@@ -459,9 +459,294 @@ this value should be <code class="docutils literal notranslate"><span class="pre
 <section id="fitting-chronostar">
 <h3>Fitting Chronostar<a class="headerlink" href="#fitting-chronostar" title="Permalink to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">config-chron.yaml</span></code> file:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">component</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="c1"># Default is total number of cores, and controlled by environment variable</span><span class="w"></span>
+<span class="w">    </span><span class="c1"># NUMBA_NUM_THREADS</span><span class="w"></span>
+<span class="w">    </span><span class="nt">nthreads</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span><span class="w"></span>
+
+<span class="nt">mixture</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">tol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.e-5</span><span class="w"></span>
+<span class="w">    </span><span class="nt">verbose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w"></span>
+<span class="w">    </span><span class="nt">verbose_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+
+<span class="nt">driver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">intermediate_dumps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"></span>
+<span class="w">    </span><span class="nt">savedir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output-chron/intermediate</span><span class="w"></span>
+
+<span class="nt">run</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">savedir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output-chron/final</span><span class="w"></span>
+</pre></div>
+</div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fit-chronostar -c config-chron.yml data_all.npy
 </pre></div>
 </div>
+<p>This takes on the order of a couple of hours. You may want to run it in the background:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ nohup fit-chronostar -c config-chron.yml data_all.npy &gt; logs-chron.out &amp;
+</pre></div>
+</div>
+<p>Your standard out (or <code class="docutils literal notranslate"><span class="pre">logs-chron.out</span></code> file) should begin like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span>Letting introducer generate first IC
+<span class="linenos"> 2</span>self.n_generations=0
+<span class="linenos"> 3</span>[DRIVER] Fitting AAA-XXX-0000-0001-auto
+<span class="linenos"> 4</span>[DRIVER] init_comps[0].parameters_set=False
+<span class="linenos"> 5</span>--------------------------------------------------
+<span class="linenos"> 6</span>Fitting 1-comp mixture
+<span class="linenos"> 7</span>--------------------------------------------------
+<span class="linenos"> 8</span>Initialization 0
+<span class="linenos"> 9</span>[SKLMixture._initialize_parameters]: Initializing parameters!
+<span class="linenos">10</span>[SKLMixture._initialize_parameters]: self.init_params=&#39;random&#39;
+<span class="linenos">11</span>[SphereSpaceTimeComponent.maximize] self.nthreads=None
+</pre></div>
+</div>
+<p>At the moment the output are arbitrary print statements, so will likely change as logging becomes more sophisticated. Line 0 tells us that the <code class="docutils literal notranslate"><span class="pre">ICPool</span></code> was responsible for generating the first <a class="reference internal" href="../api/chronostar.html#chronostar.base.InitialCondition" title="chronostar.base.InitialCondition"><code class="xref py py-class docutils literal notranslate"><span class="pre">InitialCondition</span></code></a>.
+Line 2 tells us which mixture the <a class="reference internal" href="../api/chronostar.html#chronostar.driver.Driver" title="chronostar.driver.Driver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Driver</span></code></a> is fitting.
+The name of the mixture is very descriptive and is intended to remain applicable regardless of the specific classes used by the driver.</p>
+<p>The first part is a 3 digit unique identifier, which counts upwards from <code class="docutils literal notranslate"><span class="pre">AAA</span></code> for each mixture. The second part is the 3 digit unique identify of this mixtures “parent”, i.e. the previous mixture which the <code class="docutils literal notranslate"><span class="pre">ICPool</span></code> used to generate this mixture’s generation. Since this is the first mixture, it has no parent, and is thus labeled <code class="docutils literal notranslate"><span class="pre">XXX</span></code>. The third part is the generation number of this mixture. The fourth part is the number of components in this mixture. The final part is an optional extra chosen by the <code class="docutils literal notranslate"><span class="pre">ICPool</span></code> in use. In this case, it will tell us which component of the parent mixture <code class="docutils literal notranslate"><span class="pre">ICPool</span></code> split in two in order to generate this mixture. Again, since this is the first mixture, this doesn’t have a useful value.</p>
+<p>For reference, the next mixture label will be <code class="docutils literal notranslate"><span class="pre">AAB-AAA-0001-0002-0</span></code>. It is the <code class="docutils literal notranslate"><span class="pre">AAB</span></code>th mixture. Its parent was <code class="docutils literal notranslate"><span class="pre">AAA</span></code>, it is from generation <code class="docutils literal notranslate"><span class="pre">1</span></code>, has <code class="docutils literal notranslate"><span class="pre">2</span></code> components and was initialised by splitting component <code class="docutils literal notranslate"><span class="pre">0</span></code> (the only component) of mixture <code class="docutils literal notranslate"><span class="pre">AAA</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ICPool</span></code> uses this label for bookkeeping and for receiving score reports from the <code class="docutils literal notranslate"><span class="pre">Driver</span></code>. The label also serves as the directory names of intermediate dumps.</p>
+<p>If all goes well, <code class="docutils literal notranslate"><span class="pre">fit-chronostar</span></code> should terminate after trialling two 3-component mixtures and rejecting them in favour of the sole 2-component mixture (<code class="docutils literal notranslate"><span class="pre">AAB</span></code>), meaning your <code class="docutils literal notranslate"><span class="pre">output-chron/intermediate</span></code> directory looks like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="n">AAA</span><span class="o">-</span><span class="n">XXX</span><span class="o">-</span><span class="mi">0000</span><span class="o">-</span><span class="mi">0001</span><span class="o">-</span><span class="n">auto</span>
+<span class="linenos">2</span><span class="n">AAB</span><span class="o">-</span><span class="n">AAA</span><span class="o">-</span><span class="mi">0001</span><span class="o">-</span><span class="mi">0002</span><span class="o">-</span><span class="mi">0</span>
+<span class="linenos">3</span><span class="n">AAC</span><span class="o">-</span><span class="n">AAB</span><span class="o">-</span><span class="mi">0002</span><span class="o">-</span><span class="mi">0003</span><span class="o">-</span><span class="mi">0</span>
+<span class="linenos">4</span><span class="n">AAD</span><span class="o">-</span><span class="n">AAB</span><span class="o">-</span><span class="mi">0002</span><span class="o">-</span><span class="mi">0003</span><span class="o">-</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>Assuming the run has terminated successfully, the best fitting mixture is implicitly <code class="docutils literal notranslate"><span class="pre">AAB</span></code>, because the 3-component fits (lines 2 and 3) were the last mixtures attempted (therefore failed to improve the BIC) and their parent was <code class="docutils literal notranslate"><span class="pre">AAB</span></code>.</p>
+<p>In each of these subdirectories, you will find a text file with detailed description of the configuration parameters, BIC score, weights, member counts and component parameters. You will also find a collection of numpy arrays: one for each component with their best fitting parameters, one for the relative weights of the components, and one for the membership probabilities.</p>
+<p>In your <code class="docutils literal notranslate"><span class="pre">output-chron/final</span></code> directory you’ll find the same information and the same files but for the best fit.</p>
+</section>
+</section>
+<section id="beta-pictoris-moving-group">
+<h2>Beta Pictoris Moving Group<a class="headerlink" href="#beta-pictoris-moving-group" title="Permalink to this heading">#</a></h2>
+<p>Here we detail how one could go about fitting to the Beta Pictoris Moving Group.</p>
+<p>The process is as follows:</p>
+<ul class="simple">
+<li><p>query Gaia DR3 for all stars’ kinematics within 100pc with decent parallaxes (errors better than 3%)</p></li>
+<li><p>use <cite>prepare-data</cite> <a class="reference internal" href="../userdocs/cli.html#dataprep"><span class="std std-ref">(a CLI tool)</span></a> to convert astrometry to cartesian coordinates, ignoring stars with highly uncertain (or missing) radial velocities for now</p></li>
+<li><p>apply some data cuts based on known cartesian fits</p></li>
+<li><p>fit a gaussian to this data</p></li>
+<li><p>find the top 2,000 candidates for this region (using overlap integrals)</p></li>
+<li><p>unleash chronostar on the prepared data</p></li>
+</ul>
+<section id="querying-gaia-dr3">
+<h3>Querying Gaia DR3<a class="headerlink" href="#querying-gaia-dr3" title="Permalink to this heading">#</a></h3>
+<p>Navigate to Gaia DR3’s Advanced ADQL query and submit the following query:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span>
+<span class="o">--</span> <span class="n">Astrometry</span>
+<span class="n">g</span><span class="o">.</span><span class="n">source_id</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">ra</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">ra_error</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">dec</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">dec_error</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">l</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">parallax</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">parallax_error</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">pmra</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">pmra_error</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">pmdec</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">pmdec_error</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">ra_dec_corr</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">ra_parallax_corr</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">ra_pmra_corr</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">ra_pmdec_corr</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">dec_parallax_corr</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">dec_pmra_corr</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">dec_pmdec_corr</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">parallax_pmra_corr</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">parallax_pmdec_corr</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">pmra_pmdec_corr</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">ruwe</span><span class="p">,</span>
+<span class="o">--</span> <span class="n">Gaia</span> <span class="n">photometry</span>
+<span class="n">g</span><span class="o">.</span><span class="n">phot_g_mean_mag</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">phot_bp_mean_mag</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">phot_rp_mean_mag</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">bp_rp</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">g_rp</span><span class="p">,</span>
+<span class="o">--</span> <span class="n">Radial</span> <span class="n">velocities</span>
+<span class="n">g</span><span class="o">.</span><span class="n">radial_velocity</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">radial_velocity_error</span>
+<span class="n">FROM</span> <span class="n">gaiadr3</span><span class="o">.</span><span class="n">gaia_source</span> <span class="k">as</span> <span class="n">g</span>
+<span class="o">--</span> <span class="n">ScoCen</span><span class="p">:</span> <span class="n">stars</span> <span class="n">between</span> <span class="mi">83</span> <span class="ow">and</span> <span class="mi">222</span> <span class="n">pc</span> <span class="p">(</span><span class="n">eta</span> <span class="n">Cha</span> <span class="ow">is</span> <span class="n">at</span> <span class="mi">97</span> <span class="n">pc</span><span class="p">)</span>
+<span class="n">WHERE</span> <span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">parallax</span> <span class="o">&gt;</span> <span class="mi">10</span> <span class="n">AND</span> <span class="n">g</span><span class="o">.</span><span class="n">parallax_error</span><span class="o">/</span><span class="n">g</span><span class="o">.</span><span class="n">parallax</span> <span class="o">&lt;</span> <span class="mf">0.03</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This should get you 285,885 rows.</p>
+<p>Because BPMG surrounds the Earth it is tricky to apply any meaningful data cuts, and hence we get a very large dataset.</p>
+<p>Download this data as a fits file.</p>
+<p>Extract the file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gunzip</span> <span class="n">xxxxxxxxxxxxxxx</span><span class="o">-</span><span class="n">result</span><span class="o">.</span><span class="n">fits</span><span class="o">.</span><span class="n">gz</span>
+</pre></div>
+</div>
+<p>Rename the file to something memorable:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mv</span> <span class="n">xxxxxxxxxxxxxxx</span><span class="o">-</span><span class="n">result</span><span class="o">.</span><span class="n">fits</span> <span class="n">betapic</span><span class="o">-</span><span class="mi">100</span><span class="n">pc</span><span class="o">.</span><span class="n">fits</span>
+</pre></div>
+</div>
+</section>
+<section id="converting-to-cartesian">
+<h3>Converting to Cartesian<a class="headerlink" href="#converting-to-cartesian" title="Permalink to this heading">#</a></h3>
+<p>Chronostar comes with a command line tool <code class="docutils literal notranslate"><span class="pre">prepare-data</span></code>. This tool reads in a fits file from Gaia and converts the data into cartesian coordinates.</p>
+<p>Lets do that:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">prepare</span><span class="o">-</span><span class="n">data</span> <span class="o">-</span><span class="n">fw</span> <span class="n">betapic</span><span class="o">-</span><span class="mi">100</span><span class="n">pc</span><span class="o">.</span><span class="n">fits</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">-f</span></code> flag tells <code class="docutils literal notranslate"><span class="pre">prepare-data</span></code> to replace any missing radial velocities with a fake value (determined by averaging the available radial velocities) with an uncertainty of 10,000 km/s. The <code class="docutils literal notranslate"><span class="pre">-w</span></code> flag tells <code class="docutils literal notranslate"><span class="pre">prepare-data</span></code> to overwrite the fits file with any modifications. Since we’re inserting some fake rvs, we would like the file to remember this.</p>
+<p>The conversion should take around 5 minutes.</p>
+<p>As a result you should get the following files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">data_means.npy</span></code>: the cartesian means of each converted star</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data_covs.npy</span></code>: the cartesian covariances of each converted star</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data_all.npy</span></code>: the full cartesian data (<code class="docutils literal notranslate"><span class="pre">np.vstack((data_means.T,</span> <span class="pre">data_covs.reshape(-1,36).T)).T</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ids.npy</span></code>: the source ids of all stars successfully converted</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fake_rvs_id.npy</span></code>: the source ids of all stars provided with fake radial velocities</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fake_rvs_mask.npy</span></code>: a boolean mask of all the converted stars that were given fake rvs</p></li>
+</ul>
+<p>To keep things tidy, we store these files in a subdirectory. You may keep your directory structure flat if you like, but make sure to modify the paths appropriately in the following snippets.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">data</span><span class="o">-</span><span class="n">full</span>
+<span class="n">mv</span> <span class="o">*.</span><span class="n">npy</span> <span class="n">data</span><span class="o">-</span><span class="n">full</span>
+</pre></div>
+</div>
+<p>When that’s done, we can apply the cartesian data cuts on all stars:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">datadir</span> <span class="o">=</span> <span class="s1">&#39;data-full/&#39;</span>
+<span class="n">rvsdir</span> <span class="o">=</span> <span class="s1">&#39;rvs-subset-data/&#39;</span>
+
+<span class="n">means</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">datadir</span> <span class="o">+</span> <span class="s1">&#39;data_means.npy&#39;</span><span class="p">)</span>
+<span class="n">covs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">datadir</span> <span class="o">+</span> <span class="s1">&#39;data_covs.npy&#39;</span><span class="p">)</span>
+<span class="nb">all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">datadir</span> <span class="o">+</span> <span class="s1">&#39;data_all.npy&#39;</span><span class="p">)</span>
+<span class="n">fake_rvs_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">datadir</span> <span class="o">+</span> <span class="s1">&#39;fake_rvs_mask.npy&#39;</span><span class="p">)</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">Table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;betapic-100pc.fits&#39;</span><span class="p">)</span>
+
+<span class="n">upper_bound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">110.</span><span class="p">,</span>  <span class="mf">50.</span><span class="p">,</span>  <span class="mf">60.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">,</span>  <span class="mf">1.</span><span class="p">,</span>  <span class="mf">3.</span><span class="p">])</span>
+<span class="n">lower_bound</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">60.</span><span class="p">,</span> <span class="o">-</span><span class="mf">60.</span><span class="p">,</span> <span class="o">-</span><span class="mf">30.</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.</span><span class="p">,</span> <span class="o">-</span><span class="mf">8.</span><span class="p">,</span> <span class="o">-</span><span class="mf">7.</span><span class="p">])</span>
+
+<span class="c1"># Extract stars that are both within bounds and have real rvs</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">means</span> <span class="o">&gt;</span> <span class="n">lower_bound</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">means</span> <span class="o">&lt;</span> <span class="n">upper_bound</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>\
+       <span class="o">&amp;</span> <span class="o">~</span><span class="n">fake_rvs_mask</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">mask</span><span class="p">))</span>    <span class="c1"># should be ~725 stars</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">rvsdir</span> <span class="o">+</span> <span class="s1">&#39;rvs_subset_mask.npy&#39;</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">rvsdir</span> <span class="o">+</span> <span class="s1">&#39;rvs_subset_means.npy&#39;</span><span class="p">,</span> <span class="n">means</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+<span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">rvsdir</span> <span class="o">+</span> <span class="s1">&#39;rvs_subset_covs.npy&#39;</span><span class="p">,</span> <span class="n">covs</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+<span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">rvsdir</span> <span class="o">+</span> <span class="s1">&#39;rvs_subset_all.npy&#39;</span><span class="p">,</span> <span class="nb">all</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+<span class="n">subset_t</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+<span class="n">subset_t</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">rvsdir</span> <span class="o">+</span> <span class="s1">&#39;rvs-subset-betapic-100pc.fits&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="fitting-a-single-gaussian">
+<h3>Fitting a single Gaussian<a class="headerlink" href="#fitting-a-single-gaussian" title="Permalink to this heading">#</a></h3>
+<p>Now lets fit a single component to the subset data.
+First write a simple <code class="docutils literal notranslate"><span class="pre">config-comp.yml</span></code> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">modules</span><span class="p">:</span>
+    <span class="n">component</span><span class="p">:</span> <span class="n">SpaceComponent</span>
+
+<span class="n">run</span><span class="p">:</span>
+    <span class="n">savedir</span><span class="p">:</span> <span class="n">result</span><span class="o">-</span><span class="n">comp</span>
+</pre></div>
+</div>
+<p>Since we’re not bothering with age, we can fit a free 6D gaussian, which is implemented by <a class="reference internal" href="../api/chronostar.component.html#chronostar.component.spacecomponent.SpaceComponent" title="chronostar.component.spacecomponent.SpaceComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceComponent</span></code></a>.
+This class doesn’t consider uncertainties, so we just give it the means:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fit</span><span class="o">-</span><span class="n">component</span> <span class="o">-</span><span class="n">c</span> <span class="n">config</span><span class="o">-</span><span class="n">comp</span><span class="o">.</span><span class="n">yml</span> <span class="n">rvs</span><span class="o">-</span><span class="n">subset</span><span class="o">-</span><span class="n">data</span><span class="o">/</span><span class="n">rvs_subset_means</span><span class="o">.</span><span class="n">npy</span>
+</pre></div>
+</div>
+<p>We’ll get a result in <code class="docutils literal notranslate"><span class="pre">result-comp</span></code> directory as well as some output text.
+The first 6 parameters of a <code class="docutils literal notranslate"><span class="pre">SpaceComponent</span></code> are its cartesian mean, the remaining 36 are its flattend covariance matrix, i.e. <code class="docutils literal notranslate"><span class="pre">params</span> <span class="pre">=</span> <span class="pre">np.hstack(mean,</span> <span class="pre">cov.flatten())</span></code>, and equivalently: <code class="docutils literal notranslate"><span class="pre">mean</span> <span class="pre">=</span> <span class="pre">params[:6];</span> <span class="pre">cov</span> <span class="pre">=</span> <span class="pre">params[6:].reshape(6,6)</span></code>.</p>
+<section id="fitting-rv-only-chronostar">
+<h4>Fitting RV Only Chronostar<a class="headerlink" href="#fitting-rv-only-chronostar" title="Permalink to this heading">#</a></h4>
+<p>If stars without rvs aren’t important to you, you could run chronostar on this subset.</p>
+<p>Make a <code class="docutils literal notranslate"><span class="pre">config-chron-rvs.yml</span></code> file</p>
+<blockquote>
+<div><dl class="simple">
+<dt>modules:</dt><dd><p>component: SphereSpaceTimeComponent     # default
+mixture: ComponentMixture               # default</p>
+</dd>
+<dt>mixture:</dt><dd><p>init_parmas: random                     # default
+verbose: 2                              # defaut
+verbose_interval: 1
+tol: 1.e-5</p>
+</dd>
+<dt>component:</dt><dd><p>nthreads: 8     # or leave out in order to use all available cores by default</p>
+</dd>
+<dt>driver:</dt><dd><p>savedir: result-chron-rvs/intermediate</p>
+</dd>
+<dt>run:</dt><dd><p>savedir: result-chron-rvs/final</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>And run chronostar on the data:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fit-chronostar -c config-chron-rvs.yml rvs-subset-data/rvs_subset_all.npy
+</pre></div>
+</div>
+</section>
+</section>
+<section id="apply-data-cuts-to-rvless-stars">
+<h3>Apply data cuts to rvless stars<a class="headerlink" href="#apply-data-cuts-to-rvless-stars" title="Permalink to this heading">#</a></h3>
+<p>The simplest means I can think of for how to apply a data restriction to the tens of thousands of rv-less stars which fall within the positional data bounds, is to evaluate their overlap integrals with our dataset with rvs, and pick the top N stars. Lets say the top 500, such that the majority of our data still has RVs.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">chronostar.component.spacecomponent</span> <span class="kn">import</span> <span class="n">SpaceComponent</span>
+<span class="kn">from</span> <span class="nn">chronostar.maths</span> <span class="kn">import</span> <span class="n">estimate_log_gaussian_ol_prob</span>
+<span class="c1"># If you face issues with the jit compiled version, there&#39;s a pure python:</span>
+<span class="c1"># from chronostar.maths import estimate_log_gaussian_ol_prob_py</span>
+
+<span class="n">datadir</span> <span class="o">=</span> <span class="s1">&#39;data-full/&#39;</span>
+<span class="n">rvsdir</span> <span class="o">=</span> <span class="s1">&#39;rvs-subset-data/&#39;</span>
+<span class="n">rvlessdir</span> <span class="o">=</span> <span class="s1">&#39;rvless-subset-data/&#39;</span>
+
+<span class="n">params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;result-comp/params.npy&#39;</span><span class="p">)</span>
+<span class="n">comp</span> <span class="o">=</span> <span class="n">SpaceComponent</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+<span class="n">means</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">datadir</span> <span class="o">+</span> <span class="s1">&#39;data_means.npy&#39;</span><span class="p">)</span>
+<span class="n">covs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">datadir</span> <span class="o">+</span> <span class="s1">&#39;data_covs.npy&#39;</span><span class="p">)</span>
+<span class="nb">all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">datadir</span> <span class="o">+</span> <span class="s1">&#39;data_all.npy&#39;</span><span class="p">)</span>
+
+<span class="n">fake_rvs_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">datadir</span> <span class="o">+</span> <span class="s1">&#39;fake_rvs_mask.npy&#39;</span><span class="p">)</span>
+<span class="n">ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">datadir</span> <span class="o">+</span> <span class="s1">&#39;ids.npy&#39;</span><span class="p">)</span>
+
+<span class="n">ln_overlaps</span> <span class="o">=</span> <span class="n">estimate_log_gaussian_ol_prob</span><span class="p">(</span>
+    <span class="n">data_all</span><span class="p">,</span>
+    <span class="n">comp</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span>
+    <span class="n">comp</span><span class="o">.</span><span class="n">covariance</span>
+<span class="p">)</span>
+
+<span class="n">n_stars</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">n_rvless_stars</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">fake_rvs_mask</span><span class="p">)</span>
+
+<span class="c1"># Calculate the cut off percentile for the top 500 ln_overlaps for rv-less stars</span>
+<span class="n">percentile</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">n_stars</span> <span class="o">/</span> <span class="n">n_rvless_stars</span><span class="p">)</span>       <span class="c1"># the required percentile</span>
+<span class="n">cut_off</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">ln_overlaps</span><span class="p">[</span><span class="n">fake_rvs_mask</span><span class="p">],</span> <span class="n">percentile</span><span class="p">)</span>
+
+<span class="c1"># Sanity check:</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wanted </span><span class="si">{</span><span class="n">n_stars</span><span class="si">}</span><span class="s2"> rvless stars,&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="n">ln_overlaps</span><span class="p">[</span><span class="n">fake_rvs_mask</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">cut_off</span><span class="p">)</span><span class="si">}</span><span class="s2"> rvless stars.&quot;</span><span class="p">)</span>
+
+<span class="n">top_rvless_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">ln_overlaps</span> <span class="o">&gt;</span> <span class="n">cut_off</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">fake_rvs_mask</span>
+
+<span class="n">bound_stars_with_rvs_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">rvsdir</span> <span class="o">+</span> <span class="s1">&#39;rvs_subset_mask.npy&#39;</span><span class="p">)</span>
+
+<span class="c1"># Build mask for stars with rvs within bounds as well as the top rvless stars</span>
+<span class="n">top_stars</span> <span class="o">=</span> <span class="n">bound_stars_with_rvs_mask</span> <span class="o">|</span> <span class="n">top_rvless_mask</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">rvlessdir</span> <span class="o">+</span> <span class="s1">&#39;rvless_subset_means.npy&#39;</span><span class="p">,</span> <span class="n">means</span><span class="p">[</span><span class="n">top_stars</span><span class="p">])</span>
+<span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">rvlessdir</span> <span class="o">+</span> <span class="s1">&#39;rvless_subset_covs.npy&#39;</span><span class="p">,</span> <span class="n">covs</span><span class="p">[</span><span class="n">top_stars</span><span class="p">])</span>
+<span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">rvlessdir</span> <span class="o">+</span> <span class="s1">&#39;rvless_subset_all.npy&#39;</span><span class="p">,</span> <span class="nb">all</span><span class="p">[</span><span class="n">top_stars</span><span class="p">])</span>
+<span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">rvlessdir</span> <span class="o">+</span> <span class="s1">&#39;rvless_subset_ids.npy&#39;</span><span class="p">,</span> <span class="n">ids</span><span class="p">[</span><span class="n">top_stars</span><span class="p">])</span>
+
+<span class="c1"># If you like you could also store a subset of the table</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">Table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;betapic-100pc.fits&#39;</span><span class="p">)</span>
+<span class="n">rvless_subset_t</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s1">&#39;source_id&#39;</span><span class="p">],</span> <span class="n">ids</span><span class="p">[</span><span class="n">top_stars</span><span class="p">]))]</span>
+<span class="n">rvless_subset_t</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">rvlessdir</span> <span class="o">+</span> <span class="s1">&#39;rvless_subset_t.fits&#39;</span><span class="p">)</span>
+
+<span class="c1"># It&#39;s a lot of files....</span>
+<span class="c1"># perhaps some cleaner approach is needed with subdirectories...</span>
+</pre></div>
+</div>
+<p>Now, we have 1,500 stars, all within the vicinity of BPMG, with every rv-less star that is plausibly a member!</p>
+</section>
+<section id="running-chronostar">
+<h3>Running Chronostar<a class="headerlink" href="#running-chronostar" title="Permalink to this heading">#</a></h3>
+<p>Without further ado, lets run chronostar! Make a <code class="docutils literal notranslate"><span class="pre">config-chron.yml</span></code> file:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">modules</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SphereSpaceTimeComponent</span><span class="w">     </span><span class="c1"># default</span><span class="w"></span>
+<span class="w">    </span><span class="nt">mixture</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ComponentMixture</span><span class="w">               </span><span class="c1"># default</span><span class="w"></span>
+
+<span class="nt">mixture</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">init_parmas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">random</span><span class="w">                     </span><span class="c1"># default</span><span class="w"></span>
+<span class="w">    </span><span class="nt">verbose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w">                              </span><span class="c1"># defaut</span><span class="w"></span>
+<span class="w">    </span><span class="nt">verbose_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">tol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.e-5</span><span class="w"></span>
+
+<span class="nt">component</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">nthreads</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span><span class="w">     </span><span class="c1"># or leave out in order to use all available cores by default</span><span class="w"></span>
+
+<span class="nt">driver</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">savedir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">result-chron/intermediate</span><span class="w"></span>
+
+<span class="nt">run</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">savedir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">result-chron/final</span><span class="w"></span>
+</pre></div>
+</div>
+<p>aaaaannnnndd lets go!</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ fit-chronostar -c config-chron.yml rvless-subset-data/rvless_subset_all.npy
+</pre></div>
+</div>
+<p>The authors haven’t gotten this far yet, so who knows what will happen! Good luck!</p>
 </section>
 </section>
 </section>
@@ -530,6 +815,17 @@ this value should be <code class="docutils literal notranslate"><span class="pre
 <li><a class="reference internal" href="#fitting-a-component">Fitting a component</a></li>
 <li><a class="reference internal" href="#fitting-a-mixture">Fitting a Mixture</a></li>
 <li><a class="reference internal" href="#fitting-chronostar">Fitting Chronostar</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#beta-pictoris-moving-group">Beta Pictoris Moving Group</a><ul>
+<li><a class="reference internal" href="#querying-gaia-dr3">Querying Gaia DR3</a></li>
+<li><a class="reference internal" href="#converting-to-cartesian">Converting to Cartesian</a></li>
+<li><a class="reference internal" href="#fitting-a-single-gaussian">Fitting a single Gaussian</a><ul>
+<li><a class="reference internal" href="#fitting-rv-only-chronostar">Fitting RV Only Chronostar</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#apply-data-cuts-to-rvless-stars">Apply data cuts to rvless stars</a></li>
+<li><a class="reference internal" href="#running-chronostar">Running Chronostar</a></li>
 </ul>
 </li>
 </ul>
