@@ -166,7 +166,7 @@ configuration parameters along with those for the mixture:
 
 .. code::
 
-   module:
+   modules:
       component: "SpaceComponent"      # 6D Gaussian with no age
       mixture: "ComponentMixture"      # Default mixture (currently no alterantives anyway)
 
@@ -214,7 +214,7 @@ An example config file is:
 
 .. code::
 
-   module:
+   modules:
       component: "SpaceComponent"      # 6D Gaussian with no age
       mixture: "ComponentMixture"      # Default mixture (currently no alterantives anyway)
       introducer: "SimpleIntroducer"   # Determines how components are introduced into future fits

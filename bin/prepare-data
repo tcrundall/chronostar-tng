@@ -2,6 +2,7 @@
 import argparse
 from astropy.table import Table
 import numpy as np
+import numpy.ma as ma       # type: ignore
 from pathlib import Path
 
 from chronostar import datatools
@@ -71,6 +72,12 @@ def init_argparse() -> argparse.ArgumentParser:
         help="Output directory",
         default=".",
     )
+    parser.add_argument(
+        "-w",
+        "--overwrite",
+        help="Overwrite input fits file when modifying, e.g. inserting fake rvs",
+        action="store_true",
+    )
 
     return parser
 
@@ -96,18 +103,28 @@ if __name__ == '__main__':
     # Substitute fake radial velocities for any that are missing
     fake_rv = np.mean(t['radial_velocity'])
     FAKE_RV_ERROR = 10_000.  # km/s
+    missing_mask = np.copy(ma.getmaskarray(t['radial_velocity']))
     if args.fakervs:
-        missing_mask = ~ np.isfinite(t['radial_velocity'])
         np.save(savedir / "fake_rvs_ids.npy", t['source_id'][np.where(missing_mask)])
         t['radial_velocity'][missing_mask] = fake_rv
         t['radial_velocity_error'][missing_mask] = FAKE_RV_ERROR
 
-    # Define mask for all valid rows
-    msk = np.isfinite(t['radial_velocity'])
-    for column in COLUMN_STEMS:
-        msk &= np.isfinite(t[column])
+        if args.overwrite:
+            t.write(args.astrodata, overwrite=True)
+        else:
+            t.write(f"modified-{args.astrodata}")
 
-    import ipdb; ipdb.set_trace()
+    # Define mask for all valid rows
+    msk = ~ma.getmaskarray(t['radial_velocity'])
+    for column in COLUMN_STEMS:
+        msk &= ~ma.getmaskarray(t[column])
+
+    if args.fakervs:
+        # Get a boolean mask which extracts from all stars that will be converted,
+        # those with fake rvs
+        fake_rvs_mask = msk[np.where(missing_mask)]
+        np.save(savedir / "fake_rvs_mask.npy", fake_rvs_mask)
+
 
     # Extract astrometry data, 6 measurements, 6 errors, 15 correlations
     # Assume gaia formatting
