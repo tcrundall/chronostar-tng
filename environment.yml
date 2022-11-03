@@ -4,13 +4,16 @@ channels:
   - http://ssb.stsci.edu/astroconda
   - defaults
 dependencies:
-  - numpy
-  - scipy
-  - pip
-  - python=3.9
-  - numba
-  - pyyaml
   - astropy
-  - pytest
+  - matplotlib
+  - numba
+  - numpy
   - pathlib
+  - pip
+  - pytest
+  - python=3.9
+  - pyyaml
+  - scikit-learn
+  - scipy
+  - threadpoolctl
 prefix: /Users/tcrundall/opt/anaconda3/envs/chron39

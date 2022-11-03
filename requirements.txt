@@ -1,10 +1,10 @@
-pyyaml
-pathlib
-scikit-learn
-numpy
-scipy
 astropy
-pytest
-pathlib
 matplotlib
 numba
+numpy
+pathlib
+pytest
+pyyaml
+scikit-learn
+scipy
+threadpoolctl
