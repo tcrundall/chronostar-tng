@@ -319,7 +319,7 @@ if __name__ == '__main__':
             ax.set_xlabel('G - R')
             ax.set_ylabel('G Mag')
             ax.set_xlim(-0.1, 1.5)
-            ax.invert_yaxis()
+        ax.invert_yaxis()
 
         ax.legend()
 
