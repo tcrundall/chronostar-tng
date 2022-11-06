@@ -195,16 +195,11 @@ class SKLComponentMixture(SKLBaseMixture):
         resp : NDArray[float64] of shape (n_samples, n_components)
             Responsibilities (membership probabilities) of each sample
             to each component
-
-        TODO: Actually only initialise randomly when "random" is set
         """
 
-        # We can expect `resp` to be initialized. So:
+        # `resp` has likely been initialized by ``_initialize_parameters``
         for i, component in enumerate(self.components_):
             component.maximize(X, resp[:, i])
-
-        # However, the components may already have their parameters set...
-        # then we shouldn't even be here.
 
     def _m_step(
         self,

@@ -122,6 +122,9 @@ class SphereSpaceTimeComponent(BaseComponent):
     stellar_uncertainties: bool, default True
         Whether data covariance matrices are encoded in final 36 columns of
         input data X
+    resp_tol: float, default 1e-6
+        Only samples with a responsibility (membership probability) greater than
+        ``resp_tol`` will be included in the evaluation of the loss function
     parameters : ndarray of shape (9)
         The model parameters, either as set by initialization, or as
         determined by :meth:`maximize`. For this component this parameters
@@ -143,6 +146,7 @@ class SphereSpaceTimeComponent(BaseComponent):
     nthreads: Optional[int] = None
     age_offset_interval: int = 20
     stellar_uncertainties: bool = True
+    resp_tol: float = 1e-6
 
     # We declare this as a staticmethod so that we can call
     # `self.trace_orbit_func` without passing an instance of `self` as
@@ -250,8 +254,10 @@ class SphereSpaceTimeComponent(BaseComponent):
                 return np.inf
 
             if self.stellar_uncertainties:
+                # Only consider stars with sufficiently high membership probability
+                mask = resp > self.resp_tol
                 log_prob = estimate_log_gaussian_ol_prob(
-                    X,
+                    X[mask],
                     mean_now,
                     cov_now,
                 )
