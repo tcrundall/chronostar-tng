@@ -8,7 +8,7 @@ mixture:
 component:
   minimize_method: 'Nelder-Mead'
   age_offset_interval: 10
-  nthreads: 4
+  # nthreads: 4   # leave commented out to use all available cores
   stellar_uncertainties: False
 driver:
   intermediate_dumps: False
