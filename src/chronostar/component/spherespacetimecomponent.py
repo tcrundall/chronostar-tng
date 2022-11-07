@@ -253,9 +253,10 @@ class SphereSpaceTimeComponent(BaseComponent):
             if not np.all(np.linalg.eigvals(cov_now) > 0):
                 return np.inf
 
+            # Only consider stars with sufficiently high membership probability
+            mask = resp > self.resp_tol
+
             if self.stellar_uncertainties:
-                # Only consider stars with sufficiently high membership probability
-                mask = resp > self.resp_tol
                 log_prob = estimate_log_gaussian_ol_prob(
                     X[mask],
                     mean_now,
@@ -278,7 +279,7 @@ class SphereSpaceTimeComponent(BaseComponent):
 
                 # Evaluate each star's log prob given the current day model
                 log_prob = _estimate_log_gaussian_prob(
-                    X,
+                    X[mask],
                     mean_now[np.newaxis],
                     prec_now_chol[np.newaxis],
                     self.COVARIANCE_TYPE,
@@ -291,7 +292,7 @@ class SphereSpaceTimeComponent(BaseComponent):
             # ^^ see final equaion in this section, ignore the inner sum since we
             # only have one component here.
             # We negate since we want to *minimize* this function.
-            return -float(lnprior + np.sum(resp * log_prob))
+            return -float(lnprior + np.sum(resp[mask] * log_prob))
 
     def get_parameter_bounds(self) -> optimize.Bounds:
         """Generate a set of parameter bounds for scipy.optimize
