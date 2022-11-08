@@ -970,6 +970,33 @@ with multiple starburst events along with a background as desired.
 From a parametrised gaussian distribution, generate the starting
 XYZUVW values for a given number of stars
 TODO: accommodate multiple groups</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="chronostar.synthdata.generate_association">
+<span class="sig-prename descclassname"><span class="pre">chronostar.synthdata.</span></span><span class="sig-name descname"><span class="pre">generate_association</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean_now</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariance_birth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">age</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nstars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.synthdata.generate_association" title="Permalink to this definition">#</a></dt>
+<dd><p>Generate stars based on an association’s position, birth cov and age</p>
+<p>Note that the parameters are current position, but birth covariance.
+This is because when generating a synthetic association, we typically don’t
+care where it was born, but rather where it is now, so that we can allign
+it up with other synthetic associations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mean_now</strong> (<em>array</em><em> of </em><em>shape</em><em>(</em><em>6</em><em>)</em>) – Current day location of association in cartesian space</p></li>
+<li><p><strong>covariance_birth</strong> (<em>array</em><em> of </em><em>shape</em><em>(</em><em>6</em><em>, </em><em>6</em><em>)</em>) – Covariance of association at birth in cartesian space</p></li>
+<li><p><strong>age</strong> (<em>float</em>) – Desired age of association</p></li>
+<li><p><strong>nstars</strong> (<em>int</em><em>, </em><em>optional</em>) – number of stars, by default 100</p></li>
+<li><p><strong>rng</strong> (<em>np.random.default_rng</em><em>, </em><em>optional</em>) – numpy’s random number generator, by default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>6D Cartesian data of stars</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array of shape (nstars, 6)</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-chronostar.traceorbit">
 <span id="chronostar-traceorbit-module"></span><h2>chronostar.traceorbit module<a class="headerlink" href="#module-chronostar.traceorbit" title="Permalink to this heading">#</a></h2>
@@ -1150,7 +1177,10 @@ and velocities</p>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-chronostar.synthdata">chronostar.synthdata module</a></li>
+<li><a class="reference internal" href="#module-chronostar.synthdata">chronostar.synthdata module</a><ul>
+<li><a class="reference internal" href="#chronostar.synthdata.generate_association"><code class="docutils literal notranslate"><span class="pre">generate_association()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-chronostar.traceorbit">chronostar.traceorbit module</a><ul>
 <li><a class="reference internal" href="#chronostar.traceorbit.epicyclic_approx"><code class="docutils literal notranslate"><span class="pre">epicyclic_approx()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.traceorbit.trace_epicyclic_orbit"><code class="docutils literal notranslate"><span class="pre">trace_epicyclic_orbit()</span></code></a></li>
