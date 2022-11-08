@@ -50,6 +50,9 @@ def import_icpool(icpool) -> Type[BaseICPool]:
     if icpool == 'SimpleICPool':
         from chronostar.icpool.simpleicpool import SimpleICPool
         return SimpleICPool
+    elif icpool == 'GreedyCycleICP':
+        from chronostar.icpool.greedycycleicp import GreedyCycleICP
+        return GreedyCycleICP
     else:
         raise UserWarning(f"Implementation {icpool=} not found.")
 

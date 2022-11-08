@@ -30,7 +30,7 @@ CONFIG_PARAMS: dict[str, Any] = {
 }
 
 NSAMPLES, NFEATURES = 100, 6
-DATA = np.random.rand(NSAMPLES, NFEATURES) * 10.
+DATA: NDArray[float64] = np.random.rand(NSAMPLES, NFEATURES) * 10.
 
 
 class FooComponent(BaseComponent):

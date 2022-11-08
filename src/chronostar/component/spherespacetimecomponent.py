@@ -256,6 +256,7 @@ class SphereSpaceTimeComponent(BaseComponent):
 
             # Only consider stars with sufficiently high membership probability
             mask = resp > self.resp_tol
+            # TODO: Maybe ensure some minimum number of stars, e.g. 100?
 
             if self.stellar_uncertainties:
                 log_prob = estimate_log_gaussian_ol_prob(
