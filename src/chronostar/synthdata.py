@@ -32,6 +32,31 @@ def generate_association(
     nstars=100,
     rng=None,
 ) -> NDArray[float64]:
+    """Generate stars based on an association's position, birth cov and age
+
+    Note that the parameters are current position, but birth covariance.
+    This is because when generating a synthetic association, we typically don't
+    care where it was born, but rather where it is now, so that we can allign
+    it up with other synthetic associations.
+
+    Parameters
+    ----------
+    mean_now : array of shape(6)
+        Current day location of association in cartesian space
+    covariance_birth : array of shape(6, 6)
+        Covariance of association at birth in cartesian space
+    age : float
+        Desired age of association
+    nstars : int, optional
+        number of stars, by default 100
+    rng : np.random.default_rng, optional
+        numpy's random number generator, by default None
+
+    Returns
+    -------
+    array of shape (nstars, 6)
+        6D Cartesian data of stars
+    """
     mean_birth = trace_epicyclic_orbit(mean_now[np.newaxis], -age)
     covariance_aged, _ = transform_covmatrix(
         covariance_birth,

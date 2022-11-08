@@ -229,6 +229,7 @@ class SKLComponentMixture(SKLBaseMixture):
             print(f"   - comp {i:02}")
             component.maximize(X=X, resp=resp[:, i])
 
+        print(f"[SKLMixture]: BIC={self.bic(X):.1f}")
         self.m_step_count += 1
 
     def _estimate_log_prob(self, X: NDArray[float64]) -> NDArray[float64]:

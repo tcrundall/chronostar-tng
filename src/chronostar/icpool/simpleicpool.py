@@ -191,7 +191,11 @@ class SimpleICPool(BaseICPool):
 
             # Replace the ith component by splitting it in two
             target_comp = next_ic_components.pop(target_ix)
-            c1, c2 = target_comp.split()
+            try:
+                c1, c2 = target_comp.split()
+            except UserWarning:
+                # Target component not a splittable component
+                continue
 
             next_ic_components.insert(target_ix, c2)
             next_ic_components.insert(target_ix, c1)

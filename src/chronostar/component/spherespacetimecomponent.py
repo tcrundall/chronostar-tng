@@ -147,6 +147,7 @@ class SphereSpaceTimeComponent(BaseComponent):
     age_offset_interval: int = 20
     stellar_uncertainties: bool = True
     resp_tol: float = 1e-6
+    max_age: float = 200.
 
     # We declare this as a staticmethod so that we can call
     # `self.trace_orbit_func` without passing an instance of `self` as
@@ -307,7 +308,7 @@ class SphereSpaceTimeComponent(BaseComponent):
             'STDEV': (0., 30_000.,),
             'INV_STDEV': (0., np.inf),
             'CORR': (-1, 1),
-            'AGE': (0, 200),
+            'AGE': (0, self.max_age),
         }
 
         par_types = 6*['MEAN'] + 2*['STDEV'] + ['AGE']
@@ -408,8 +409,12 @@ class SphereSpaceTimeComponent(BaseComponent):
                 # Offset initial guess age by a certain amount
                 ig_age = base_init_guess[-1] + age_offset
 
-                # Skip negative ages
+                # Skip negative initial guess ages
                 if ig_age < 0:
+                    continue
+
+                # Skip initial guess ages outside of bounds
+                if ig_age > self.max_age:
                     continue
 
                 print(f"[SphereSpaceTimeComponent.maximize] {age_offset=}")
