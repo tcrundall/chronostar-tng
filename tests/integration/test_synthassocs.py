@@ -1,6 +1,8 @@
 import numpy as np
 import os
 from pathlib import Path
+import pytest
+from pytest import skiptest
 
 from ..context import chronostar     # noqa
 
@@ -13,7 +15,7 @@ from chronostar.component.spherespacetimecomponent import\
 from chronostar.icpool.simpleicpool import SimpleICPool
 from chronostar.mixture.componentmixture import ComponentMixture
 
-
+@pytest.mark.skip("Potentially taking 6+ hrs")
 def test_twoassocs():
     """
     Generate two synthetic associations, then fit to them.
