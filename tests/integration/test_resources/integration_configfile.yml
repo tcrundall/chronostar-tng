@@ -1,14 +1,15 @@
 driver: {}
 icpool: {}
 mixture:
-  tol: 3.e-5
+  tol: 1.e-5
   verbose: 2
   verbose_interval: 1
-  init_params: 'random'
+  init_params: random
 component:
-  minimize_method: 'Nelder-Mead'
+  minimize_method: Nelder-Mead
   age_offset_interval: 10
   # nthreads: 4   # leave commented out to use all available cores
   stellar_uncertainties: False
+  resp_tol: 1.e-8
 driver:
   intermediate_dumps: False
