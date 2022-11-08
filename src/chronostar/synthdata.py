@@ -42,7 +42,7 @@ def generate_association(
 
     if rng is None:
         rng = np.random.default_rng()
-    # import ipdb; ipdb.set_trace()
+
     return rng.multivariate_normal(mean_now, covariance_aged, size=nstars)
 
 
