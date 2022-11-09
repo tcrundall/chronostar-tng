@@ -11,5 +11,6 @@ component:
   # nthreads: 4   # leave commented out to use all available cores
   stellar_uncertainties: False
   resp_tol: 1.e-8
+  max_age: 60.
 driver:
   intermediate_dumps: False

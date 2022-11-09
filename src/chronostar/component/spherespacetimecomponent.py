@@ -416,10 +416,12 @@ class SphereSpaceTimeComponent(BaseComponent):
 
                 # Skip initial guess ages outside of bounds
                 if ig_age > self.max_age:
+                    print("[SphereSpaceTimeComponent.maximize]: skipping because "
+                          f"{ig_age=:.2f} > {self.max_age=:.2f}")
                     continue
 
                 print(f"[SphereSpaceTimeComponent.maximize] {age_offset=}")
-                print(f"[SphereSpaceTimeComponent.maximize] {ig_age=}")
+                print(f"[SphereSpaceTimeComponent.maximize] {ig_age=:.2f}")
 
                 # Adjust initial guess mean by tracing back an extra amount
                 ig_mean = self.trace_orbit_func(
@@ -441,14 +443,16 @@ class SphereSpaceTimeComponent(BaseComponent):
                 print("")
                 all_results.append(res)
                 print(f"[SphereSpaceTimeComponent.maximize] {res.x[-1]=:.2f}")
+                print(f"[SphereSpaceTimeComponent.maximize]: {res.fun=}")
 
             # Take the best minimization result
-            best_res = min(all_results, key=lambda x: x.fun)
+            best_res = min(all_results, key=lambda res: res.fun)
 
             # We use the setter method because it handles any derived
             # attributes, e.g. :attr:`precision_chol`
             self.set_parameters(best_res.x)
             print(f"age: {self.age:.3f}")
+            print(f"[SphereSpaceTimeComponent.maximize]: {best_res.fun=}")
 
             self.maximize_iter += 1
 

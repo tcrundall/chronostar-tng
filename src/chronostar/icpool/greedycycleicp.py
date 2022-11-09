@@ -127,7 +127,7 @@ class GreedyCycleICP(BaseICPool):
         if best_score > self.best_score_:
             print(f"[GreedyCycleICP]: {self.n_generations=}")
             print(f"[GreedyCycleICP]: {best_score=}")
-            print(f"[GreedyCycleICP]: score has improved")
+            print("[GreedyCycleICP]: score has improved")
 
             self.best_mixture_ = best_mixture
             self.best_score_ = best_score
@@ -135,7 +135,7 @@ class GreedyCycleICP(BaseICPool):
             self.target_comp_ix += 1
         # If no improvement, just move to the next component
         else:
-            print(f"[GreedyCycleICP]: score has NOT improved")
+            print("[GreedyCycleICP]: score has NOT improved")
             n_comps = len(self.best_mixture_.get_components())      # type: ignore
             self.target_comp_ix += 1
             self.target_comp_ix %= n_comps
