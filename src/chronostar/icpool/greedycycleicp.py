@@ -49,6 +49,7 @@ class GreedyCycleICP(BaseICPool):
     amongst processes.
     """
     max_components = 100
+    index_from_front = True
 
     def __init__(
         self,
@@ -146,16 +147,15 @@ class GreedyCycleICP(BaseICPool):
             print(f"[GreedyCycleICP]: Converged? {self.target_comp_ix=}"
                   f" {self.cycle_start_ix=}")
             if (
-                (self.target_comp_ix + 1 == self.cycle_start_ix)
+                ((self.target_comp_ix + 1) % n_comps == self.cycle_start_ix)
                 and n_comps == self.n_comps_at_cycle_start
             ):
                 # By returning without calling next_gen, the queue is empty
                 # and the primary loop in Driver will terminate
-                print(f"[GreedyCycleICP]: Converged!")
+                print("[GreedyCycleICP]: Converged!")
                 return
 
-        self.target_comp_ix += 1
-        self.target_comp_ix %= len(self.best_mixture_.get_components()) # type: ignore
+        self.increment_target_comp_ix()
 
         print(f"[GreedyCycleICP]: n_comps in best:"
               f" {len(self.best_mixture_.get_components())}")       # type: ignore
@@ -167,6 +167,15 @@ class GreedyCycleICP(BaseICPool):
             tuple(self.best_mixture_.get_components())      # type: ignore
         )
         self.next_gen(base_init_condition)
+
+    def increment_target_comp_ix(self) -> None:
+        n_comps = len(self.best_mixture_.get_components())  # type: ignore
+        self.target_comp_ix += 1
+        self.target_comp_ix %= n_comps
+        if self.index_from_front:
+            pass
+        else:
+            self.target_comp_ix -= n_comps
 
     def has_next(self) -> bool:
         """Return True if (after populating if needed) queue is non-empty

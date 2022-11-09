@@ -54,11 +54,17 @@ def test_nuanced_usage() -> None:
     The score increases initially than decreases. Depending on FooIntroducer
     this should terminate on the 6th mixture.
     """
-    SimpleICPool.configure(**CONFIG_PARAMS["icpool"])
     FooComponent.configure(**CONFIG_PARAMS["component"])
     FooMixture.configure(**CONFIG_PARAMS["mixture"])
 
-    for icpool_class in [SimpleICPool, GreedyCycleICP]:
+    for icpool_class in ICP_CLASSES + [GreedyCycleICP]:
+        icpool_class.configure(**CONFIG_PARAMS["icpool"])
+        if icpool_class == GreedyCycleICP:
+            # Flip the sign on this parameter, to test both usages
+            GreedyCycleICP.configure(
+                index_from_front=(not GreedyCycleICP.index_from_front),
+            )
+
         icpool = icpool_class(
             component_class=FooComponent,
         )
