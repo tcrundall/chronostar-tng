@@ -74,7 +74,7 @@ class GreedyCycleICP(BaseICPool):
         else:
             # If not providing a starting init comps, then first InitialCondition will
             # have 1 comp
-            self.target_comp_ix = -1
+            self.target_comp_ix = 0
             self.n_comps_at_cycle_start = 1
 
     def register_result(
@@ -122,8 +122,7 @@ class GreedyCycleICP(BaseICPool):
             key=lambda x: x.score
         )
 
-        # If we have improved previous best mixture, save current best and
-        # repopulate queue
+        # If we have improved previous best mixture, save current best
         if best_score > self.best_score_:
             print(f"[GreedyCycleICP]: {self.n_generations=}")
             print(f"[GreedyCycleICP]: {best_score=}")
@@ -132,24 +131,36 @@ class GreedyCycleICP(BaseICPool):
             self.best_mixture_ = best_mixture
             self.best_score_ = best_score
             self.best_label_ = best_label
-            self.target_comp_ix += 1
-        # If no improvement, just move to the next component
+            # Some book keeping for convergence checking later
+            n_comps = len(self.best_mixture_.get_components())
+            self.cycle_start_ix = (self.target_comp_ix + 1) % n_comps
+            print(f"[GreedyCycleICP]: {self.cycle_start_ix=}")
+            self.n_comps_at_cycle_start = len(self.best_mixture_.get_components())
+
+        # If no improvement, check for convergence
+        # then move to the next component
         else:
             print("[GreedyCycleICP]: score has NOT improved")
             n_comps = len(self.best_mixture_.get_components())      # type: ignore
-            self.target_comp_ix += 1
-            self.target_comp_ix %= n_comps
+            # If we've returned to cycle start with no improvment, we have converged
+            print(f"[GreedyCycleICP]: Converged? {self.target_comp_ix=}"
+                  f" {self.cycle_start_ix=}")
+            if (
+                (self.target_comp_ix + 1 == self.cycle_start_ix)
+                and n_comps == self.n_comps_at_cycle_start
+            ):
+                # By returning without calling next_gen, the queue is empty
+                # and the primary loop in Driver will terminate
+                print(f"[GreedyCycleICP]: Converged!")
+                return
 
-            # Check convergence by seeing if best_mixture_ changed since last cycle
-            if self.target_comp_ix == 0:
-                if self.n_comps_at_cycle_start == n_comps:
-                    return
-                else:
-                    self.n_comps_at_cycle_start = n_comps
+        self.target_comp_ix += 1
+        self.target_comp_ix %= len(self.best_mixture_.get_components()) # type: ignore
 
         print(f"[GreedyCycleICP]: n_comps in best:"
               f" {len(self.best_mixture_.get_components())}")       # type: ignore
-        # Clear registry and generate the next generation
+
+        # Clear registry and generate the next generation composed of 1 InitialCondition
         self.registry = {}
         base_init_condition = InitialCondition(
             self.best_label_,
@@ -256,7 +267,7 @@ class GreedyCycleICP(BaseICPool):
                   f"{len(next_ic_components)} > {self.max_components=}")
 
         self.n_generations += 1
-        print(f"[GreedyCycleICP] After next_gen {self.n_generations=}")
+        print(f"[GreedyCycleICP]: After next_gen {self.n_generations=}")
 
         return
 
