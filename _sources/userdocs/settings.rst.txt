@@ -10,20 +10,24 @@ See :ref:`Command-Line Interface<cli>` for example config files.
 
 Here we provide an exhaustive list of all configurable settings and their uses.
 
+.. _config-component:
+
 Components
 __________
 
 :class:`~chronostar.component.spacecomponent.SpaceComponent`
 ------------------------------------------------------------
 
-reg_covar : float, default 1.e-6
+reg_covar: float, default 1.e-6
    A regularisation constant added to the diagonals
    of the covariance matrix
+nthreads: int, default None
+    Number of OMP threads used by numpy matrix operations
 
 :class:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent`
 --------------------------------------------------------------------------------
 
-reg_covar : float, default 1.e-6
+reg_covar: float, default 1.e-6
    A regularisation constant added to the diagonals
    of the covariance matrix
 minimize_method: str, default 'Nelder-Mead'
@@ -32,7 +36,7 @@ minimize_method: str, default 'Nelder-Mead'
    - 'Nelder-Mead' (recommended)
    - 'Powell' (not receommended)
 
-nthreads : int, optional
+nthreads: int, optional
    Manually restrict how many threads openMP tries to use when
    executing optimized numpy functions
 trace_orbit_func: Callable: f(start_loc, time), default :func:`trace_epicyclic_orbit`
@@ -43,6 +47,11 @@ age_offset_interval: int, default 20
 stellar_uncertainties: bool, default True
    Whether data covariance matrices are encoded in final 36 columns of
    input data X
+resp_tol: float, default 1e-6
+    Only samples with a responsibility (membership probability) greater than
+    ``resp_tol`` will be included in the evaluation of the loss function
+max_age : float, default 200
+    The upper bound on the age when maximising the component parameters
 
 Mixtures
 ________
@@ -52,27 +61,27 @@ ________
 :class:`~chronostar.mixture.componentmixture.ComponentMixture`
 --------------------------------------------------------------
 
-tol : float, default 1e-3
+tol: float, default 1e-3
     Used to determine convergence by sklearn's EM algorithm.
     Convergence determined if "change" between EM iterations is
     less than tol, where change is the difference between the
     average log probability of each sample
-reg_covar : float, default 1e-6
+reg_covar: float, default 1e-6
     A regularization constant added to the diagonals of
     covariance matrices
-max_iter : int, default 100
+max_iter: int, default 100
     The maximum iterations for sklearn's EM algorithm
-n_init : int, default 1
+n_init: int, default 1
     (included only for sklearn API compatbility, ignored)
-init_params : str, default 'random'
+init_params: str, default 'random'
     The initialization approach used by sklearn if component
     parameters aren't pre set. Must be one of
 
-    - 'init_resp' : responsibilites are taken from input
-    - 'kmeans' : responsibilities are initialized using kmeans.
-    - 'k-means++' : use the k-means++ method to initialize.
-    - 'random' : responsibilities are initialized randomly.
-    - 'random_from_data' : initial means are randomly selected data points.
+    - 'init_resp': responsibilites are taken from input
+    - 'kmeans': responsibilities are initialized using kmeans.
+    - 'k-means++': use the k-means++ method to initialize.
+    - 'random': responsibilities are initialized randomly.
+    - 'random_from_data': initial means are randomly selected data points.
 
 random_state: int, default None
     Controls the random seed given to the method chosen to
@@ -86,20 +95,12 @@ warm_start: bool, default True
 verbose: int, default 0
     Whether to print sklearn statements:
 
-    - 0 : no output
-    - 1 : prints current initialization and each iteration step
-    - 2 : same as 1 but also prints log probability and execution time
+    - 0: no output
+    - 1: prints current initialization and each iteration step
+    - 2: same as 1 but also prints log probability and execution time
 
 verbose_interval: int, default 10
     If `verbose > 0`, how many iterations between print statements
-
-Introducers
-___________
-
-:class:`~chronostar.introducer.simpleintroducer.SimpleIntroducer`
------------------------------------------------------------------
-
-None...
 
 ICPools
 _______
@@ -107,9 +108,26 @@ _______
 :class:`~chronostar.icpool.simpleicpool.SimpleICPool`
 -----------------------------------------------------
 
-max_components : int, default 100
+max_components: int, default 100
     The max components in an initial condition provided by
     `SimpleICPool`
+
+:class:`~chronostar.icpool.greedycycleicp.GreedyCycleICP`
+---------------------------------------------------------
+max_components : int, default 100
+    The max components in an initial condition provided by
+    `SimpleICPool`, configurable
+index_from_front : bool, default True
+    Whether the target component index is a positive number
+    (hence counting from front) or a negative number (hence
+    counting from the back). Because the component list is
+    modified in place, indexing from front results in any
+    added component being split on the next iteration. Where
+    as indexing from back skips the added component. For quicker,
+    less accurate runs, set index_from_front=True. For slower,
+    more accurate runs, set index_from_front=False.
+
+
 
 Drivers
 _______
@@ -117,9 +135,9 @@ _______
 :class:`~chronostar.driver.Driver`
 ----------------------------------
 
-intermediate_dumps : bool, default True
+intermediate_dumps: bool, default True
     Whether to write to file the results of mixture model fits
-savedir : str, default './result'
+savedir: str, default './result'
     Path to the directory of where to store results
 
 Runs
@@ -134,9 +152,9 @@ and
 )
 have "run level" parameters.
 
-nthreads : int, default 1
+nthreads: int, default 1
     Provided for future high-level parallelism. Currently nothing is implemented, so
     leave this at 1
-savedir : str, default "output"
+savedir: str, default "./result"
     The output directory for the final results. This can be the same directory that 
     :ref:`ComponentMixture<config_mixture>` uses to store intermediate dumps.

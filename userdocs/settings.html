@@ -226,19 +226,21 @@ file or by calling each class’s <code class="code docutils literal notranslate
 <p>See <a class="reference internal" href="cli.html#cli"><span class="std std-ref">Command-Line Interface</span></a> for example config files.</p>
 <p>Here we provide an exhaustive list of all configurable settings and their uses.</p>
 <section id="components">
-<h2>Components<a class="headerlink" href="#components" title="Permalink to this heading">#</a></h2>
+<span id="config-component"></span><h2>Components<a class="headerlink" href="#components" title="Permalink to this heading">#</a></h2>
 <section id="spacecomponent">
 <h3><a class="reference internal" href="../api/chronostar.component.html#chronostar.component.spacecomponent.SpaceComponent" title="chronostar.component.spacecomponent.SpaceComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceComponent</span></code></a><a class="headerlink" href="#spacecomponent" title="Permalink to this heading">#</a></h3>
 <dl class="simple">
-<dt>reg_covar<span class="classifier">float, default 1.e-6</span></dt><dd><p>A regularisation constant added to the diagonals
+<dt>reg_covar: float, default 1.e-6</dt><dd><p>A regularisation constant added to the diagonals
 of the covariance matrix</p>
+</dd>
+<dt>nthreads: int, default None</dt><dd><p>Number of OMP threads used by numpy matrix operations</p>
 </dd>
 </dl>
 </section>
 <section id="spherespacetimecomponent">
 <h3><a class="reference internal" href="../api/chronostar.component.html#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent" title="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent</span></code></a><a class="headerlink" href="#spherespacetimecomponent" title="Permalink to this heading">#</a></h3>
 <dl class="simple">
-<dt>reg_covar<span class="classifier">float, default 1.e-6</span></dt><dd><p>A regularisation constant added to the diagonals
+<dt>reg_covar: float, default 1.e-6</dt><dd><p>A regularisation constant added to the diagonals
 of the covariance matrix</p>
 </dd>
 <dt>minimize_method: str, default ‘Nelder-Mead’</dt><dd><p>The method used by <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize</span></code>. Must be one of</p>
@@ -247,7 +249,7 @@ of the covariance matrix</p>
 <li><p>‘Powell’ (not receommended)</p></li>
 </ul>
 </dd>
-<dt>nthreads<span class="classifier">int, optional</span></dt><dd><p>Manually restrict how many threads openMP tries to use when
+<dt>nthreads: int, optional</dt><dd><p>Manually restrict how many threads openMP tries to use when
 executing optimized numpy functions</p>
 </dd>
 <dt>trace_orbit_func: Callable: f(start_loc, time), default <code class="xref py py-func docutils literal notranslate"><span class="pre">trace_epicyclic_orbit()</span></code></dt><dd><p>A function that traces a position by <cite>time</cite> Myr. Positive <cite>time</cite>
@@ -258,6 +260,11 @@ traces forward, negative <cite>time</cite> backwards</p>
 <dt>stellar_uncertainties: bool, default True</dt><dd><p>Whether data covariance matrices are encoded in final 36 columns of
 input data X</p>
 </dd>
+<dt>resp_tol: float, default 1e-6</dt><dd><p>Only samples with a responsibility (membership probability) greater than
+<code class="docutils literal notranslate"><span class="pre">resp_tol</span></code> will be included in the evaluation of the loss function</p>
+</dd>
+<dt>max_age<span class="classifier">float, default 200</span></dt><dd><p>The upper bound on the age when maximising the component parameters</p>
+</dd>
 </dl>
 </section>
 </section>
@@ -266,26 +273,26 @@ input data X</p>
 <section id="componentmixture">
 <span id="config-mixture"></span><h3><a class="reference internal" href="../api/chronostar.mixture.html#chronostar.mixture.componentmixture.ComponentMixture" title="chronostar.mixture.componentmixture.ComponentMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComponentMixture</span></code></a><a class="headerlink" href="#componentmixture" title="Permalink to this heading">#</a></h3>
 <dl class="simple">
-<dt>tol<span class="classifier">float, default 1e-3</span></dt><dd><p>Used to determine convergence by sklearn’s EM algorithm.
+<dt>tol: float, default 1e-3</dt><dd><p>Used to determine convergence by sklearn’s EM algorithm.
 Convergence determined if “change” between EM iterations is
 less than tol, where change is the difference between the
 average log probability of each sample</p>
 </dd>
-<dt>reg_covar<span class="classifier">float, default 1e-6</span></dt><dd><p>A regularization constant added to the diagonals of
+<dt>reg_covar: float, default 1e-6</dt><dd><p>A regularization constant added to the diagonals of
 covariance matrices</p>
 </dd>
-<dt>max_iter<span class="classifier">int, default 100</span></dt><dd><p>The maximum iterations for sklearn’s EM algorithm</p>
+<dt>max_iter: int, default 100</dt><dd><p>The maximum iterations for sklearn’s EM algorithm</p>
 </dd>
-<dt>n_init<span class="classifier">int, default 1</span></dt><dd><p>(included only for sklearn API compatbility, ignored)</p>
+<dt>n_init: int, default 1</dt><dd><p>(included only for sklearn API compatbility, ignored)</p>
 </dd>
-<dt>init_params<span class="classifier">str, default ‘random’</span></dt><dd><p>The initialization approach used by sklearn if component
+<dt>init_params: str, default ‘random’</dt><dd><p>The initialization approach used by sklearn if component
 parameters aren’t pre set. Must be one of</p>
 <ul class="simple">
-<li><p>‘init_resp’ : responsibilites are taken from input</p></li>
-<li><p>‘kmeans’ : responsibilities are initialized using kmeans.</p></li>
-<li><p>‘k-means++’ : use the k-means++ method to initialize.</p></li>
-<li><p>‘random’ : responsibilities are initialized randomly.</p></li>
-<li><p>‘random_from_data’ : initial means are randomly selected data points.</p></li>
+<li><p>‘init_resp’: responsibilites are taken from input</p></li>
+<li><p>‘kmeans’: responsibilities are initialized using kmeans.</p></li>
+<li><p>‘k-means++’: use the k-means++ method to initialize.</p></li>
+<li><p>‘random’: responsibilities are initialized randomly.</p></li>
+<li><p>‘random_from_data’: initial means are randomly selected data points.</p></li>
 </ul>
 </dd>
 <dt>random_state: int, default None</dt><dd><p>Controls the random seed given to the method chosen to
@@ -299,9 +306,9 @@ function calls.</p>
 </dd>
 <dt>verbose: int, default 0</dt><dd><p>Whether to print sklearn statements:</p>
 <ul class="simple">
-<li><p>0 : no output</p></li>
-<li><p>1 : prints current initialization and each iteration step</p></li>
-<li><p>2 : same as 1 but also prints log probability and execution time</p></li>
+<li><p>0: no output</p></li>
+<li><p>1: prints current initialization and each iteration step</p></li>
+<li><p>2: same as 1 but also prints log probability and execution time</p></li>
 </ul>
 </dd>
 <dt>verbose_interval: int, default 10</dt><dd><p>If <cite>verbose &gt; 0</cite>, how many iterations between print statements</p>
@@ -309,20 +316,30 @@ function calls.</p>
 </dl>
 </section>
 </section>
-<section id="introducers">
-<h2>Introducers<a class="headerlink" href="#introducers" title="Permalink to this heading">#</a></h2>
-<section id="simpleintroducer">
-<h3><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleIntroducer</span></code><a class="headerlink" href="#simpleintroducer" title="Permalink to this heading">#</a></h3>
-<p>None…</p>
-</section>
-</section>
 <section id="icpools">
 <h2>ICPools<a class="headerlink" href="#icpools" title="Permalink to this heading">#</a></h2>
 <section id="simpleicpool">
 <h3><a class="reference internal" href="../api/chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool" title="chronostar.icpool.simpleicpool.SimpleICPool"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleICPool</span></code></a><a class="headerlink" href="#simpleicpool" title="Permalink to this heading">#</a></h3>
 <dl class="simple">
-<dt>max_components<span class="classifier">int, default 100</span></dt><dd><p>The max components in an initial condition provided by
+<dt>max_components: int, default 100</dt><dd><p>The max components in an initial condition provided by
 <cite>SimpleICPool</cite></p>
+</dd>
+</dl>
+</section>
+<section id="greedycycleicp">
+<h3><code class="xref py py-class docutils literal notranslate"><span class="pre">GreedyCycleICP</span></code><a class="headerlink" href="#greedycycleicp" title="Permalink to this heading">#</a></h3>
+<dl class="simple">
+<dt>max_components<span class="classifier">int, default 100</span></dt><dd><p>The max components in an initial condition provided by
+<cite>SimpleICPool</cite>, configurable</p>
+</dd>
+<dt>index_from_front<span class="classifier">bool, default True</span></dt><dd><p>Whether the target component index is a positive number
+(hence counting from front) or a negative number (hence
+counting from the back). Because the component list is
+modified in place, indexing from front results in any
+added component being split on the next iteration. Where
+as indexing from back skips the added component. For quicker,
+less accurate runs, set index_from_front=True. For slower,
+more accurate runs, set index_from_front=False.</p>
 </dd>
 </dl>
 </section>
@@ -332,9 +349,9 @@ function calls.</p>
 <section id="driver">
 <h3><a class="reference internal" href="../api/chronostar.html#chronostar.driver.Driver" title="chronostar.driver.Driver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Driver</span></code></a><a class="headerlink" href="#driver" title="Permalink to this heading">#</a></h3>
 <dl class="simple">
-<dt>intermediate_dumps<span class="classifier">bool, default True</span></dt><dd><p>Whether to write to file the results of mixture model fits</p>
+<dt>intermediate_dumps: bool, default True</dt><dd><p>Whether to write to file the results of mixture model fits</p>
 </dd>
-<dt>savedir<span class="classifier">str, default ‘./result’</span></dt><dd><p>Path to the directory of where to store results</p>
+<dt>savedir: str, default ‘./result’</dt><dd><p>Path to the directory of where to store results</p>
 </dd>
 </dl>
 </section>
@@ -350,10 +367,10 @@ and
 )
 have “run level” parameters.</p>
 <dl class="simple">
-<dt>nthreads<span class="classifier">int, default 1</span></dt><dd><p>Provided for future high-level parallelism. Currently nothing is implemented, so
+<dt>nthreads: int, default 1</dt><dd><p>Provided for future high-level parallelism. Currently nothing is implemented, so
 leave this at 1</p>
 </dd>
-<dt>savedir<span class="classifier">str, default “output”</span></dt><dd><p>The output directory for the final results. This can be the same directory that
+<dt>savedir: str, default “./result”</dt><dd><p>The output directory for the final results. This can be the same directory that
 <a class="reference internal" href="#config-mixture"><span class="std std-ref">ComponentMixture</span></a> uses to store intermediate dumps.</p>
 </dd>
 </dl>
@@ -427,12 +444,9 @@ leave this at 1</p>
 <li><a class="reference internal" href="#componentmixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComponentMixture</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#introducers">Introducers</a><ul>
-<li><a class="reference internal" href="#simpleintroducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleIntroducer</span></code></a></li>
-</ul>
-</li>
 <li><a class="reference internal" href="#icpools">ICPools</a><ul>
 <li><a class="reference internal" href="#simpleicpool"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleICPool</span></code></a></li>
+<li><a class="reference internal" href="#greedycycleicp"><code class="xref py py-class docutils literal notranslate"><span class="pre">GreedyCycleICP</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#drivers">Drivers</a><ul>

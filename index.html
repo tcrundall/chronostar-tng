@@ -134,7 +134,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -213,7 +213,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -222,14 +222,22 @@
           <section id="welcome-to-chronostar-tng-s-documentation">
 <h1>Welcome to Chronostar-TNG’s documentation!<a class="headerlink" href="#welcome-to-chronostar-tng-s-documentation" title="Permalink to this heading">#</a></h1>
 <p><strong>Chronostar</strong> is a Python library for discovering and characterising
-unbound stellar associations (aka “moving groups”) and their members using
+unbound stellar associations (aka
+“<a class="reference external" href="https://en.wikipedia.org/wiki/Stellar_kinematics#Moving_groups">moving groups</a>”)
+and their members using
 features such as kinematics, age markers, chemical composition. The code
 can be found on <a class="reference external" href="https://github.com/tcrundall/chronostar-tng/">github</a>.</p>
-<p>These docs will sketch out the structure of the next generation of Chronostar
+<p>This documentation details the usage of the next generation of Chronostar
 code.</p>
 <p>It turns out fitting Gaussian Mixture Models is quite complex, so a lot of
-the design will be shamelessly <em>inspired</em> by
-<a class="reference external" href="https://scikit-learn.org/stable/auto_examples/mixture/plot_gmm_selection.html">scikit-learn</a>.</p>
+the API design (<a class="reference external" href="https://arxiv.org/abs/1309.0238">Buitinck et al. 2013</a>) will be shamelessly <em>inspired</em> by
+<a class="reference external" href="https://scikit-learn.org/stable/about.html">scikit-learn</a>.</p>
+<section id="publications">
+<h2>Publications<a class="headerlink" href="#publications" title="Permalink to this heading">#</a></h2>
+<p><a class="reference external" href="https://arxiv.org/abs/1902.07732">Chronostar: a novel Bayesion method for kinematic age determination. I. Derivation and application to the Beta Pictoris Moving Group -
+Crundall et al. (2019)</a></p>
+<p><a class="reference external" href="https://arxiv.org/abs/2111.09897">Chronostar. II. Kinematic age and substruction of the Scorpius-Cenaurus OB2 association -
+Žerjal et al. (submitted)</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This project is under active development</p>
@@ -262,6 +270,7 @@ the design will be shamelessly <em>inspired</em> by
 <li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
 </ul>
 </div>
+</section>
 </section>
 <section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">#</a></h1>
@@ -307,8 +316,28 @@ the design will be shamelessly <em>inspired</em> by
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Welcome to Chronostar-TNG’s documentation!</a><ul>
+<li><a class="reference internal" href="#publications">Publications</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

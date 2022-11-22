@@ -359,6 +359,7 @@ In each of these subdirectories, you will find a text file with detailed descrip
 
 In your ``output-chron/final`` directory you'll find the same information and the same files but for the best fit.
 
+..  _bpmg-example:
 
 Beta Pictoris Moving Group
 --------------------------

@@ -224,19 +224,20 @@
 <p>Chronostar is a wonderful tool for identifying and characterising
 unbound stellar associations and is particular adept at determining
 kinematic ages.</p>
-<p>The next generation of Chronostar prioritises simplicity, flexibility and extensibility. The default behaviour addresses the simplest scenario but the means of extending the capabilties for more complex scenarios is straight forward; by default Chronostar-TNG (will) provide abstract base classes which clearly dictate required interfaces as well as many different example reifications for the most basic scenarios. How one actually extends these example implementations to address complex scenarios is left to the user. ;)</p>
-<p>The framework of Chronostar TNG consists of 5 classes. A <a class="reference internal" href="guides/driverguide.html"><span class="doc">Driver</span></a>, a <a class="reference internal" href="guides/icpoolguide.html"><span class="doc">Initial Conditions Pool</span></a>, an <a class="reference internal" href="guides/introducerguide.html"><span class="doc">Introducer</span></a>, a <a class="reference internal" href="guides/mixtureguide.html"><span class="doc">Mixture</span></a> and a <a class="reference internal" href="guides/componentguide.html"><span class="doc">Component</span></a>.</p>
+<p>The next generation of Chronostar prioritises simplicity, flexibility and extensibility. The default behaviour addresses the simplest scenario but the means of extending the capabilties for more complex scenarios is straight forward; by default Chronostar-TNG provides abstract base classes which clearly dictate required interfaces as well as many different example reifications for the most basic scenarios. How one actually extends these example implementations to address complex scenarios is left to the user. ;)</p>
+<p>The framework of Chronostar TNG consists of 4 classes. A <a class="reference internal" href="guides/driverguide.html"><span class="doc">Driver</span></a>, a <a class="reference internal" href="guides/icpoolguide.html"><span class="doc">Initial Conditions Pool</span></a>, a <a class="reference internal" href="guides/mixtureguide.html"><span class="doc">Mixture</span></a> and a <a class="reference internal" href="guides/componentguide.html"><span class="doc">Component</span></a>.</p>
 <a class="reference internal image-reference" href="_images/simple_snapshot.svg"><img alt="A graphical representation of how the classes connect." src="_images/simple_snapshot.svg" width="800" /></a>
 <p>The goal of Chronostar is to be a flexible framework for fitting Gaussian
 Mixture Models to astronomical data. This will be achieved by utilising
 “injected dependencies”. The <a class="reference internal" href="guides/driverguide.html"><span class="doc">Driver</span></a> is composed of a collection
-of 4 classes (<a class="reference internal" href="guides/icpoolguide.html"><span class="doc">ICPool</span></a>, <a class="reference internal" href="guides/introducerguide.html"><span class="doc">Introducer</span></a>, <a class="reference internal" href="guides/mixtureguide.html"><span class="doc">Mixture</span></a> and <a class="reference internal" href="guides/componentguide.html"><span class="doc">Component</span></a>) for which
+of 3 classes (<a class="reference internal" href="guides/icpoolguide.html"><span class="doc">ICPool</span></a>, <a class="reference internal" href="guides/mixtureguide.html"><span class="doc">Mixture</span></a> and <a class="reference internal" href="guides/componentguide.html"><span class="doc">Component</span></a>) for which
 Chronostar provides many implementations. Anyone wishing to modify
 aspects of Chronostar (e.g. input data, fitting method, models of
 components) simply needs to provide the <a class="reference internal" href="guides/driverguide.html"><span class="doc">driver</span></a> with their own
 class that matches the required interface, whether that be by writing
 the class from scratch, or by using inheritance to extend pre-existing
-classes.</p>
+classes. Further details on the base classes and the provided implementations
+are outlined in <a class="reference internal" href="generaloverview.html"><span class="doc">General Overview</span></a>.</p>
 </section>
 
         </article>

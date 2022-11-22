@@ -29,8 +29,10 @@ Chronostar developers should use the :code:`dev-environment.yml`, as this includ
 
 Pip
 ^^^
-Alternatively you can use pip, but you need to ensure you already have python 3.9 installed
-somewhere.
+Alternatively you can use pip. Note that Chronostar-TNG is only tested for python 3.9,
+so you need to ensure that either your default python installation is 3.9
+(in which case you can remove the `-p /path/to/your/3.9/bin/python` argument)
+or that you have python 3.9 installed somewhere.
 
 .. code::
 
@@ -91,6 +93,6 @@ You should also have access to the command line tools:
 
 .. code::
 
-    $ fit-component -h
-    $ fit-mixture -h
-    $ fit-chronostar -h
+    fit-component -h
+    fit-mixture -h
+    fit-chronostar -h

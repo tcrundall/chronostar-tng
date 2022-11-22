@@ -223,6 +223,9 @@
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this heading">#</a></h1>
 <section id="preparing-a-run">
 <h2>Preparing a run<a class="headerlink" href="#preparing-a-run" title="Permalink to this heading">#</a></h2>
+<section id="data-prep">
+<h3>Data prep<a class="headerlink" href="#data-prep" title="Permalink to this heading">#</a></h3>
+<p>The first step is to prepare your data.</p>
 <p>Prepare your stellar cartesian data as two stored numpy arrays of measurements
 (means) with dimension (<code class="docutils literal notranslate"><span class="pre">n_stars,</span> <span class="pre">6</span></code>) and uncertainties (stored as covariance matrices) with dimension (<code class="docutils literal notranslate"><span class="pre">n_stars,</span> <span class="pre">6,</span> <span class="pre">6</span></code>). Alternatively, means and uncertainties can be folded into the same array. See
 <a class="reference internal" href="cli.html#dataprep"><span class="std std-ref">Converting to Cartesian Coordinates</span></a> for more details.</p>
@@ -230,6 +233,11 @@
 <p class="admonition-title">Note</p>
 <p>If your data represents a subset of a Gaia astrometry fits file, we recommend storing the corresponding <code class="docutils literal notranslate"><span class="pre">source_id</span></code> of the stars in the cartesian data set e.g. <code class="docutils literal notranslate"><span class="pre">subset_sourceids.npy</span></code>. This can be used to extract the corresponding photometric data for plotting with the results.</p>
 </div>
+</section>
+<section id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading">#</a></h3>
+<p>Each class in Chronostar has a set of configurable parameters. Chronostar
+reads them in via a configuration file.</p>
 <p>Prepare a configuration file e.g. <code class="docutils literal notranslate"><span class="pre">config.yml</span></code> with contents:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span><span class="p">:</span>
    <span class="n">component</span><span class="p">:</span> <span class="s2">&quot;SphereSpaceTimeComponent&quot;</span>
@@ -246,13 +254,14 @@
 
 <span class="n">driver</span><span class="p">:</span>
    <span class="n">intermediate_dumps</span><span class="p">:</span> <span class="kc">True</span>
-   <span class="n">savedir</span><span class="p">:</span> <span class="s2">&quot;result_intermediate&quot;</span>
+   <span class="n">savedir</span><span class="p">:</span> <span class="s2">&quot;results/intermediate&quot;</span>
 
 <span class="n">run</span><span class="p">:</span>
-   <span class="n">savedir</span><span class="p">:</span> <span class="s2">&quot;result_final&quot;</span>
+   <span class="n">savedir</span><span class="p">:</span> <span class="s2">&quot;results/final&quot;</span>
 </pre></div>
 </div>
 <p>See <a class="reference internal" href="cli.html#cli"><span class="std std-ref">Command-Line Interface</span></a> for details about other command-line tools and <a class="reference internal" href="settings.html#settings"><span class="std std-ref">Configuration Settings</span></a> for a complete list of configurable parameters.</p>
+</section>
 </section>
 <section id="performing-a-run">
 <h2>Performing a run<a class="headerlink" href="#performing-a-run" title="Permalink to this heading">#</a></h2>
@@ -269,22 +278,12 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ nohup fit-chronostar -c config.yml path/to/means.npy --covs path/to/covs.npy &gt; chron-run.log &amp;
 </pre></div>
 </div>
-<p>If all goes well, you’ll have the following files in <code class="docutils literal notranslate"><span class="pre">./result_final</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># membership probabilities of each star to each component</span>
-<span class="n">membership</span><span class="o">.</span><span class="n">npy</span>
-
-<span class="c1"># The weights of each component (normalised to all sum to one)</span>
-<span class="n">weights</span><span class="o">.</span><span class="n">npy</span>
-
-<span class="c1"># Subdirectories for each component</span>
-<span class="n">comp_000</span><span class="o">/</span>
-   <span class="c1"># Best fitting parameters of the component</span>
-   <span class="n">params</span><span class="o">.</span><span class="n">npy</span>
-</pre></div>
-</div>
+<p>If all goes well, you’ll have the following files in <code class="docutils literal notranslate"><span class="pre">./results/final</span></code>:</p>
 </section>
 <section id="plotting">
 <h2>Plotting<a class="headerlink" href="#plotting" title="Permalink to this heading">#</a></h2>
+<section id="cmds">
+<h3>CMDs<a class="headerlink" href="#cmds" title="Permalink to this heading">#</a></h3>
 <p>You can plot some results using the membership probabilities. To plot the astrometry (using Gaia’s <code class="docutils literal notranslate"><span class="pre">phot_g_mean_mag</span></code> and <code class="docutils literal notranslate"><span class="pre">g_rp</span></code>):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span><span class="o">-</span><span class="n">features</span> <span class="o">--</span><span class="n">photom</span> <span class="o">-</span><span class="n">d</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">gaia</span><span class="o">.</span><span class="n">fits</span> <span class="o">-</span><span class="n">z</span> <span class="n">result_final</span><span class="o">/</span><span class="n">membership</span><span class="o">.</span><span class="n">npy</span> <span class="o">-</span><span class="n">s</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">subset_sourceids</span><span class="o">.</span><span class="n">npy</span>
 </pre></div>
@@ -292,8 +291,12 @@
 <p>This plot automatically colours each star by component membership, and sizes each point by it’s component’s weight, thereby making smaller components more visible. See <a class="reference internal" href="cli.html#cmd"><span class="std std-ref">CMD</span></a> for more info.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This plot isn’t super great at the moment, and in fact may be bugged.</p>
+<p>This plot tries to be a “one size fits all” tool, which utlimately doesn’t fit any. Users are encouraged to develop their own plotting tools based on
+<a class="reference external" href="https://github.com/tcrundall/chronostar-tng/tree/main/bin">those provided</a>.</p>
 </div>
+</section>
+<section id="cartesian-space">
+<h3>Cartesian Space<a class="headerlink" href="#cartesian-space" title="Permalink to this heading">#</a></h3>
 <p>To plot stars in cartesian phase-space:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span><span class="o">-</span><span class="n">features</span> <span class="o">-</span><span class="n">f</span> <span class="mi">0</span><span class="p">,</span><span class="mf">1.0</span><span class="p">,</span><span class="mf">3.1</span><span class="p">,</span><span class="mf">4.2</span><span class="p">,</span><span class="mi">5</span> <span class="o">-</span><span class="n">m</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">means</span><span class="o">.</span><span class="n">npy</span> <span class="o">-</span><span class="n">z</span> <span class="n">result_final</span><span class="o">/</span><span class="n">membership</span><span class="o">.</span><span class="n">npy</span>
 </pre></div>
@@ -301,8 +304,9 @@
 <p>The argument following <code class="docutils literal notranslate"><span class="pre">-f</span></code> represents each phase-space subplot. For example here, we will plot X against Y, X against U, Y against V and Z against W. See <a class="reference internal" href="cli.html#feat"><span class="std std-ref">Features</span></a> for more info.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For large data sets ( &gt; 1,000) plotting may take multiple minutes…</p>
+<p>For large data sets ( &gt; 1,000) plotting may take multiple minutes.</p>
 </div>
+</section>
 </section>
 </section>
 
@@ -364,9 +368,17 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Quickstart</a><ul>
-<li><a class="reference internal" href="#preparing-a-run">Preparing a run</a></li>
+<li><a class="reference internal" href="#preparing-a-run">Preparing a run</a><ul>
+<li><a class="reference internal" href="#data-prep">Data prep</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#performing-a-run">Performing a run</a></li>
-<li><a class="reference internal" href="#plotting">Plotting</a></li>
+<li><a class="reference internal" href="#plotting">Plotting</a><ul>
+<li><a class="reference internal" href="#cmds">CMDs</a></li>
+<li><a class="reference internal" href="#cartesian-space">Cartesian Space</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
