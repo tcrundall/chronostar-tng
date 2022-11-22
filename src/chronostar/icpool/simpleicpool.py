@@ -56,8 +56,10 @@ class SimpleICPool(BaseICPool):
         label : str
             A uniquely identifying label with summary information:
             ``unique_id-parent_id-generation-ncomps``
+
         mixture : BaseMixture
             A mixture object whose fit has been finalised
+
         score : float
             A score of the fit, where higher means better,
             e.g. -BIC
@@ -139,6 +141,19 @@ class SimpleICPool(BaseICPool):
         parent_label: str,
         extra: str,
     ) -> None:
+        """Put a new InitialCondition in the queue
+
+        Parameters
+        ----------
+        components : tuple[BaseComponent, ...]
+            A tuple of components
+        parent_label : str
+            The label of the InitialCondition that initialised the
+            parent mixture
+        extra : str
+            An extra piece of information to append at the end
+            of this InitialCondition's label
+        """
         label = generate_label(
             self.n_initconds,
             self.n_generations,

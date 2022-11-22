@@ -7,128 +7,6 @@ from numpy.typing import NDArray
 from numpy import float64
 
 
-class ScoredMixture(NamedTuple):
-    """Simple named tuple for pairing mixtures with their scores
-
-    Parameters
-    ----------
-    mixture : BaseMixture
-        A mixture model whose fit method has been called
-    score : float
-        The score of the mixture model
-    """
-    mixture: BaseMixture
-    score: float
-    label: str
-
-
-class InitialCondition(NamedTuple):
-    """Simple named tuple for pairing an informative label with
-    a list of initial components
-
-    Parameters
-    ----------
-    label : str or int
-        unique identifer combined with extra information
-    components : list[BaseComponent]
-        A list of components that can initialise a mixture fit
-    """
-    label: str
-    components: tuple[BaseComponent, ...]
-
-
-class BaseICPool(metaclass=ABCMeta):
-    """A pool of sets of initial conditions, stored as a queue
-
-    Parameters
-    ----------
-    introducer_class : Type[BaseIntroducer]
-        A class derived from BaseIntroducer, this determines how
-        new sets of initial conditions are generated
-    component_class : Type[BaseComponent]
-        A class derived from BaseComponent
-    """
-
-    def __init__(
-        self,
-        component_class: Type[BaseComponent],
-        start_init_comps: Optional[tuple[BaseComponent, ...]] = None,
-    ) -> None:
-        self.component_class = component_class
-        self.registry: dict[Union[str, int], ScoredMixture] = {}
-
-    @classmethod
-    def configure(cls, **kwargs) -> None:       # type: ignore
-        """Set any configurable class attributes
-        """
-        for param, val in kwargs.items():
-            if hasattr(cls, param):
-                setattr(cls, param, val)
-            else:
-                print(f"[CONFIG]:{cls} unexpected config param: {param}={val}")
-
-    @abstractmethod
-    def has_next(self) -> bool:
-        """Determine if internal queue is non-empty, after attempting to
-        repopulate as needed.
-
-        Returns
-        -------
-        bool
-            Whether the queue is non-empty
-        """
-        pass
-
-    @abstractmethod
-    def get_next(self) -> InitialCondition:
-        """Pop the next initial conditions of internal queue and
-        return it with a unique identifier
-
-        Returns
-        -------
-        InitialCondition
-            An initial condition: a tuple of components, paired with
-            a unique, informative id
-        """
-        pass
-
-    @abstractmethod
-    def register_result(
-        self,
-        unique_id: str,
-        mixture: BaseMixture,
-        score: float
-    ) -> None:
-        """Register a finished mixture fit with its score
-
-        Parameters
-        ----------
-        unique_id : str
-            Unique identifier that was provided along with initial conditions
-        mixture : BaseMixture
-            A mixture model that has been fit
-        score : float
-            The score of the mixture model
-        """
-        pass
-
-    @property
-    @abstractmethod
-    def best_mixture(self) -> BaseMixture:
-        """Get the best scoring mixture
-
-        Returns
-        -------
-        BaseMixture
-            The best scoring mixture
-
-        Note
-        ----
-        Perhaps an extension is to keep track of the top N best mixtures
-        """
-        pass
-
-
 class BaseComponent(metaclass=ABCMeta):
     """Abstract class for a (assumed-to-be Gaussian)
     component to be used in a mixture model
@@ -192,6 +70,7 @@ class BaseComponent(metaclass=ABCMeta):
         ----------
         X : ndarray of shape (n_samples, n_features)
             Input data
+
         resp : ndarray of shape (n_samples, n_components)
             Responsibilities (or membership probabilities) of each
             sample to each component
@@ -235,6 +114,22 @@ class BaseComponent(metaclass=ABCMeta):
     @abstractmethod
     def set_parameters(self, params: NDArray[float64]) -> None:
         pass
+
+
+class InitialCondition(NamedTuple):
+    """Simple named tuple for pairing an informative label with
+    a list of initial components
+
+    Parameters
+    ----------
+    label : str or int
+        unique identifer combined with extra information
+
+    components : list[BaseComponent]
+        A list of components that can initialise a mixture fit
+    """
+    label: str
+    components: tuple[BaseComponent, ...]
 
 
 class BaseMixture(metaclass=ABCMeta):
@@ -373,3 +268,110 @@ class BaseMixture(metaclass=ABCMeta):
 
         # Normalize such that each row sums to 1
         return np.transpose((weighted_prob.T / weighted_prob.sum(axis=1)))
+
+
+class ScoredMixture(NamedTuple):
+    """Simple named tuple for pairing mixtures with their scores
+
+    Parameters
+    ----------
+    mixture : BaseMixture
+        A mixture model whose fit method has been called
+
+    score : float
+        The score of the mixture model
+    """
+    mixture: BaseMixture
+    score: float
+    label: str
+
+
+class BaseICPool(metaclass=ABCMeta):
+    """A pool of sets of initial conditions, stored as a queue
+
+    Parameters
+    ----------
+    component_class : Type[BaseComponent]
+        A class derived from BaseComponent
+    """
+
+    def __init__(
+        self,
+        component_class: Type[BaseComponent],
+        start_init_comps: Optional[tuple[BaseComponent, ...]] = None,
+    ) -> None:
+        self.component_class = component_class
+        self.registry: dict[Union[str, int], ScoredMixture] = {}
+
+    @classmethod
+    def configure(cls, **kwargs) -> None:       # type: ignore
+        """Set any configurable class attributes
+        """
+        for param, val in kwargs.items():
+            if hasattr(cls, param):
+                setattr(cls, param, val)
+            else:
+                print(f"[CONFIG]:{cls} unexpected config param: {param}={val}")
+
+    @abstractmethod
+    def has_next(self) -> bool:
+        """Determine if internal queue is non-empty, after attempting to
+        repopulate as needed.
+
+        Returns
+        -------
+        bool
+            Whether the queue is non-empty
+        """
+        pass
+
+    @abstractmethod
+    def get_next(self) -> InitialCondition:
+        """Pop the next initial conditions of internal queue and
+        return it with a unique identifier
+
+        Returns
+        -------
+        InitialCondition
+            An initial condition: a tuple of components, paired with
+            a unique, informative id
+        """
+        pass
+
+    @abstractmethod
+    def register_result(
+        self,
+        unique_id: str,
+        mixture: BaseMixture,
+        score: float
+    ) -> None:
+        """Register a finished mixture fit with its score
+
+        Parameters
+        ----------
+        unique_id : str
+            Unique identifier that was provided along with initial conditions
+
+        mixture : BaseMixture
+            A mixture model that has been fit
+
+        score : float
+            The score of the mixture model
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def best_mixture(self) -> BaseMixture:
+        """Get the best scoring mixture
+
+        Returns
+        -------
+        BaseMixture
+            The best scoring mixture
+
+        Note
+        ----
+        Perhaps an extension is to keep track of the top N best mixtures
+        """
+        pass

@@ -1,3 +1,12 @@
+"""
+A component describing a blanket uniform density. Intended to aid
+characterisation of the background.
+
+This component performs very poorly when combined with
+SphereSpaceTimeComponent comps in tests on synthetic data.
+The uniform component claims too many association stars as
+members of the background.
+"""
 from __future__ import annotations
 from typing import Optional
 import numpy as np

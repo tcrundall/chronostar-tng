@@ -75,18 +75,6 @@ def construct_params_from_cov(
     )
 
 
-# def update_progress_bar(iter_count: int, ncols: int = 50) -> None:
-#     chars = ".-~+=!|?OH"
-#     nchars = len(chars)
-#     tail_char = chars[iter_count % nchars]
-#     head_chars = (iter_count % (ncols * nchars) // nchars) * chars[-1]
-#     if iter_count >= ncols * nchars:
-#         print()
-#     print(f"{head_chars}{tail_char}", end='\r')
-#     # print(f"{head_chars}{tail_char}", end='\x1b[1K\r')
-#     return iter_count % (ncols * nchars)
-
-
 class SphereSpaceTimeComponent(BaseComponent):
     """A 6D phase-space Gaussian component with age.
 
@@ -105,6 +93,7 @@ class SphereSpaceTimeComponent(BaseComponent):
     reg_covar : float, default 1.e-6
         A regularisation constant added to the diagonals
         of the covariance matrix, configurable
+
     minimize_method : str, default 'Nelder-Mead'
         The method used by ``scipy.optimize.minimize``. Must be one of
 
@@ -114,22 +103,28 @@ class SphereSpaceTimeComponent(BaseComponent):
     nthreads : int, optional
         Manually restrict how many threads openMP tries to use when
         executing optimized numpy functions, configurable
+
     trace_orbit_func : Callable f(start_loc, time), default :func:`trace_epicyclic_orbit`
         A function that traces a position by `time` Myr. Positive `time`
         traces forward, negative `time` backwards, configurable
+
     age_offset_interval : int, default 20
         After how many calls to :func:`maximize` age offsets should be explored
+
     stellar_uncertainties : bool, default True
         Whether data covariance matrices are encoded in final 36 columns of
         input data X
+
     resp_tol : float, default 1e-6
         Only samples with a responsibility (membership probability) greater than
         ``resp_tol`` will be included in the evaluation of the loss function
+
     parameters : ndarray of shape (9)
         The model parameters, either as set by initialization, or as
         determined by :meth:`maximize`. For this component this parameters
         are: [x, y, z, u, v, w, dxyz, duvw, age] with position in pc,
         velocity in km/s and age in Myr
+
     max_age : float, default 200
         The upper bound on the age when maximising the component parameters
     """
@@ -221,8 +216,10 @@ class SphereSpaceTimeComponent(BaseComponent):
         model_params : ndarray of shape (9)
             Values that parameterise the birth mean, birth covariance
             matrix and age
+
         X : ndarray of shape (n_samples, n_features)
             Input data
+
         resp : ndarray of shape (n_samples)
             component responsibilities (membership probabilities)
 
@@ -337,6 +334,7 @@ class SphereSpaceTimeComponent(BaseComponent):
         ----------
         X : ndarray of shape (n_samples, n_features)
             Input data
+
         resp : ndarray of shape (n_samples)
             component responsibilities (membership probabilities)
 
@@ -355,7 +353,7 @@ class SphereSpaceTimeComponent(BaseComponent):
                 " or you should configure stellar_uncertainties: 'False'"
             )
 
-        # Effectively set OMP_NUM_THREADS = self.nthreads
+        # Effectively sets OMP_NUM_THREADS = self.nthreads
         # Allowing numpy to use multiple threads for its c implementations
         # destroys performance. So we force it not to.
         with threadpool_limits(1, user_api='openmp'):

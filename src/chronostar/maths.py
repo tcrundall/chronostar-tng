@@ -9,6 +9,21 @@ from numba import njit, prange
 def extract_gaussian_pars(
     X: NDArray[float64],
 ) -> tuple[NDArray[float64], NDArray[float64]]:
+    """Convert a single array where each row is a mean and flattened covariance
+    into an array of means and an array of covariance matrices
+
+    Parameters
+    ----------
+    X : NDArray[float64]
+        A single array encoding many means and covariance matrices. For a
+        given row, the first 6 elements are the mean, the next 36 elements
+        are the covariance matrix, flattened
+
+    Returns
+    -------
+    array of shape (nstars, 6), array of shape (nstars, 6, 6)
+        The means and the covariance matrices
+    """
     means = np.copy(X[:, :6])
     covs = np.copy(X[:, 6:]).reshape(-1, 6, 6)
     return means, covs
@@ -23,7 +38,6 @@ def estimate_log_gaussian_ol_prob(
 ) -> NDArray[float64]:
     """
     A pythonic implementation of overlap integral calculation.
-    Left here in case swigged _overlap doesn't work.
 
     Parameters
     ---------
@@ -57,6 +71,21 @@ def estimate_log_gaussian_ol_prob(
 def extract_gaussian_pars_py(
     X: NDArray[float64],
 ) -> tuple[NDArray[float64], NDArray[float64]]:
+    """Convert a single array where each row is a mean and flattened covariance
+    into an array of means and an array of covariance matrices
+
+    Parameters
+    ----------
+    X : NDArray[float64]
+        A single array encoding many means and covariance matrices. For a
+        given row, the first 6 elements are the mean, the next 36 elements
+        are the covariance matrix, flattened
+
+    Returns
+    -------
+    tuple[NDArray[float64], NDArray[float64]]
+        _description_
+    """
     means = np.copy(X[:, :6])
     covs = np.copy(X[:, 6:]).reshape(-1, 6, 6)
     return means, covs

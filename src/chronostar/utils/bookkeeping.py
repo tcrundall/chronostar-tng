@@ -23,7 +23,7 @@ def convert_num2alpha(n: int) -> str:
     'ABA'
     """
     res: list[str] = []
-    for order in range(1, 4):
+    for _ in range(1, 4):
         digit = n % 26
         res.insert(0, chr(ord('A') + digit))
         n //= 26
@@ -54,9 +54,11 @@ def generate_label(
     ----------
     components : tuple of BaseComponent
         A collection of components soon to be returned as an initial condition
+
     parent_label : str
         The label of the "parent", the initial condition whose result
         was used to generate `components`
+
     extra : str, optional
         Any extra info to be appended to resulting label, by default None
 

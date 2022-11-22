@@ -68,10 +68,13 @@ def replace_cov_with_sampling(
         ``dim`` + "\ ``dim``\ th triangle number" columns,
         with the final ``dim``\ th triangle number columns encoding
         covariance matrices
+
     covs : Optional[NDArray[float64]] of shape (n_samples, 6, 6), optional
         An array of covariance matrices, by default None
+
     n_draws : int, optional
         the number of random draws to take from each star's distribution, by default 100
+
     dim : int, optional
         dimensions, by default 6
 
@@ -105,6 +108,28 @@ def replace_cov_with_sampling(
 def extract_array_from_table(
     table: Table, msk: Optional[NDArray] = None,
 ) -> NDArray[float64]:                                                  # type: ignore
+    """Take data from a table and convert into numpy array
+
+    Parameters
+    ----------
+    table : Table
+        An astropy table with measurement column names ra, dec, parallax, pmra, pmdec,
+        and radial_velocity, as well as ra_error, dec_error etc, and optionally
+        any subset of pair-wise correlations, ra_dec_corr, ra_parallax_corr etc.,
+        but in the order of measurement column names as given above
+
+    msk : Optional[NDArray], optional
+        A mask (boolean or index) for the table rows to be used, by default None
+
+    Returns
+    -------
+    NDArray[float64]
+        A float array of shape (nstars, 27) where the first 6 columns are
+        measurements ra, dec, parallax, pmra, pmdec, radial_velocity,
+        the next 6 columns are the errors, and the next 15 are the pairwise
+        covariances in the ordering: ra_dec, ra_parallax, ra_pmra, ra_pmdec,
+        ra_radial_velocity, dec_parallax, etc.
+    """
 
     # Extract astrometry data, 6 measurements, 6 errors, 15 correlations
     # Assume gaia formatting

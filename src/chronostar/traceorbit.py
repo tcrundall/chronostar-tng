@@ -107,14 +107,12 @@ def trace_epicyclic_orbit(
 
     Parameters
     ----------
-    xyzuvw : [pc,pc,pc,km/s,km/s,km/s]
+    xyzuvw_start : float array of shape (6)
+        Starting point of orbit: x, y, z, u, v, w with pc units for position
+        and km/s units for velocity
+
     time : (float) or ([ntime] float array)
-        Myr - time of 0.0 must be present in the array. time need not be
-        spread linearly.
-    #TODO: time 0.0 really? [TC: this was true for galpy]
-    single_age: (bool) {True}
-        Set this flag if only providing a single age to trace to
-        This is there for the plotting purposes.
+        One (or many) times by which to calculate the orbit
 
     Returns
     -------

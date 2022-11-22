@@ -24,6 +24,7 @@ class GreedyCycleICP(BaseICPool):
     max_components : int, default 100
         The max components in an initial condition provided by
         `SimpleICPool`, configurable
+
     index_from_front : bool, default True
         Whether the target component index is a positive number
         (hence counting from front) or a negative number (hence
@@ -100,8 +101,10 @@ class GreedyCycleICP(BaseICPool):
         label : str
             A uniquely identifying label with summary information:
             ``unique_id-parent_id-generation-ncomps``
+
         mixture : BaseMixture
             A mixture object whose fit has been finalised
+
         score : float
             A score of the fit, where higher means better,
             e.g. -BIC
@@ -178,6 +181,12 @@ class GreedyCycleICP(BaseICPool):
         self.next_gen(base_init_condition)
 
     def increment_target_comp_ix(self) -> None:
+        """Increment the index of the target component
+
+        Depending on whether we're indexing from front or back determines
+        if the index should be a positive value or negative.
+        """
+
         n_comps = len(self.best_mixture_.get_components())  # type: ignore
         self.target_comp_ix += 1
         self.target_comp_ix %= n_comps
@@ -216,6 +225,19 @@ class GreedyCycleICP(BaseICPool):
         parent_label: str,
         extra: str,
     ) -> None:
+        """Put a new InitialCondition in the queue
+
+        Parameters
+        ----------
+        components : tuple[BaseComponent, ...]
+            A tuple of components
+        parent_label : str
+            The label of the InitialCondition that initialised the
+            parent mixture
+        extra : str
+            An extra piece of information to append at the end
+            of this InitialCondition's label
+        """
         label = generate_label(
             self.n_initconds,
             self.n_generations,

@@ -37,12 +37,13 @@ class Driver:
     config_file : Union[str, Path]
         A yaml configuration file with sections mixture, icpool,
         introducer and component.
+
     mixture_class : Type[BaseMixture], default :class:`ComponentMixture`
         A class derived from BaseMixture
+
     icpool_class : Type[BaseICPool], default :class:`SimpleICPool`
         A class derived from BaseICPool
-    introducer_class : Type[BaseIntroducer], default :class:`SimpleIntroducer`
-        A class derived from BaseIntroducer
+
     component_class : Type[BaseComponent], default :class:`SphereSpaceTimeComponent`
         A class derived from BaseComponent
 
@@ -107,9 +108,11 @@ class Driver:
         ----------
         data : NDArray[float64] of shape (n_samples, n_features)
             The input data
+
         start_init_comps : InitialCondition, optional
             Parameters defining a mixture model, which serves as a
             starting point for the entire run.
+
         init_resp : NDArray[float64] of shape (n_samples, n_comps), optional
             Starting point for component memberships
 
@@ -189,6 +192,7 @@ class Driver:
         ------
         yaml.YAMLError
             A yaml exception, in the event the file can't be read
+
         UserWarning
             If the file has an unrecognised key at top-most level
         """
@@ -225,8 +229,10 @@ class Driver:
         ----------
         label : str
             The unique label of the initial condition of the mixture
+
         mixture : BaseMixture
             The (fitted) mixture model
+
         data : NDArray of shape (n_samples, n_features)
             The input data
         """

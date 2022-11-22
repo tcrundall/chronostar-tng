@@ -21,18 +21,27 @@ class SKLComponentMixture(SKLBaseMixture):
         init_weights are taken to be initial membership probabilities.
         If this is the case, you must configure
         `init_params='init_resp'`
+
     components_init : list[BaseComponent]
         Component objects which will be maximised to the data,
         optionally with pre-initialised parameters
+
     tol : float, optional
-        Some tolerance used by sklearn... , by default 1e-3
+        The tolerance on convergence detection of an EM fit.
+        If the average log likelihood of all samples differs by
+        less than ``tol`` at the end of an EM iteration, convergence
+        has been reached, by default 1e-3
+
     reg_covar : float, optional
         Regularisation factor added to diagonal elements of
         covariance matrices, by default 1e-6
+
     max_iter : int, optional
         Maximum iterations of EM algorithm, by default 100
+
     n_init : int, optional
         sklearn parameter we don't use, by default 1
+
     init_params : str, optional
         How to initialise components if not already set,
         'random' assigns memberships randomly then maximises,
@@ -43,10 +52,13 @@ class SKLComponentMixture(SKLBaseMixture):
 
     random_state : Any, optional
         sklearn parameter... the random seed?, by default None
+
     warm_start : bool, optional
         sklearn parameter that we don't use, by default True
+
     verbose : int, optional
-        sklearn parameter..., by default 0
+        sklearn parameter, by default 0
+
     verbose_interval : int, optional
         sklearn parameter, by default 10
     """
@@ -130,9 +142,11 @@ class SKLComponentMixture(SKLBaseMixture):
 
         References
         ----------
-        Copy pasted from scikit-learn
-        TODO: Add explicit author credits
+        Copy pasted from scikit-learn sklearn/mixture/_base.py
+        Original author: Author: Wei Xue <xuewei4d@gmail.com>
+        Modified by: Thierry Guillemot <thierry.guillemot.work@gmail.com>
         """
+
         n_samples, _ = X.shape
         print("[SKLMixture._initialize_parameters]: Initializing parameters!")
         print(f"[SKLMixture._initialize_parameters]: {self.init_params=}")
@@ -192,6 +206,7 @@ class SKLComponentMixture(SKLBaseMixture):
         ----------
         X : NDArray[float64] of shape (n_samples, n_features)
             Input data
+
         resp : NDArray[float64] of shape (n_samples, n_components)
             Responsibilities (membership probabilities) of each sample
             to each component
@@ -213,6 +228,7 @@ class SKLComponentMixture(SKLBaseMixture):
         ----------
         X : NDArray[float64] of shape (n_samples, n_features)
             Input data
+
         log_resp : NDArray[float64] of shape (n_samples, n_components)
             Log responsibilities (membership probabilities) of each sample
             to each component
@@ -272,6 +288,7 @@ class SKLComponentMixture(SKLBaseMixture):
         ----------
         _ : Any
             Argument only here to match API
+
         log_prob_norm : Any
             Probably a float
 

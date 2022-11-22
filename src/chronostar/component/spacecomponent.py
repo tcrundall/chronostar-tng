@@ -30,6 +30,7 @@ class SpaceComponent(BaseComponent):
     reg_covar : float, default 1.e-6
         A regularisation constant added to the diagonals
         of the covariance matrix, configurable
+
     nthreads : int, default None
         Number of OMP threads used by numpy matrix operations
     """
@@ -58,6 +59,7 @@ class SpaceComponent(BaseComponent):
         ----------
         X : ndarray of shape (n_samples, n_features)
             Input data
+
         resp : ndarray of shape (n_samples)
             component responsibilities (membership probabilities)
 
