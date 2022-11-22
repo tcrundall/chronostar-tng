@@ -286,6 +286,7 @@
 <li class="toctree-l4"><a class="reference internal" href="chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.get_next"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.get_next()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.has_next"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.has_next()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.next_gen"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.next_gen()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.put_in_queue"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.put_in_queue()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.register_result"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.register_result()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.try_populate_queue"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.try_populate_queue()</span></code></a></li>
 </ul>
@@ -476,11 +477,7 @@ half as wide and offset from mean</p>
 <p>A pool of sets of initial conditions, stored as a queue</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>introducer_class</strong> (<em>Type</em><em>[</em><em>BaseIntroducer</em><em>]</em>) – A class derived from BaseIntroducer, this determines how
-new sets of initial conditions are generated</p></li>
-<li><p><strong>component_class</strong> (<em>Type</em><em>[</em><a class="reference internal" href="#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent"><em>BaseComponent</em></a><em>]</em>) – A class derived from BaseComponent</p></li>
-</ul>
+<dd class="field-odd"><p><strong>component_class</strong> (<em>Type</em><em>[</em><a class="reference internal" href="#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent"><em>BaseComponent</em></a><em>]</em>) – A class derived from BaseComponent</p>
 </dd>
 </dl>
 <dl class="py property">
@@ -796,6 +793,33 @@ a list of initial components</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="chronostar.datatools.extract_array_from_table">
+<span class="sig-prename descclassname"><span class="pre">chronostar.datatools.</span></span><span class="sig-name descname"><span class="pre">extract_array_from_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.datatools.extract_array_from_table" title="Permalink to this definition">#</a></dt>
+<dd><p>Take data from a table and convert into numpy array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table</strong> (<em>Table</em>) – An astropy table with measurement column names ra, dec, parallax, pmra, pmdec,
+and radial_velocity, as well as ra_error, dec_error etc, and optionally
+any subset of pair-wise correlations, ra_dec_corr, ra_parallax_corr etc.,
+but in the order of measurement column names as given above</p></li>
+<li><p><strong>msk</strong> (<em>Optional</em><em>[</em><em>NDArray</em><em>]</em><em>, </em><em>optional</em>) – A mask (boolean or index) for the table rows to be used, by default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A float array of shape (nstars, 27) where the first 6 columns are
+measurements ra, dec, parallax, pmra, pmdec, radial_velocity,
+the next 6 columns are the errors, and the next 15 are the pairwise
+covariances in the ordering: ra_dec, ra_parallax, ra_pmra, ra_pmdec,
+ra_radial_velocity, dec_parallax, etc.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>NDArray[float64]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="chronostar.datatools.replace_cov_with_sampling">
 <span class="sig-prename descclassname"><span class="pre">chronostar.datatools.</span></span><span class="sig-name descname"><span class="pre">replace_cov_with_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_draws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.datatools.replace_cov_with_sampling" title="Permalink to this definition">#</a></dt>
 <dd><p>Replace uncertainty covariances with a random sampling of the
@@ -838,7 +862,6 @@ entire fitting process</p>
 introducer and component.</p></li>
 <li><p><strong>mixture_class</strong> (Type[BaseMixture], default <code class="xref py py-class docutils literal notranslate"><span class="pre">ComponentMixture</span></code>) – A class derived from BaseMixture</p></li>
 <li><p><strong>icpool_class</strong> (Type[BaseICPool], default <code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleICPool</span></code>) – A class derived from BaseICPool</p></li>
-<li><p><strong>introducer_class</strong> (Type[BaseIntroducer], default <code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleIntroducer</span></code>) – A class derived from BaseIntroducer</p></li>
 <li><p><strong>component_class</strong> (Type[BaseComponent], default <code class="xref py py-class docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent</span></code>) – A class derived from BaseComponent</p></li>
 </ul>
 </dd>
@@ -1036,12 +1059,9 @@ Negative time –&gt; traceback</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>xyzuvw</strong> (<em>[</em><em>pc</em><em>,</em><em>pc</em><em>,</em><em>pc</em><em>,</em><em>km/s</em><em>,</em><em>km/s</em><em>,</em><em>km/s</em><em>]</em>) – </p></li>
-<li><p><strong>time</strong> (<em>(</em><em>float</em><em>) or </em><em>(</em><em>[</em><em>ntime</em><em>] </em><em>float array</em><em>)</em>) – Myr - time of 0.0 must be present in the array. time need not be
-spread linearly.</p></li>
-<li><p><strong>#TODO</strong> (<em>time 0.0 really?</em><em> [</em><em>TC: this was true for galpy</em><em>]</em>) – </p></li>
-<li><p><strong>single_age</strong> (<em>(</em><em>bool</em><em>) </em><em>{True}</em>) – Set this flag if only providing a single age to trace to
-This is there for the plotting purposes.</p></li>
+<li><p><strong>xyzuvw_start</strong> (<em>float array</em><em> of </em><em>shape</em><em> (</em><em>6</em><em>)</em>) – Starting point of orbit: x, y, z, u, v, w with pc units for position
+and km/s units for velocity</p></li>
+<li><p><strong>time</strong> (<em>(</em><em>float</em><em>) or </em><em>(</em><em>[</em><em>ntime</em><em>] </em><em>float array</em><em>)</em>) – One (or many) times by which to calculate the orbit</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1163,6 +1183,7 @@ and velocities</p>
 </li>
 <li><a class="reference internal" href="#module-chronostar.datatools">chronostar.datatools module</a><ul>
 <li><a class="reference internal" href="#chronostar.datatools.construct_covs_from_data"><code class="docutils literal notranslate"><span class="pre">construct_covs_from_data()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.datatools.extract_array_from_table"><code class="docutils literal notranslate"><span class="pre">extract_array_from_table()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.datatools.replace_cov_with_sampling"><code class="docutils literal notranslate"><span class="pre">replace_cov_with_sampling()</span></code></a></li>
 </ul>
 </li>

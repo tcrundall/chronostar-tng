@@ -309,6 +309,26 @@ is a list of components</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="chronostar.icpool.simpleicpool.SimpleICPool.put_in_queue">
+<span class="sig-name descname"><span class="pre">put_in_queue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">components</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.icpool.simpleicpool.SimpleICPool.put_in_queue" title="Permalink to this definition">#</a></dt>
+<dd><p>Put a new InitialCondition in the queue</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>components</strong> (<em>tuple</em><em>[</em><a class="reference internal" href="chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent"><em>BaseComponent</em></a><em>, </em><em>...</em><em>]</em>) – A tuple of components</p></li>
+<li><p><strong>parent_label</strong> (<em>str</em>) – The label of the InitialCondition that initialised the
+parent mixture</p></li>
+<li><p><strong>extra</strong> (<em>str</em>) – An extra piece of information to append at the end
+of this InitialCondition’s label</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="chronostar.icpool.simpleicpool.SimpleICPool.register_result">
 <span class="sig-name descname"><span class="pre">register_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixture</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.icpool.simpleicpool.SimpleICPool.register_result" title="Permalink to this definition">#</a></dt>
 <dd><p>Register the result of a completed fit</p>
@@ -417,6 +437,7 @@ best mixture and adds the next generation to the queue.</p>
 <li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.get_next"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.get_next()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.has_next"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.has_next()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.next_gen"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.next_gen()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.put_in_queue"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.put_in_queue()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.register_result"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.register_result()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.icpool.simpleicpool.SimpleICPool.try_populate_queue"><code class="docutils literal notranslate"><span class="pre">SimpleICPool.try_populate_queue()</span></code></a></li>
 </ul>

@@ -474,7 +474,10 @@ If this is the case, you must configure
 <cite>init_params=’init_resp’</cite></p></li>
 <li><p><strong>components_init</strong> (<em>list</em><em>[</em><a class="reference internal" href="chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent"><em>BaseComponent</em></a><em>]</em>) – Component objects which will be maximised to the data,
 optionally with pre-initialised parameters</p></li>
-<li><p><strong>tol</strong> (<em>float</em><em>, </em><em>optional</em>) – Some tolerance used by sklearn… , by default 1e-3</p></li>
+<li><p><strong>tol</strong> (<em>float</em><em>, </em><em>optional</em>) – The tolerance on convergence detection of an EM fit.
+If the average log likelihood of all samples differs by
+less than <code class="docutils literal notranslate"><span class="pre">tol</span></code> at the end of an EM iteration, convergence
+has been reached, by default 1e-3</p></li>
 <li><p><strong>reg_covar</strong> (<em>float</em><em>, </em><em>optional</em>) – Regularisation factor added to diagonal elements of
 covariance matrices, by default 1e-6</p></li>
 <li><p><strong>max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum iterations of EM algorithm, by default 100</p></li>
@@ -489,7 +492,7 @@ by default ‘random’. Options are:</p>
 </p></li>
 <li><p><strong>random_state</strong> (<em>Any</em><em>, </em><em>optional</em>) – sklearn parameter… the random seed?, by default None</p></li>
 <li><p><strong>warm_start</strong> (<em>bool</em><em>, </em><em>optional</em>) – sklearn parameter that we don’t use, by default True</p></li>
-<li><p><strong>verbose</strong> (<em>int</em><em>, </em><em>optional</em>) – sklearn parameter…, by default 0</p></li>
+<li><p><strong>verbose</strong> (<em>int</em><em>, </em><em>optional</em>) – sklearn parameter, by default 0</p></li>
 <li><p><strong>verbose_interval</strong> (<em>int</em><em>, </em><em>optional</em>) – sklearn parameter, by default 10</p></li>
 </ul>
 </dd>
