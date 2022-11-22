@@ -14,13 +14,23 @@ levels of complexity.
 
 There are also two helper tools :code:`prepare-data` and :code:`plot-features`.
 :code:`prepare-data` assists users in converting fits tables from Gaia into the
-appropriate format expected by Chronostar. :code:`plot-features` is a convenience
+appropriate format expected by Chronostar. See :ref:`the worked example on BPMG <bpmg-example>`
+for a demonstration.
+:code:`plot-features` is a convenience
 tool that plots various 2D projections of the data's feature space, as well as
 colour magnitude diagrams.
 
+To get all available arguments:
+
+.. code::
+
+   prepare-data -h
+   prepare-data --help
+
 If you'd prefer to stay in python, sample scripts are explained in
-:doc:`Scripts <scripts>`, or you may peruse the pre-written provided scripts
-on `github <https://github.com/tcrundall/chronostar-tng/tree/main/bin>`_.
+:doc:`Scripts <scripts>`, or you may use the provided scripts
+on `github <https://github.com/tcrundall/chronostar-tng/tree/main/bin>`_ as
+inspiriation for your own scripts.
 
 Each command  assumes you have a data as numpy array of shape
 :code:`(n_samples, n_features)` stored as a :code:`.npy` file.
@@ -28,9 +38,9 @@ Each command  assumes you have a data as numpy array of shape
 Data Input
 ^^^^^^^^^^
 Chronostar's :class:`Driver` accepts data only as a single 2D array of shape
-`(n_samples, n_features)`. For example, for the current default implementation,
-in the absence of uncertainties, the input is a `(n_stars, 6)` array where the
-6 columns are `XYZUVW`.
+``(n_samples, n_features)``. For example, for the current default implementation,
+in the absence of uncertainties, the input is a ``(n_stars, 6)`` array where the
+6 columns are ``XYZUVW``.
 
 If you wish to provide uncertainties in the form of a covariance matrix, the
 matrices must be flattened and appended to the data array:
@@ -83,7 +93,7 @@ flattened and appended to the data. If you don't want this file, you can skip it
 
 .. note::
 
-   The `ids` array is useful for identifying which rows of the table constitute your
+   The ``ids`` array is useful for identifying which rows of the table constitute your
    data sample: :code:`subset_table = t[np.where(np.isin(t['source_id'], ids))]`
 
 .. _cli_comp:
@@ -130,6 +140,7 @@ An empty config file is valid. An example :code:`config.yml` file is:
    run:
       savedir: "output"         # save directory for the results
 
+All component settings are listed `here <config-component>`.
 
 .. note::
 
@@ -194,6 +205,8 @@ configuration parameters along with those for the mixture:
    run:
       savedir: "result"
 
+All mixture settings are listed `here <config-mixture>`
+
 .. _cli_chron:
 
 Finding the best mixture
@@ -217,8 +230,7 @@ An example config file is:
    modules:
       component: "SpaceComponent"      # 6D Gaussian with no age
       mixture: "ComponentMixture"      # Default mixture (currently no alterantives anyway)
-      introducer: "SimpleIntroducer"   # Determines how components are introduced into future fits
-      icpool: "SimpleICPool"           # Manages a pool of initial conditions of arbitrary number of comps
+      icpool: "SimpleICPool"           # Manages a pool of initial conditions, determines how comps are introduced
 
    mixture:
       max_iter: 100     # Max number of EM iterations
@@ -232,9 +244,7 @@ An example config file is:
       minimize_method: 'Nelder-Mead'
       trace_orbit_func: 'epicyclic'
    
-   # introducer:     # A title may be missing
-
-   icpool: {}        # But a title cannot point to nothing. An empty dictionary is allowed.
+   icpool: {}        # A title may be missing, but cannot point to nothing. An empty dictionary is allowed.
 
    run:
       savedir: "result"
@@ -247,7 +257,7 @@ A CLI tool for plotting is provided. It has two key functions so far. One is to 
 
 Features
 ~~~~~~~~
-Here is an example of plotting 6 phase-space planes ('XY, XZ, YZ, XU, YV, ZW') and saving the plot in a directory `plots`.
+Here is an example of plotting 6 phase-space planes ('XY, XZ, YZ, XU, YV, ZW') and saving the plot in a directory ``plots``.
 
 .. code::
 
@@ -262,8 +272,8 @@ with as close to a square layout as possible.
 
 CMD
 ~~~
-Here is an example of plotting a CMD. Since the fits file likely featured rows with incomplete data, there will likely not be a one to one mapping from the membership probability table to the astrometry table. Hence `source_ids.npy` is used. `source_ids.npy` should be of shape `(n_stars)`
-and has the gaia source id of each star in `membership_probs.npy`.
+Here is an example of plotting a CMD. Since the fits file likely featured rows with incomplete data, there will likely not be a one to one mapping from the membership probability table to the astrometry table. Hence ``source_ids.npy`` is used. ``source_ids.npy`` should be of shape ``(n_stars)``
+and has the gaia source id of each star in ``membership_probs.npy``.
 
 .. code::
 

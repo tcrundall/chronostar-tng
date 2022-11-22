@@ -19,7 +19,7 @@ DEFAULT_CONFIG_PARAMS = {
     },
     "component": {},
     "run": {
-        "savedir": "output",
+        "savedir": "./result",
         "nthreads": 1,
     }
 }

@@ -55,7 +55,7 @@ class Driver:
     """
 
     intermediate_dumps: bool = True
-    savedir: str = './result'
+    savedir: str = './result/intermediate'
 
     def __init__(
         self,

@@ -105,7 +105,7 @@ class SphereSpaceTimeComponent(BaseComponent):
     reg_covar : float, default 1.e-6
         A regularisation constant added to the diagonals
         of the covariance matrix, configurable
-    minimize_method: str, default 'Nelder-Mead'
+    minimize_method : str, default 'Nelder-Mead'
         The method used by ``scipy.optimize.minimize``. Must be one of
 
         - 'Nelder-Mead' (recommended)
@@ -114,15 +114,15 @@ class SphereSpaceTimeComponent(BaseComponent):
     nthreads : int, optional
         Manually restrict how many threads openMP tries to use when
         executing optimized numpy functions, configurable
-    trace_orbit_func: Callable: f(start_loc, time), default :func:`trace_epicyclic_orbit`
+    trace_orbit_func : Callable f(start_loc, time), default :func:`trace_epicyclic_orbit`
         A function that traces a position by `time` Myr. Positive `time`
         traces forward, negative `time` backwards, configurable
-    age_offset_interval: int, default 20
+    age_offset_interval : int, default 20
         After how many calls to :func:`maximize` age offsets should be explored
-    stellar_uncertainties: bool, default True
+    stellar_uncertainties : bool, default True
         Whether data covariance matrices are encoded in final 36 columns of
         input data X
-    resp_tol: float, default 1e-6
+    resp_tol : float, default 1e-6
         Only samples with a responsibility (membership probability) greater than
         ``resp_tol`` will be included in the evaluation of the loss function
     parameters : ndarray of shape (9)
@@ -130,6 +130,8 @@ class SphereSpaceTimeComponent(BaseComponent):
         determined by :meth:`maximize`. For this component this parameters
         are: [x, y, z, u, v, w, dxyz, duvw, age] with position in pc,
         velocity in km/s and age in Myr
+    max_age : float, default 200
+        The upper bound on the age when maximising the component parameters
     """
     # an sklearn specific parameter. DON'T CHANGE!
     # Used when evaluating log probs of stars

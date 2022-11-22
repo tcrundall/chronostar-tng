@@ -40,7 +40,7 @@ DEFAULT_CONFIG_PARAMS = {
     'component': {},
     'mixture': {},
     'run': {
-        'savedir': 'output',
+        'savedir': './result',
         'nthreads': 1,
     }
 }

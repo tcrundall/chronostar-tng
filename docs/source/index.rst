@@ -6,20 +6,29 @@
 Welcome to Chronostar-TNG's documentation!
 ==========================================
 **Chronostar** is a Python library for discovering and characterising
-unbound stellar associations (aka "moving groups") and their members using 
+unbound stellar associations (aka
+"`moving groups <https://en.wikipedia.org/wiki/Stellar_kinematics#Moving_groups>`_")
+and their members using
 features such as kinematics, age markers, chemical composition. The code 
 can be found on `github <https://github.com/tcrundall/chronostar-tng/>`_.
 
-These docs will sketch out the structure of the next generation of Chronostar
+This documentation details the usage of the next generation of Chronostar
 code.
 
-
 It turns out fitting Gaussian Mixture Models is quite complex, so a lot of
-the design will be shamelessly *inspired* by 
-`scikit-learn <https://scikit-learn.org/stable/auto_examples/mixture/plot_gmm_selection.html>`_.
+the API design (`Buitinck et al. 2013 <https://arxiv.org/abs/1309.0238>`_) will be shamelessly *inspired* by
+`scikit-learn <https://scikit-learn.org/stable/about.html>`_.
 
-..
-   Check out the :doc:`usage` section for further information, including how to :ref:`install <installation>` the project.
+Publications
+------------
+`Chronostar: a novel Bayesion method for kinematic age determination. I. Derivation and application to the Beta Pictoris Moving Group -
+Crundall et al. (2019)
+<https://arxiv.org/abs/1902.07732>`_
+
+`Chronostar. II. Kinematic age and substruction of the Scorpius-Cenaurus OB2 association -
+Žerjal et al. (submitted)
+<https://arxiv.org/abs/2111.09897>`_.
+
 
 .. note::
 

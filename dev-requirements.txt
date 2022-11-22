@@ -12,4 +12,3 @@ ipython
 ipdb
 ipyparallel
 jupyter_server
-

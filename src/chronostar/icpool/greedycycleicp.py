@@ -24,6 +24,15 @@ class GreedyCycleICP(BaseICPool):
     max_components : int, default 100
         The max components in an initial condition provided by
         `SimpleICPool`, configurable
+    index_from_front : bool, default True
+        Whether the target component index is a positive number
+        (hence counting from front) or a negative number (hence
+        counting from the back). Because the component list is
+        modified in place, indexing from front results in any
+        added component being split on the next iteration. Where
+        as indexing from back skips the added component. For quicker,
+        less accurate runs, set index_from_front=True. For slower,
+        more accurate runs, set index_from_front=False.
 
     Notes
     -----

@@ -9,6 +9,11 @@ Quickstart
 
 Preparing a run
 ---------------
+
+Data prep
+^^^^^^^^^
+The first step is to prepare your data.
+
 Prepare your stellar cartesian data as two stored numpy arrays of measurements
 (means) with dimension (``n_stars, 6``) and uncertainties (stored as covariance matrices) with dimension (``n_stars, 6, 6``). Alternatively, means and uncertainties can be folded into the same array. See
 :ref:`Converting to Cartesian Coordinates<dataprep>` for more details.
@@ -16,6 +21,11 @@ Prepare your stellar cartesian data as two stored numpy arrays of measurements
 .. note::
 
    If your data represents a subset of a Gaia astrometry fits file, we recommend storing the corresponding ``source_id`` of the stars in the cartesian data set e.g. ``subset_sourceids.npy``. This can be used to extract the corresponding photometric data for plotting with the results.
+
+Configuration
+^^^^^^^^^^^^^
+Each class in Chronostar has a set of configurable parameters. Chronostar
+reads them in via a configuration file.
 
 Prepare a configuration file e.g. ``config.yml`` with contents:
 
@@ -36,10 +46,10 @@ Prepare a configuration file e.g. ``config.yml`` with contents:
    
    driver:
       intermediate_dumps: True
-      savedir: "result_intermediate"
+      savedir: "results/intermediate"
 
    run:
-      savedir: "result_final"
+      savedir: "results/final"
 
 See :ref:`Command-Line Interface<cli>` for details about other command-line tools and :ref:`Configuration Settings<settings>` for a complete list of configurable parameters.
 
@@ -63,9 +73,11 @@ Depending on the size of the data, this may take up several days to converge, so
 
    $ nohup fit-chronostar -c config.yml path/to/means.npy --covs path/to/covs.npy > chron-run.log &
 
-If all goes well, you'll have the following files in ``./result_final``:
+If all goes well, you'll have the following files in ``./results/final``:
 
 .. code-block::
+   # A text file summarising the results, where 'XXX' is the number of components
+   final-fit-XXXcomps.txt
 
    # membership probabilities of each star to each component
    membership.npy
@@ -73,14 +85,16 @@ If all goes well, you'll have the following files in ``./result_final``:
    # The weights of each component (normalised to all sum to one)
    weights.npy
 
-   # Subdirectories for each component
-   comp_000/
-      # Best fitting parameters of the component
-      params.npy
+   # Files for each component with best fitting parameters
+   comp_000_params.npy
+   comp_001_params.npy
+   ...
 
 Plotting
 --------
 
+CMDs
+^^^^
 You can plot some results using the membership probabilities. To plot the astrometry (using Gaia's ``phot_g_mean_mag`` and ``g_rp``):
 
 .. code-block::
@@ -91,8 +105,11 @@ This plot automatically colours each star by component membership, and sizes eac
 
 .. note::
 
-   This plot isn't super great at the moment, and in fact may be bugged. 
+   This plot tries to be a "one size fits all" tool, which utlimately doesn't fit any. Users are encouraged to develop their own plotting tools based on
+   `those provided <https://github.com/tcrundall/chronostar-tng/tree/main/bin>`_.
 
+Cartesian Space
+^^^^^^^^^^^^^^^
 To plot stars in cartesian phase-space:
 
 .. code-block::
@@ -103,4 +120,4 @@ The argument following ``-f`` represents each phase-space subplot. For example h
 
 .. note::
 
-   For large data sets ( > 1,000) plotting may take multiple minutes...
+   For large data sets ( > 1,000) plotting may take multiple minutes.
