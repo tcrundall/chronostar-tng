@@ -43,6 +43,7 @@ Crundall et al. (2019)
    Getting Started <gettingstarted>
    General Overview <generaloverview>
    Worked Examples <examples/workedexamples>
+   Configuration Settings <userdocs/settings>
    API <api/modules>
    FAQ <faq>
 

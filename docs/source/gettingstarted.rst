@@ -11,5 +11,4 @@ Getting Started
    Quickstart <userdocs/quickstart>
    Command-Line Interface <userdocs/cli>
    Scripts <userdocs/scripts>
-   Configuration Settings <userdocs/settings>
 

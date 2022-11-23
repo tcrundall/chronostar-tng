@@ -88,7 +88,7 @@ class ComponentMixture(BaseMixture):
     ) -> None:
 
         # Can handle extra parameters if I want...
-        self.sklmixture = SKLComponentMixture(
+        self.sklmixture: SKLComponentMixture = SKLComponentMixture(
             init_weights,
             init_components,
             tol=self.tol,
