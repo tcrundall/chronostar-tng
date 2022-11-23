@@ -3,9 +3,9 @@ Initial Conditions Pool Guide
 =============================
 
 A  Initial Conditions Pool (ICPool) inherits from :class:`~chronostar.base.BaseICPool` 
-and manages a queue of `~chronostar.base.InitialCondition`\ s.
+and manages a queue of :class:`~chronostar.base.InitialCondition`\ s.
 
-An `~chronostar.base.InitialCondition` is
+An :class:`~chronostar.base.InitialCondition` is
 a tuple of :class:`~chronostar.base.BaseComponent`\ s combined with a unique, informative
 label stored as a string and is
 used to initialise a :class:`~chronostar.base.BaseMixture` object.

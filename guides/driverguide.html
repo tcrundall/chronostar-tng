@@ -134,7 +134,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -212,7 +212,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -220,94 +220,13 @@
         <article role="main">
           <section id="driver-guide">
 <h1>Driver Guide<a class="headerlink" href="#driver-guide" title="Permalink to this heading">#</a></h1>
-<p>Manage entire process of fitting a model to data. This includes parsing the config file, initialising provided modules/classes, handle any mpi pool setup, set up logging, and perform fit until convergence is signalled.</p>
-<p>The interface is defined in <code class="xref py py-class docutils literal notranslate"><span class="pre">Driver</span></code>.</p>
-<p>The main loop of <code class="xref py py-class docutils literal notranslate"><span class="pre">Driver</span></code> will get initial conditions from <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseICPool</span></code>, initialise a <code class="xref py py-class docutils literal notranslate"><span class="pre">ComponentMixture</span></code> object, run the <code class="xref py py-func docutils literal notranslate"><span class="pre">ComponentMixture.fit()</span></code> method, report the score of the fit to <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseICPool</span></code> and track the best fit seen so far. The main loop continues until <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseICPool</span></code> ceases to yield initial conditions. The final fit is the best fit seen so far.</p>
-<section id="example-driver-usage">
-<h2>Example Driver usage<a class="headerlink" href="#example-driver-usage" title="Permalink to this heading">#</a></h2>
-<p>A rough usage could look like this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">chronostar.driver</span> <span class="kn">import</span> <span class="n">Driver</span>
-<span class="kn">from</span> <span class="nn">chronostar.component</span> <span class="kn">import</span> <span class="n">SpaceTimeComponent</span>
-<span class="kn">from</span> <span class="nn">chronostar.mixture</span> <span class="kn">import</span> <span class="n">ComponentMixture</span>
-<span class="kn">from</span> <span class="nn">chronostar.icpool</span> <span class="kn">import</span> <span class="n">SimpleICPool</span>
-<span class="kn">from</span> <span class="nn">chronostar.introducer</span> <span class="kn">import</span> <span class="n">SimpleIntroducer</span>
-<span class="c1"># from chronostar.uncertaintyfinder import UncertaintyFinder</span>
-
-<span class="n">driver</span> <span class="o">=</span> <span class="n">Driver</span><span class="p">(</span>
-    <span class="n">config_file</span><span class="o">=</span><span class="s1">&#39;some_config_file.yml&#39;</span><span class="p">,</span>
-    <span class="n">component_class</span><span class="o">=</span><span class="n">SpaceTimeComponent</span><span class="p">,</span>
-    <span class="n">mixture_class</span><span class="o">=</span><span class="n">ComponentMixture</span><span class="p">,</span>
-    <span class="n">icg_class</span><span class="o">=</span><span class="n">InitialConditionsGenerator</span><span class="p">,</span>
-    <span class="n">inserter_class</span><span class="o">=</span><span class="n">LazyInserter</span><span class="p">,</span>
-    <span class="c1"># uncertaintyfinder_class=UncertaintyFinder,</span>
-<span class="p">)</span>
-
-<span class="n">driver</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Note that we pass the required classes to the driver when initialising it.
-This is an example of <a class="reference external" href="https://en.wikipedia.org/wiki/Dependency_injection">dependency injection</a> and has the consequence that Driver
-doesn’t need to know any specifics about the SpaceTimeComponent, the Driver only
-expects the SpaceTimeComponent to adhere to a prescribed interface. This interface can be defined either as a “protocol” or by requiring all <code class="docutils literal notranslate"><span class="pre">Component</span></code> classes to inherit from the abstract <code class="docutils literal notranslate"><span class="pre">BaseComponent</span></code>.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Dependency injection seems to be more about injecting objects and not classes. So this section will need to be updated as I explore the implementation further.</p>
-</div>
-<p>This provides maximal flexibility and extensibility, as anyone can write their
-own component class or model class, and substitute this class into their own
-script.</p>
-</section>
-<section id="proposed-driver-implementation">
-<h2>Proposed Driver implementation<a class="headerlink" href="#proposed-driver-implementation" title="Permalink to this heading">#</a></h2>
-<p>A rough implementation of <code class="xref py py-class docutils literal notranslate"><span class="pre">Driver</span></code> could look like this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Driver</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">config_file</span><span class="p">,</span>
-        <span class="n">component_class</span><span class="p">,</span>
-        <span class="n">mixture_class</span><span class="p">,</span>
-        <span class="n">icpool_class</span><span class="p">,</span>
-        <span class="n">introducer_class</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="c1"># Set all attributes</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config_file</span> <span class="o">=</span> <span class="n">config_file</span>
-        <span class="c1"># etc ...</span>
-
-        <span class="c1"># Initialise each class from pars in config file by calling static methods</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config_params</span> <span class="o">=</span> <span class="n">parse_config_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_file</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">component_class</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_params</span><span class="p">[</span><span class="s1">&#39;component&#39;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mixture_class</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_params</span><span class="p">[</span><span class="s1">&#39;mixture&#39;</span><span class="p">])</span>
-        <span class="c1"># etc ...</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="c1"># Unclear whether icpool gets the introducer class or an instantiated object</span>
-        <span class="c1"># Also unclear how to pass</span>
-        <span class="n">icpool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">icpool_class</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">component_class</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">introducer_class</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="c1"># This design is fancy and ambitious, but provides a clean, easily parallelised interface</span>
-        <span class="k">for</span> <span class="n">unique_id</span><span class="p">,</span> <span class="n">init_conds</span> <span class="ow">in</span> <span class="n">icpool</span><span class="o">.</span><span class="n">pool</span><span class="p">():</span>
-            <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mixture_class</span><span class="p">()</span>
-            <span class="n">m</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">initial_conditions</span><span class="p">)</span>
-            <span class="n">m</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="n">icpool</span><span class="o">.</span><span class="n">register_result</span><span class="p">(</span><span class="n">unique_id</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">bic</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
-
-        <span class="c1"># loop will end when icg is no longer able to generate reasonable initial conditions</span>
-        <span class="n">best_model</span> <span class="o">=</span> <span class="n">icpool</span><span class="o">.</span><span class="n">best_model</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">best_model</span><span class="p">,</span> <span class="n">best_model</span><span class="o">.</span><span class="n">memberships</span>
-
-        <span class="c1"># After the best model is found, uncertainties for parameters can be found...</span>
-        <span class="c1"># uncertaintyfinder = self.uncertaintyfinder_class()</span>
-        <span class="c1"># best_model, uncertainties, memberships = uncertaintyfinder(best_model, data)</span>
-
-        <span class="c1"># return best_model, uncertainties, memberships</span>
-</pre></div>
-</div>
-</section>
+<p>The <a class="reference internal" href="../api/chronostar.html#chronostar.driver.Driver" title="chronostar.driver.Driver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Driver</span></code></a> manages the
+entire process of fitting a chronostar model to data. This includes parsing the config file, initialising provided modules/classes, handling any mpi pool setup (not yet implemented), setting up logging (also not yet implemented), and performing fits until convergence is signalled.</p>
+<p>The main loop of <a class="reference internal" href="../api/chronostar.html#chronostar.driver.Driver" title="chronostar.driver.Driver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Driver</span></code></a> will get initial conditions from <a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseICPool" title="chronostar.base.BaseICPool"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseICPool</span></code></a>, initialise a <a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseMixture" title="chronostar.base.BaseMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMixture</span></code></a> object, run the <a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseMixture.fit" title="chronostar.base.BaseMixture.fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit()</span></code></a> method, report the score of the fit to <code class="docutils literal notranslate"><span class="pre">BaseICPool</span></code> and track the best fit seen so far. The main loop continues until <code class="docutils literal notranslate"><span class="pre">BaseICPool</span></code> ceases to yield initial conditions. The final fit is the best fit seen so far.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">Driver</span></code> takes as arguments the various classes you wish to use in the run.
+Therefore, if you have defined your own custom class for a specific dataset, you
+need only provide that to the <code class="docutils literal notranslate"><span class="pre">Driver</span></code> when initialising it.
+See <a class="reference internal" href="../userdocs/scripts.html#scripts-chron"><span class="std std-ref">Fit Chronostar</span></a> for an example script which demonstrates this.</p>
 </section>
 
         </article>
@@ -355,28 +274,8 @@ script.</p>
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">Driver Guide</a><ul>
-<li><a class="reference internal" href="#example-driver-usage">Example Driver usage</a></li>
-<li><a class="reference internal" href="#proposed-driver-implementation">Proposed Driver implementation</a></li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>
