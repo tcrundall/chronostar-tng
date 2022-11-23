@@ -2,92 +2,60 @@
 Initial Conditions Pool Guide
 =============================
 
-An Initial Conditions Pool manages a pool of sets of initial conditions which could be
-used to initialise a :class:`ComponentMixture` object. A *set* of initial conditions is
-a list of :class:`Component`\ s. An IC Pool yields sets of
-initial conditions to another object (e.g. :class:`Driver`) and expects a fit
-to be performed, and the score to be registered with the IC Pool. Using a fit
-and score registry, the IC Pool can keep the pool populated with reasonable
-sets of initial conditions for future fits.
+A  Initial Conditions Pool (ICPool) inherits from :class:`~chronostar.base.BaseICPool` 
+and manages a queue of `~chronostar.base.InitialCondition`\ s.
 
-The usage of IC Pool is very general. Objects that access the pool remain ignorant of how many components each set of intial conditions will contain, until the set is yielded. As a consequence, implementations of :class:`BaseICPool` are free to increase component counts however they like.
+An `~chronostar.base.InitialCondition` is
+a tuple of :class:`~chronostar.base.BaseComponent`\ s combined with a unique, informative
+label stored as a string and is
+used to initialise a :class:`~chronostar.base.BaseMixture` object.
 
-Furthermore, the design of IC Pool's interface allows for asynchronous, parallel fits. For example, a multiprocessor :class:`Driver` could iterate over the IC Pool's pool, passing each set of initial conditions to one of its child processors. These processors perform fits based on these initial conditions and report the score of the completed fit back to the IC Pool, upon which they receive their next set of initial conditions. Whenever the IC Pool runs out of sets of initial conditions, it repopulates the pool by combining or extending completed fits.
+The ICPool attempts to keep its queue populated with reasonable InitialConditions.
+It does this by generating a new generation of InitialConditions each time the
+queue becomes empty. Precisely how the new generation is generated depends
+on the specific implementation.
 
-To achieve this generality, IC Pool utilises the perhaps unfamiliar ``yield`` key word in the :func:`BaseICPool.pool` method. Calls to this method return a *generator*
-which can be iterated over, with each iteration providing a new set of initial conditions.
+The ICPool expects the result of a fit to a given InitialCondition to be
+registered back to it with :func:`~chronostar.base.BaseICPool.register_result`
+along with the fit's score.
+The ICPool can then use the scores to determine the best fit, and use that to
+generate the next generation.
 
-To aid the explanation I outline a potential concrete example:
-a simple implementation :class:`SimpleICPool` identifies the best mixture with :math:`k`
-components and uses this to generate a set of :math:`k+1`-component initial conditions
-(i.e. how original Chronostar did things). :ref:`See below<icpool-usage>`
-for example usage and implementation.
+See the `source code` for :class:`~chronostar.driver.Driver` for a full example of
+how to utilise an ICPool.
 
-However, more advanced approaches are possible with this interface design. For example
-a (as of yet not implemented) :class:`FancyICPool` could take the best 3 :math:`k`-component
-fits and combine them to produce a :math:`k+3`-component initial condition set.
+Implemented ICPools
+-------------------
 
-.. note::
-  Need to work out where the very first initial conditions come from. Is `ICPool` responsible, or is an `Introducer` object?
+.. _guide-simpleicp:
 
-.. _icpool-usage:
+:class:`~chronostar.icpool.simpleicpool.SimpleICPool`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Example SimpleICPool Usage
---------------------------
+A simple implementation ``SimpleICPool`` identifies the best mixture with :math:`k`
+components and uses this to generate a set of :math:`k+1`-component initial conditions. This is the algorithm used in Chronostar Paper I.
 
-The usage will look something like this::
+The set of :math:`k+1`-component initial conditions is formed thusly:
+for each component (named the *target* component) in the best fitting :math:`k`-component mixture, make
+a new initial condition. This new initial condition has an identical set of components as the :math:`k`-component mixture, except the target component.
+The target component is :func:`~chronostar.base.BaseComponent.split` into
+two similar, overlapping components that when combined more or less describe the target component.
 
-  icpool = SimpleICPool(SphereComponent, SimpleIntroducer)
+This is a safe approach that guarantees the discovery of the best Mixture for
+a given number of components. However, it involves a lot of repeated computation, since in order to go from :math:`k` components to :math:`k+1` compoents,
+:math:`k` fits must be performed. One can see that this results in multiple splitting of the majority of the components. Indeed this algorithm scales
+quadratically with the number of components.
 
-  for ident, init_conds in icpool.pool():
-    m = Mixture() 
-    m.set_parameters(init_conds)
-    m.fit(data)
-    icpool.register_result(ident, m, m.bic(data))
+.. _guide-greedyicp:
 
-  # loop will end when icpool is no longer able to generate reasonable initial conditions
-  best_mixture = icpool.get_best_mixture()
+:class:`~chronostar.icpool.greedycycleicp.GreedyCycleICP`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-See? So elegant. Behind the scenes, the ICPool object is tracking which mixtures 
-performed the best, and therefore which mixtures are the best candidates for 
-further exploration. The ICPool can be as clever or as simple as the user 
-desires. The method of how a new component is introduced is also left 
-completely free.
+A more efficient approach is the ``GreedyCycleICP``. It is named the ``GreedyCycleICP`` because each time it finds a component that improves the fit's
+score, this ICPool immediately incorporates it into its best fit.
 
-Suggested SimpleICPool implementation
--------------------------------------
-
-A *serial* ICPool implementation could look a little like this::
-  
-  class SimpleICPool():
-
-    def __init__(self, Component, Introducer):
-      self.component_class = Component
-      self.introducer = Introducer()
-
-    def initial_conditions(self):
-
-      best_mixture = None
-      prev_best_score = None
-      best_score = -np.inf
-      while prev_best_score is None or best_score > prev_best_score:
-        prev_best_score = best_score
-        self.registry = {}
-
-        # Loop over the next generation of initial conditions
-        for ix, init_conditions in enumerate(self.introducer.next_gen(best_mixture)):
-          yield ix, init_conditions
-
-        # Once all initial conditions are provided, look for best one in registry
-        best_mixture, best_score = max(self.registry.values() key=lambda x: x[1])
-
-        # Using best fit, repeat until score ceases to improve
-      
-      self.best_mixture = best_mixture
-
-    def register_result(self, ident, mixture, score):
-      self.registry[ident] = (mixture, score)
-
-    def get_best_mixture(self):
-      # Maybe should return a deep copy?
-      return self.best_mixture
+This approach is more efficient, because fewer fits are needed before a
+new component is found. This approach can miss the best solution, however,
+by prematurely accepting a component in one region of the dataspace, when
+a different region would have benefitted more, i.e. the solution gets stuck in
+a local minimum/maximum.

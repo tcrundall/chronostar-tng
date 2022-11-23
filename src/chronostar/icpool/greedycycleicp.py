@@ -48,7 +48,7 @@ class GreedyCycleICP(BaseICPool):
     GreedyCycle only adds one InitialCondition at a time. After each
     iteration of the primary loop in Driver.run the registry of fitted
     mixtures will only ever have one mixture. Hence, each mixture
-    will be the best of its "generation". GreedyCycle updates self.best_mixture_
+    will be the best of its "generation". GreedyCycle updates best_mixture
     accordingly, and performs a split on the next component.
 
     GreedyCycle is said to have converged if it has completed one whole cycle

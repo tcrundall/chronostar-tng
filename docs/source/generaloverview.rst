@@ -12,7 +12,6 @@ Chronostar: The Next Generation
 
    guides/componentguide
    guides/mixtureguide
-   guides/introducerguide
    guides/icpoolguide
    guides/driverguide
 
@@ -32,7 +31,7 @@ The framework of Chronostar TNG consists of 5 classes. A :doc:`Driver <guides/dr
 The goal of Chronostar is to be a flexible framework for fitting Gaussian
 Mixture Models to astronomical data. This will be achieved by utilising
 "injected dependencies". The :doc:`Driver <guides/driverguide>` is composed of a collection
-of 4 classes (:doc:`ICPool <guides/icpoolguide>`, :doc:`Introducer <guides/introducerguide>`, :doc:`Mixture <guides/mixtureguide>` and :doc:`Component <guides/componentguide>`) for which
+of 3 classes (:doc:`ICPool <guides/icpoolguide>`, :doc:`Mixture <guides/mixtureguide>` and :doc:`Component <guides/componentguide>`) for which
 Chronostar provides many implementations. Anyone wishing to modify 
 aspects of Chronostar (e.g. input data, fitting method, models of 
 components) simply needs to provide the :doc:`driver <guides/driverguide>` with their own
