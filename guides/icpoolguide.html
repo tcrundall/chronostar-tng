@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Driver Guide" href="driverguide.html" /><link rel="prev" title="Introducer Guide" href="introducerguide.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Driver Guide" href="driverguide.html" /><link rel="prev" title="Mixture Guide" href="mixtureguide.html" />
 
     <meta name="generator" content="sphinx-5.3.0, furo 2022.09.29"/>
         <title>Initial Conditions Pool Guide - chronostar-tng 1.0 documentation</title>
@@ -167,7 +167,6 @@
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../generaloverview.html">General Overview</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="componentguide.html">Component Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mixtureguide.html">Mixture Guide</a></li>
-<li class="toctree-l2"><a class="reference internal" href="introducerguide.html">Introducer Guide</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Initial Conditions Pool Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="driverguide.html">Driver Guide</a></li>
 </ul>
@@ -221,87 +220,49 @@
         <article role="main">
           <section id="initial-conditions-pool-guide">
 <h1>Initial Conditions Pool Guide<a class="headerlink" href="#initial-conditions-pool-guide" title="Permalink to this heading">#</a></h1>
-<p>An Initial Conditions Pool manages a pool of sets of initial conditions which could be
-used to initialise a <code class="xref py py-class docutils literal notranslate"><span class="pre">ComponentMixture</span></code> object. A <em>set</em> of initial conditions is
-a list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Component</span></code>s. An IC Pool yields sets of
-initial conditions to another object (e.g. <code class="xref py py-class docutils literal notranslate"><span class="pre">Driver</span></code>) and expects a fit
-to be performed, and the score to be registered with the IC Pool. Using a fit
-and score registry, the IC Pool can keep the pool populated with reasonable
-sets of initial conditions for future fits.</p>
-<p>The usage of IC Pool is very general. Objects that access the pool remain ignorant of how many components each set of intial conditions will contain, until the set is yielded. As a consequence, implementations of <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseICPool</span></code> are free to increase component counts however they like.</p>
-<p>Furthermore, the design of IC Pool’s interface allows for asynchronous, parallel fits. For example, a multiprocessor <code class="xref py py-class docutils literal notranslate"><span class="pre">Driver</span></code> could iterate over the IC Pool’s pool, passing each set of initial conditions to one of its child processors. These processors perform fits based on these initial conditions and report the score of the completed fit back to the IC Pool, upon which they receive their next set of initial conditions. Whenever the IC Pool runs out of sets of initial conditions, it repopulates the pool by combining or extending completed fits.</p>
-<p>To achieve this generality, IC Pool utilises the perhaps unfamiliar <code class="docutils literal notranslate"><span class="pre">yield</span></code> key word in the <code class="xref py py-func docutils literal notranslate"><span class="pre">BaseICPool.pool()</span></code> method. Calls to this method return a <em>generator</em>
-which can be iterated over, with each iteration providing a new set of initial conditions.</p>
-<p>To aid the explanation I outline a potential concrete example:
-a simple implementation <code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleICPool</span></code> identifies the best mixture with <span class="math notranslate nohighlight">\(k\)</span>
-components and uses this to generate a set of <span class="math notranslate nohighlight">\(k+1\)</span>-component initial conditions
-(i.e. how original Chronostar did things). <a class="reference internal" href="#icpool-usage"><span class="std std-ref">See below</span></a>
-for example usage and implementation.</p>
-<p>However, more advanced approaches are possible with this interface design. For example
-a (as of yet not implemented) <code class="xref py py-class docutils literal notranslate"><span class="pre">FancyICPool</span></code> could take the best 3 <span class="math notranslate nohighlight">\(k\)</span>-component
-fits and combine them to produce a <span class="math notranslate nohighlight">\(k+3\)</span>-component initial condition set.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Need to work out where the very first initial conditions come from. Is <cite>ICPool</cite> responsible, or is an <cite>Introducer</cite> object?</p>
-</div>
-<section id="example-simpleicpool-usage">
-<span id="icpool-usage"></span><h2>Example SimpleICPool Usage<a class="headerlink" href="#example-simpleicpool-usage" title="Permalink to this heading">#</a></h2>
-<p>The usage will look something like this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">icpool</span> <span class="o">=</span> <span class="n">SimpleICPool</span><span class="p">(</span><span class="n">SphereComponent</span><span class="p">,</span> <span class="n">SimpleIntroducer</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">ident</span><span class="p">,</span> <span class="n">init_conds</span> <span class="ow">in</span> <span class="n">icpool</span><span class="o">.</span><span class="n">pool</span><span class="p">():</span>
-  <span class="n">m</span> <span class="o">=</span> <span class="n">Mixture</span><span class="p">()</span>
-  <span class="n">m</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">init_conds</span><span class="p">)</span>
-  <span class="n">m</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-  <span class="n">icpool</span><span class="o">.</span><span class="n">register_result</span><span class="p">(</span><span class="n">ident</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">bic</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
-
-<span class="c1"># loop will end when icpool is no longer able to generate reasonable initial conditions</span>
-<span class="n">best_mixture</span> <span class="o">=</span> <span class="n">icpool</span><span class="o">.</span><span class="n">get_best_mixture</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>See? So elegant. Behind the scenes, the ICPool object is tracking which mixtures
-performed the best, and therefore which mixtures are the best candidates for
-further exploration. The ICPool can be as clever or as simple as the user
-desires. The method of how a new component is introduced is also left
-completely free.</p>
+<p>A  Initial Conditions Pool (ICPool) inherits from <a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseICPool" title="chronostar.base.BaseICPool"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseICPool</span></code></a>
+and manages a queue of <cite>~chronostar.base.InitialCondition</cite>s.</p>
+<p>An <cite>~chronostar.base.InitialCondition</cite> is
+a tuple of <a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseComponent</span></code></a>s combined with a unique, informative
+label stored as a string and is
+used to initialise a <a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseMixture" title="chronostar.base.BaseMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMixture</span></code></a> object.</p>
+<p>The ICPool attempts to keep its queue populated with reasonable InitialConditions.
+It does this by generating a new generation of InitialConditions each time the
+queue becomes empty. Precisely how the new generation is generated depends
+on the specific implementation.</p>
+<p>The ICPool expects the result of a fit to a given InitialCondition to be
+registered back to it with <a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseICPool.register_result" title="chronostar.base.BaseICPool.register_result"><code class="xref py py-func docutils literal notranslate"><span class="pre">register_result()</span></code></a>
+along with the fit’s score.
+The ICPool can then use the scores to determine the best fit, and use that to
+generate the next generation.</p>
+<p>See the <cite>source code</cite> for <a class="reference internal" href="../api/chronostar.html#chronostar.driver.Driver" title="chronostar.driver.Driver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Driver</span></code></a> for a full example of
+how to utilise an ICPool.</p>
+<section id="implemented-icpools">
+<h2>Implemented ICPools<a class="headerlink" href="#implemented-icpools" title="Permalink to this heading">#</a></h2>
+<section id="simpleicpool">
+<span id="guide-simpleicp"></span><h3><a class="reference internal" href="../api/chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool" title="chronostar.icpool.simpleicpool.SimpleICPool"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleICPool</span></code></a><a class="headerlink" href="#simpleicpool" title="Permalink to this heading">#</a></h3>
+<p>A simple implementation <code class="docutils literal notranslate"><span class="pre">SimpleICPool</span></code> identifies the best mixture with <span class="math notranslate nohighlight">\(k\)</span>
+components and uses this to generate a set of <span class="math notranslate nohighlight">\(k+1\)</span>-component initial conditions. This is the algorithm used in Chronostar Paper I.</p>
+<p>The set of <span class="math notranslate nohighlight">\(k+1\)</span>-component initial conditions is formed thusly:
+for each component (named the <em>target</em> component) in the best fitting <span class="math notranslate nohighlight">\(k\)</span>-component mixture, make
+a new initial condition. This new initial condition has an identical set of components as the <span class="math notranslate nohighlight">\(k\)</span>-component mixture, except the target component.
+The target component is <a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent.split" title="chronostar.base.BaseComponent.split"><code class="xref py py-func docutils literal notranslate"><span class="pre">split()</span></code></a> into
+two similar, overlapping components that when combined more or less describe the target component.</p>
+<p>This is a safe approach that guarantees the discovery of the best Mixture for
+a given number of components. However, it involves a lot of repeated computation, since in order to go from <span class="math notranslate nohighlight">\(k\)</span> components to <span class="math notranslate nohighlight">\(k+1\)</span> compoents,
+<span class="math notranslate nohighlight">\(k\)</span> fits must be performed. One can see that this results in multiple splitting of the majority of the components. Indeed this algorithm scales
+quadratically with the number of components.</p>
 </section>
-<section id="suggested-simpleicpool-implementation">
-<h2>Suggested SimpleICPool implementation<a class="headerlink" href="#suggested-simpleicpool-implementation" title="Permalink to this heading">#</a></h2>
-<p>A <em>serial</em> ICPool implementation could look a little like this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SimpleICPool</span><span class="p">():</span>
-
-  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Component</span><span class="p">,</span> <span class="n">Introducer</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">component_class</span> <span class="o">=</span> <span class="n">Component</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">introducer</span> <span class="o">=</span> <span class="n">Introducer</span><span class="p">()</span>
-
-  <span class="k">def</span> <span class="nf">initial_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-    <span class="n">best_mixture</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">prev_best_score</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">best_score</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
-    <span class="k">while</span> <span class="n">prev_best_score</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">best_score</span> <span class="o">&gt;</span> <span class="n">prev_best_score</span><span class="p">:</span>
-      <span class="n">prev_best_score</span> <span class="o">=</span> <span class="n">best_score</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">registry</span> <span class="o">=</span> <span class="p">{}</span>
-
-      <span class="c1"># Loop over the next generation of initial conditions</span>
-      <span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">init_conditions</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">introducer</span><span class="o">.</span><span class="n">next_gen</span><span class="p">(</span><span class="n">best_mixture</span><span class="p">)):</span>
-        <span class="k">yield</span> <span class="n">ix</span><span class="p">,</span> <span class="n">init_conditions</span>
-
-      <span class="c1"># Once all initial conditions are provided, look for best one in registry</span>
-      <span class="n">best_mixture</span><span class="p">,</span> <span class="n">best_score</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-
-      <span class="c1"># Using best fit, repeat until score ceases to improve</span>
-
-    <span class="bp">self</span><span class="o">.</span><span class="n">best_mixture</span> <span class="o">=</span> <span class="n">best_mixture</span>
-
-  <span class="k">def</span> <span class="nf">register_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ident</span><span class="p">,</span> <span class="n">mixture</span><span class="p">,</span> <span class="n">score</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">ident</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">mixture</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span>
-
-  <span class="k">def</span> <span class="nf">get_best_mixture</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="c1"># Maybe should return a deep copy?</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_mixture</span>
-</pre></div>
-</div>
+<section id="greedycycleicp">
+<span id="guide-greedyicp"></span><h3><a class="reference internal" href="../api/chronostar.icpool.html#chronostar.icpool.greedycycleicp.GreedyCycleICP" title="chronostar.icpool.greedycycleicp.GreedyCycleICP"><code class="xref py py-class docutils literal notranslate"><span class="pre">GreedyCycleICP</span></code></a><a class="headerlink" href="#greedycycleicp" title="Permalink to this heading">#</a></h3>
+<p>A more efficient approach is the <code class="docutils literal notranslate"><span class="pre">GreedyCycleICP</span></code>. It is named the <code class="docutils literal notranslate"><span class="pre">GreedyCycleICP</span></code> because each time it finds a component that improves the fit’s
+score, this ICPool immediately incorporates it into its best fit.</p>
+<p>This approach is more efficient, because fewer fits are needed before a
+new component is found. This approach can miss the best solution, however,
+by prematurely accepting a component in one region of the dataspace, when
+a different region would have benefitted more, i.e. the solution gets stuck in
+a local minimum/maximum.</p>
+</section>
 </section>
 </section>
 
@@ -319,14 +280,14 @@ completely free.</p>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="introducerguide.html">
+          <a class="prev-page" href="mixtureguide.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Introducer Guide</div>
+                <div class="title">Mixture Guide</div>
                 
               </div>
             </a>
@@ -363,8 +324,11 @@ completely free.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Initial Conditions Pool Guide</a><ul>
-<li><a class="reference internal" href="#example-simpleicpool-usage">Example SimpleICPool Usage</a></li>
-<li><a class="reference internal" href="#suggested-simpleicpool-implementation">Suggested SimpleICPool implementation</a></li>
+<li><a class="reference internal" href="#implemented-icpools">Implemented ICPools</a><ul>
+<li><a class="reference internal" href="#simpleicpool"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleICPool</span></code></a></li>
+<li><a class="reference internal" href="#greedycycleicp"><code class="xref py py-class docutils literal notranslate"><span class="pre">GreedyCycleICP</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

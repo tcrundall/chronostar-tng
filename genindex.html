@@ -165,7 +165,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="generaloverview.html">General Overview</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="guides/componentguide.html">Component Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="guides/mixtureguide.html">Mixture Guide</a></li>
-<li class="toctree-l2"><a class="reference internal" href="guides/introducerguide.html">Introducer Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="guides/icpoolguide.html">Initial Conditions Pool Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="guides/driverguide.html">Driver Guide</a></li>
 </ul>
@@ -250,6 +249,8 @@
         <li><a href="api/chronostar.html#chronostar.base.BaseICPool.best_mixture">best_mixture (chronostar.base.BaseICPool property)</a>
 
         <ul>
+          <li><a href="api/chronostar.icpool.html#chronostar.icpool.greedycycleicp.GreedyCycleICP.best_mixture">(chronostar.icpool.greedycycleicp.GreedyCycleICP property)</a>
+</li>
           <li><a href="api/chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.best_mixture">(chronostar.icpool.simpleicpool.SimpleICPool property)</a>
 </li>
         </ul></li>
@@ -335,6 +336,13 @@
 
         <ul>
           <li><a href="api/chronostar.icpool.html#module-chronostar.icpool">module</a>
+</li>
+        </ul></li>
+        <li>
+    chronostar.icpool.greedycycleicp
+
+        <ul>
+          <li><a href="api/chronostar.icpool.html#module-chronostar.icpool.greedycycleicp">module</a>
 </li>
         </ul></li>
         <li>
@@ -547,6 +555,8 @@
         <li><a href="api/chronostar.html#chronostar.base.BaseICPool.get_next">get_next() (chronostar.base.BaseICPool method)</a>
 
         <ul>
+          <li><a href="api/chronostar.icpool.html#chronostar.icpool.greedycycleicp.GreedyCycleICP.get_next">(chronostar.icpool.greedycycleicp.GreedyCycleICP method)</a>
+</li>
           <li><a href="api/chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.get_next">(chronostar.icpool.simpleicpool.SimpleICPool method)</a>
 </li>
         </ul></li>
@@ -566,6 +576,8 @@
           <li><a href="api/chronostar.mixture.html#chronostar.mixture.componentmixture.ComponentMixture.get_parameters">(chronostar.mixture.componentmixture.ComponentMixture method)</a>
 </li>
         </ul></li>
+        <li><a href="api/chronostar.icpool.html#chronostar.icpool.greedycycleicp.GreedyCycleICP">GreedyCycleICP (class in chronostar.icpool.greedycycleicp)</a>
+</li>
     </ul></td>
   </tr></table>
 </section>
@@ -577,6 +589,8 @@
         <li><a href="api/chronostar.html#chronostar.base.BaseICPool.has_next">has_next() (chronostar.base.BaseICPool method)</a>
 
         <ul>
+          <li><a href="api/chronostar.icpool.html#chronostar.icpool.greedycycleicp.GreedyCycleICP.has_next">(chronostar.icpool.greedycycleicp.GreedyCycleICP method)</a>
+</li>
           <li><a href="api/chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.has_next">(chronostar.icpool.simpleicpool.SimpleICPool method)</a>
 </li>
         </ul></li>
@@ -588,10 +602,14 @@
   <h2>I</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api/chronostar.mixture.html#chronostar.mixture.componentmixture.ComponentMixture.init_params">init_params (chronostar.mixture.componentmixture.ComponentMixture attribute)</a>
+        <li><a href="api/chronostar.icpool.html#chronostar.icpool.greedycycleicp.GreedyCycleICP.increment_target_comp_ix">increment_target_comp_ix() (chronostar.icpool.greedycycleicp.GreedyCycleICP method)</a>
+</li>
+        <li><a href="api/chronostar.icpool.html#chronostar.icpool.greedycycleicp.GreedyCycleICP.index_from_front">index_from_front (chronostar.icpool.greedycycleicp.GreedyCycleICP attribute)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/chronostar.mixture.html#chronostar.mixture.componentmixture.ComponentMixture.init_params">init_params (chronostar.mixture.componentmixture.ComponentMixture attribute)</a>
+</li>
         <li><a href="api/chronostar.html#chronostar.base.InitialCondition">InitialCondition (class in chronostar.base)</a>
 </li>
         <li><a href="api/chronostar.html#chronostar.driver.Driver.intermediate_dumps">intermediate_dumps (chronostar.driver.Driver attribute)</a>
@@ -624,8 +642,12 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/chronostar.component.html#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.max_age">max_age (chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent attribute)</a>
 </li>
-        <li><a href="api/chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.max_components">max_components (chronostar.icpool.simpleicpool.SimpleICPool attribute)</a>
+        <li><a href="api/chronostar.icpool.html#chronostar.icpool.greedycycleicp.GreedyCycleICP.max_components">max_components (chronostar.icpool.greedycycleicp.GreedyCycleICP attribute)</a>
+
+        <ul>
+          <li><a href="api/chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.max_components">(chronostar.icpool.simpleicpool.SimpleICPool attribute)</a>
 </li>
+        </ul></li>
         <li><a href="api/chronostar.mixture.html#chronostar.mixture.componentmixture.ComponentMixture.max_iter">max_iter (chronostar.mixture.componentmixture.ComponentMixture attribute)</a>
 </li>
         <li><a href="api/chronostar.html#chronostar.base.BaseComponent.maximize">maximize() (chronostar.base.BaseComponent method)</a>
@@ -666,6 +688,8 @@
 </li>
           <li><a href="api/chronostar.icpool.html#module-chronostar.icpool">chronostar.icpool</a>
 </li>
+          <li><a href="api/chronostar.icpool.html#module-chronostar.icpool.greedycycleicp">chronostar.icpool.greedycycleicp</a>
+</li>
           <li><a href="api/chronostar.icpool.html#module-chronostar.icpool.simpleicpool">chronostar.icpool.simpleicpool</a>
 </li>
           <li><a href="api/chronostar.mixture.html#module-chronostar.mixture">chronostar.mixture</a>
@@ -705,8 +729,12 @@
         </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api/chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.next_gen">next_gen() (chronostar.icpool.simpleicpool.SimpleICPool method)</a>
+        <li><a href="api/chronostar.icpool.html#chronostar.icpool.greedycycleicp.GreedyCycleICP.next_gen">next_gen() (chronostar.icpool.greedycycleicp.GreedyCycleICP method)</a>
+
+        <ul>
+          <li><a href="api/chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.next_gen">(chronostar.icpool.simpleicpool.SimpleICPool method)</a>
 </li>
+        </ul></li>
         <li><a href="api/chronostar.component.html#chronostar.component.spacecomponent.SpaceComponent.nthreads">nthreads (chronostar.component.spacecomponent.SpaceComponent attribute)</a>
 
         <ul>
@@ -725,8 +753,12 @@
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="api/chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.put_in_queue">put_in_queue() (chronostar.icpool.simpleicpool.SimpleICPool method)</a>
+        <li><a href="api/chronostar.icpool.html#chronostar.icpool.greedycycleicp.GreedyCycleICP.put_in_queue">put_in_queue() (chronostar.icpool.greedycycleicp.GreedyCycleICP method)</a>
+
+        <ul>
+          <li><a href="api/chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.put_in_queue">(chronostar.icpool.simpleicpool.SimpleICPool method)</a>
 </li>
+        </ul></li>
     </ul></td>
   </tr></table>
 </section>
@@ -752,6 +784,8 @@
         <li><a href="api/chronostar.html#chronostar.base.BaseICPool.register_result">register_result() (chronostar.base.BaseICPool method)</a>
 
         <ul>
+          <li><a href="api/chronostar.icpool.html#chronostar.icpool.greedycycleicp.GreedyCycleICP.register_result">(chronostar.icpool.greedycycleicp.GreedyCycleICP method)</a>
+</li>
           <li><a href="api/chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.register_result">(chronostar.icpool.simpleicpool.SimpleICPool method)</a>
 </li>
         </ul></li>
@@ -821,16 +855,20 @@
 </li>
         <li><a href="api/chronostar.component.html#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.trace_orbit_func">trace_orbit_func (chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent attribute)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/chronostar.component.html#id0">trace_orbit_func() (chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent static method)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/chronostar.utils.html#chronostar.utils.transform.transform_covmatrix">transform_covmatrix() (in module chronostar.utils.transform)</a>
 </li>
         <li><a href="api/chronostar.utils.html#chronostar.utils.transform.transform_covmatrix_py">transform_covmatrix_py() (in module chronostar.utils.transform)</a>
 </li>
-        <li><a href="api/chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.try_populate_queue">try_populate_queue() (chronostar.icpool.simpleicpool.SimpleICPool method)</a>
+        <li><a href="api/chronostar.icpool.html#chronostar.icpool.greedycycleicp.GreedyCycleICP.try_populate_queue">try_populate_queue() (chronostar.icpool.greedycycleicp.GreedyCycleICP method)</a>
+
+        <ul>
+          <li><a href="api/chronostar.icpool.html#chronostar.icpool.simpleicpool.SimpleICPool.try_populate_queue">(chronostar.icpool.simpleicpool.SimpleICPool method)</a>
 </li>
+        </ul></li>
     </ul></td>
   </tr></table>
 </section>

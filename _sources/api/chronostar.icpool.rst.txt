@@ -4,6 +4,13 @@ chronostar.icpool package
 Submodules
 ----------
 
+chronostar.icpool.greedycycleicp module
+---------------------------------------
+
+.. automodule:: chronostar.icpool.greedycycleicp
+   :members:
+   :show-inheritance:
+
 chronostar.icpool.simpleicpool module
 -------------------------------------
 
