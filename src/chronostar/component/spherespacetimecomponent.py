@@ -570,6 +570,7 @@ class SphereSpaceTimeComponent(BaseComponent):
             mean_birth,
             args=(self.age,)
         )
+        print("[SphereSpaceTimeComponent]: Calculated covariance property")
         return cov_now
 
     @property

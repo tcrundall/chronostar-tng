@@ -20,9 +20,9 @@ Chronostar: The Next Generation
 
     All the guides are slightly out of date with the code. The general approach and algorithms are correct, but the specific module and class names may slightly differ.
 
-The next generation of Chronostar prioritises simplicity, flexibility and extensibility. The default behaviour addresses the simplest scenario but the means of extending the capabilties for more complex scenarios is straight forward; by default Chronostar-TNG (will) provide abstract base classes which clearly dictate required interfaces as well as many different example reifications for the most basic scenarios. How one actually extends these example implementations to address complex scenarios is left to the user. ;)
+Here we provide a deep dive into the various parts of Chronostar, detailing how they work and hopefully providing enough guidance such that users can implement their own custom classes in order to augment Chronostar's functionality.
 
-The framework of Chronostar TNG consists of 5 classes. A :doc:`Driver <guides/driverguide>`, a :doc:`Initial Conditions Pool <guides/icpoolguide>`, an :doc:`Introducer <guides/introducerguide>`, a :doc:`Mixture <guides/mixtureguide>` and a :doc:`Component <guides/componentguide>`.
+The framework of Chronostar TNG consists of 5 classes. A :doc:`Driver <guides/driverguide>`, a :doc:`Initial Conditions Pool <guides/icpoolguide>`, a :doc:`Mixture <guides/mixtureguide>` and a :doc:`Component <guides/componentguide>`.
 
 .. image:: images/simple_snapshot.svg
   :width: 800
@@ -45,18 +45,23 @@ Here we provide a :doc:`general overview <generaloverview>` of the framework.
 Summary of Driver
 ^^^^^^^^^^^^^^^^^
 The :doc:`Driver <guides/driverguide>` is the top level manager of the entire process. It parses the config file, instantiates classes where appropriate, passes on the initialization parameters as necessary, and then runs the primary loop.
-The primary loop is only 4 lines long because the majority of the work is neatly delegated to the other classes. In a multiprocessor implementation, the Driver would also manage the MPI Pool.
+In a multiprocessor implementation, the Driver could also manage the MPI Pool, providing each worker with a mixture model to maximize.
 
 Driver-ICPool interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-The :doc:`Initial Conditions Pool <guides/icpoolguide>` or *ICPool* serves as (perhaps surprisingly) a pool of initial conditions. An ICPool generates set after set of plausible initial conditions. An initial conditions set is a list of :doc:`Components <guides/componentguide>`. For each set of initial conditions the `Driver` initializes a :doc:`Mixture Model <guides/mixtureguide>` (Gaussian or otherwise). The Mixture Model fits itself to the data by maximizing the parameters of its list of `Components`. Once fit the Mixture Model calculates its final score (AIC, BIC, etc.). The `Driver` registers each fit to the `ICPool` along with its score. The primary loop repeats and the Driver acquires the next set of initial conditions. When the `ICPool` runs out of plausible initial conditions, the primary loop ends and the `Driver` returns the best fit.
+The :doc:`Initial Conditions Pool <guides/icpoolguide>` or *ICPool* serves as (perhaps surprisingly) a pool of initial conditions. An ICPool generates set after set of plausible :class:`~chronostar.base.InitialCondition`\ s. An ``InitialCondition`` is a labelled tuple of :doc:`Components <guides/componentguide>`. For each set of initial conditions the `Driver` initializes a :doc:`Mixture Model <guides/mixtureguide>` (Gaussian or otherwise). The Mixture Model fits itself to the data by maximizing the parameters of its list of `Components`. Once fit the Mixture Model calculates its final score (AIC, BIC, etc.). The ``Driver`` registers each fit to the ``ICPool`` along with its score. The primary loop repeats and the Driver acquires the next set of initial conditions. When the ``ICPool`` runs out of plausible initial conditions, the primary loop ends and the ``Driver`` returns the best fit.
 
 .. note::
   The interaction between Driver and ICPool lends itself well to parallelisation, an aspect sorely lacking in the original Chronostar. The number of processes that can fit a mixture model in parallel is only capped by the number of sets of initial conditions sitting in the ICPool.
 
-ICPool-Introducer interface
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Lets explore how the `ICPool` cultivates this pool of initial conditions and determines when to trigger an end to the primary loop. The `ICPool` builds up a *registry* of previous fits and their scores as registered by the `Driver`. The `ICPool` generates the next initial conditions based on this registry, perhaps by introducing one ore more extra components. The precise mechanism by which the `ICPool` introduces `Components` is determined by the :doc:`Introducer <guides/introducerguide>`. The `Introducer` takes one or more previous fits, and returns one or more plausible sets of initial conditions to the `ICPool`. The `ICPool` in turn *yields* each set to the `Driver`. By using the keyword *yield* we've turned `ICPool` (or more precisely one of its methods) into an iterable object which can be looped over. By inspecting the scores in the registry, the `ICPool` can determine when scores are conisitently failing to improve. At this point the `ICPool` stops yielding which triggers a ``Stop Iteration`` exception, thereby ending the primary loop.
+ICPool internal
+^^^^^^^^^^^^^^^
+Lets explore how the ``ICPool`` cultivates this pool of initial conditions and determines when to trigger an end to the primary loop. The ``ICPool`` builds up a *registry* of previous fits and their scores as registered by the ``Driver``. The ``ICPool`` has an internal queue, to which it adds the next ``InitialCondition``\ s in batches called *generations*. The precise mechanism by which the next generation of ``InitialCondition``\ s is generated is unique to each ``ICPool``.
+
+..
+  One simple approach is the :class:`~chronostar.icpool.simpliecpool.SimpleICPool`. This implementation produces the next generation of ``InitialCondition``\ s by
+  taking the current best fit, and generating one ``InitialCondition`` per component. The ``InitialCondition`` generated for the ``i``\ th component will split that
+  component into two overlapping ones.
 
 Summary of Mixture
 ^^^^^^^^^^^^^^^^^^
@@ -64,9 +69,10 @@ Lets focus now on how a Mixture Model fits itself to the data. We acknowledge th
 
 Summary of Component
 ^^^^^^^^^^^^^^^^^^^^
-The Component class is where the most variation will likely appear. The Component implementation determines what features we're fitting to, and how we find the best parameters. If you want age dependency, you got it. If you want ``emcee``, you got it. If you want Nelder-Mead, you got it. If you want a flat background component, you got it. If you want a background component that just reads off a column in the input data, you got it. If you want your stars to have uncertainties and correlations stored in the input data which you can use to constract star covariance matrices, you got it. If you want to propogate through time with galpy, epicyclic, or just a straight bloody line, you got it.
+The Component class is where the most variation will likely appear. The Component implementation determines both what features we're fitting to, and how we find the best parameters. For example, :class:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent` fits to the cartesian positions and velocities of the stars and
+fits a spherical 6D Gaussian which is transformed through the galactic potential via an epicyclic approximation.
+However many alternative implementations are viable.
+The features are determined by your input data and could include position, velocity, age approximators, chemical composition etc.
+The method of finding the best parameters could involve ``emcee``, ``scipy.optimize``. You can customize what distribution your component takes, for example a 6D Gaussian with or without an incorporated age projection.
 
-As long as the data has the columns your Component expects, your Component can do whatever it likes, completley independently from the Chronostar.
-
-.. note::
-  TODO: Finish this section...
+As long as the data has the columns your Component expects, your Component can do whatever it likes, completely independent from the rest of Chronostar.

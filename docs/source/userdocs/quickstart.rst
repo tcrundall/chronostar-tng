@@ -76,6 +76,7 @@ Depending on the size of the data, this may take up several days to converge, so
 If all goes well, you'll have the following files in ``./results/final``:
 
 .. code-block::
+
    # A text file summarising the results, where 'XXX' is the number of components
    final-fit-XXXcomps.txt
 

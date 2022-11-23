@@ -2,75 +2,84 @@
 Component Guide
 ===============
 
-A Component object models a simple distribution, typically a mutli-variate normal (i.e. Gaussian) distribution. A Component class encapsulates the parameters that define the distribution and the methods that determine the best parameters given input data.
+A Component object models a simple distribution, typically a mutli-variate normal (i.e. Gaussian) distribution. A Component class encapsulates the parameters that define the distribution, the methods that determine the best parameters given input data and how the input data is interpreted.
 
-For example, a :class:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent` is defined by an age, birth mean and birth covariance matrix, parameterised by a single array `parameters` (as used in Paper 1). It also has methods for calculating the log probability of stars :func:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.estimate_log_prob` and estimating its parameters :func:`~SpaceTimeComponent.maximize`. For more details, see the API.
+For example, a :class:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent` is defined by an age, birth mean and birth covariance matrix, parameterised by a single array `parameters` (as used in Paper 1). It also has methods for calculating the log probability of stars :func:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.estimate_log_prob` and estimating its parameters :func:`~SpaceTimeComponent.maximize`. For more details, see the API. It also is able to reconstruct data covariance matrices from the input
+data rows.
+
+Components can accept a list of membership probabilities, thereby the contribution
+of any datapoint is weighted accordingly during fits.
+
+For example usages see :ref:`Fitting a component <scripts-comp>`.
+
+Implemented Components
+----------------------
+
+.. _guide-spacecomp:
+
+:class:`~chronostar.component.spacecomponent.SpaceComponent`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The space component fits a free 6D Gaussian to a set of 6D data points.
+This component cannot handle uncertainties and ignores any data beyond the
+first 6 columns.
+
+This component class is useful for fitting to data where either uncertainties are not
+significant (e.g. when characterising the background) or for getting a first order
+characterisation of the environment of an association, the results of which
+may be used to initialise a more nuanced fit, thereby skipping a lot of computation.
+
+This component is lightning quick to fit, because it doesn't perform any parameter
+exploration. It calculates its mean and covariance using simple numpy functions.
+
+The parameters array of a SpaceComponent is ``42`` elements long, the first ``6``
+being the mean, the next ``36`` are the covariance matrix, flattened, i.e.::
+
+  parameters = np.hstack((mean, covariance.flatten()))
+
+
+.. _guide-spherecomp:
+
+:class:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The SphereSpaceTimeComponent has an age (hence time) and assumes the
+distribution of an association at birth to be spherical. The birth distribution
+is therefore a 6D Gaussian, spherical in position and spherical in velocity.
+The current day distribution (which determines the actual log probabilities of the data)
+is the birth distribution projected forward through the galactic potential by *age* Myr.
+
+The parameters array
+parameterise the birth mean (first ``6`` elements), the birth covariance (the next ``2``) and the age. A standard deviation in position ``dxyz`` and in velocity ``duvw`` parameterise the birth
+covariance matrix. Therefore the parameters array looks like::
+
+  parameters = np.array([x, y, z, u, v, w, dxyz, duvw, age])
+
+The component calculates its current day mean using the epicyclic approximation
+:func:`~chronostar.traceorbit.trace_epicyclic_orbit`, and transforms the birth covariance
+to the current day covariance using a jacobian matrix :func:`~chronostar.utils.transform.transform_covmatrix`.
+
+Implementing Custom Components
+------------------------------
+All component classes derive from :class:`~chronostar.base.BaseComponent`.
+Any custom derived component classes should also derive from this base class.
+The base class has some abstract methods and properties that your new class must implement:
+
+- :func:`~chronostar.base.BaseComponent.maximize`: given input data, determine the best values for the component's parameters
+- :func:`~chronostar.base.BaseComponent.estimate_log_prob`: given your component's current distribution, estimate the log probability of a data point. i.e. if the distribution is a normalised PDF, evaluate it at the location of the data point, and take the log of the result.
+- :func:`~chronostar.base.BaseComponent.split`: split the current component into two similar, overlapping components that when combined more or less describe the original. This is the key mechanism used to by :class:`~chronostar.introducer.simpleintroducer.SimpleIntroducer` to introduce new components.
+- :func:`~chronostar.base.BaseComponent.set_parameters` - set the parameters
+- :func:`~chronostar.base.BaseComponent.get_parameters` - get the parameters
+- :func:`~chronostar.base.BaseComponent.n_params` - the number of parameters used. This is not necessarily the same as ``len(self.get_parameters())``, for example :ref:`SpaceComponent <guide-spacecomp>` has duplicates of the covariance values in its parameter array. Calculations of BIC and AIC need to know this.
+
+You may find it convenient to define further properties that convert the raw
+parameter array into the component aspects. For example, :ref:`SphereSpaceTimeComponent <guide-spherecomp>` has as properties ``mean``, ``covariance`` and ``age``.
+These properties should only depend on the component's ``parameters``. Defining
+them as properties (and not attributes) guarantees that the state of the component
+is defined in one place only, the ``parameters`` and removes the temptation of the
+user to attempt to modfiy the current day mean and covariance.
 
 .. note::
 
-  The intention is to not differentiate between *Background* components and *stellar association* components. The difference will be implicit in the components' parameterization and fitting method. For example, an association component could have an age parameter, where as a background component would have none. Some other methods could be employed such as enforcing a large minimum position spread for background components and a small minimum position spread for association components. If one wishes to get fancy, one could choose to implement a :class:`BaseIntroducer` which can convert background components to association components and vica verse, based on some "failure" criteria.
-
-
-Example SphereSpaceTimeComponent Usage
---------------------------------------
-
-A simple usage will look something like this::
-
-  resp = # ... assume we have responsibilities (i.e. Z or membership probabilites)
-  X = # ... assume we have data, array-like with shape (n_samples, n_features)
-  config_params = # ... assume we have Component specific config params as a dict
-
-  SphereSpaceTimeComponent.configure(config_params)
-
-  c = SphereSpaceTimeComponent()
-  c.maximize(X, resp) 
-  log_probs = c.estimate_log_prob(X)
-
-  # If you have a specific parameters for the component (i.e. taken from a paper)
-  # you can set the parameters yourself, but note that SphereSpaceTimeComponent
-  paper_mean = np.array([])
-  params = np.array([...])  # parameterise as best you can
-
-
-If you desire a specific set of parameters, e.g. because you would like to match a component to that provided in paper, you can initialise a component by parameters. Note that this is non-trivial, since the components are typically parameterised by their *birth* distribution, and projecting arbitrary covariance matrices backwards through time rarely leads to a contracting distribution in space. This is how I would propose to do it::
-
-  # Define current day mean and covariance
-  paper_mean = np.array([...])
-  paper_covariance = np.array([[...]])
-  paper_age = ...
-
-  birth_mean = SphereSpaceTimeComponent.trace_orbit_func(paper_mean, -paper_age)
-
-  # For birth velocity spread, estimate current day spherical velocity spread
-  # and assume minimal change
-  birth_duvw = np.sqrt(np.mean(np.linalg.eigvals(paper_covariance[3:, 3:])))
-
-  # For birth position spread, estimate current day spherical position spread
-  # and assume linear expansion
-  paper_dxyz = np.sqrt(np.mean(np.linalg.eigvals(paper_covariance[:3, :3])))
-  birth_dxyz = paper_xyz - age * birth_duvw
-  assert birth_dxyz > 0.
-
-  params = np.hstack((birth_mean, birth_dxyz, birth_duvw, paper_age))
-
-  # Configuring is likely unnecessary, since we're not fitting to data
-  # SphereSpaceTimeComponent.configure(config_params)
-  
-  paper_comp = SphereSpaceTimeComponent(params)
-  log_probs = paper_comp.estimate_log_prob(X)
-
-
-Deriving New Component Classes
-------------------------------
-The hope is that implementing a new component class is relatively straightforward.
-
-A new component class must inherit from :class:`~chronostar.base.BaseComponent`. If you have an IDE (e.g. Visual Studio Code) and are using type hints, then the IDE will prompt you into completing all the necessary aspects.
-
-:class:`~chronostar.base.BaseComponent` has three abstract methods and one property you must implement:
-
-- :func:`~chronostar.base.BaseComponent.estimate_log_prob`: given your component's current distribution, estimate the log probability of a data point. i.e. if the distribution is a normalised PDF, evaluate it at the location of the data point, and take the log of the result.
-- :func:`~chronostar.base.BaseComponent.maximize`: given input data, determine the best values for the component's parameters
-- :func:`~chronostar.base.BaseComponent.split`: split the current component into two similar, overlapping components that when combined more or less describe the original. This is the key mechanism used to by :class:`~chronostar.introducer.simpleintroducer.SimpleIntroducer` to introduce new components.
-- :func:`~chronostar.base.BaseComponent.n_params`: define how many parameters are needed to parameterise the component. Calculations of BIC and AIC need to know this.
-
-Check the API for the required function signatures and return types.
+  The ``maximize()`` method should never make use of these properties, for two reasons.
+  Firstly it doesn't make algorithmic sense because it is trying to find the best values for ``parameters`` and update them, not evaluate how good the current values are.
+  Secondly, there would be potential performance issues by redoing a potentially expensive
+  operation during the many iterations.

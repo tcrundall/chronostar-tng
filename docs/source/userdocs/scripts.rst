@@ -1,6 +1,8 @@
 Scripts
 =======
 
+.. _scripts-comp:
+
 Fitting a component
 -------------------
 

@@ -47,12 +47,12 @@ class BaseComponent(metaclass=ABCMeta):
 
         Parameters
         ----------
-        X : NDArray[float64] of shape (n_samples, n_features)
+        X : ndarray of shape (n_samples, n_features)
             Input data
 
         Returns
         -------
-        NDArray[float64] of shape (n_samples)
+        ndarray of shape (n_samples)
             Log probabilities
         """
         pass
@@ -109,10 +109,24 @@ class BaseComponent(metaclass=ABCMeta):
 
     @abstractmethod
     def get_parameters(self) -> NDArray[float64]:
+        """Get parameters
+
+        Returns
+        -------
+        ndarray of shape (n_params)
+            a single 1D array of the component parameters
+        """
         pass
 
     @abstractmethod
     def set_parameters(self, params: NDArray[float64]) -> None:
+        """Set parameters
+
+        Parameters
+        ----------
+        params : ndarray of shape (n_params)
+            a single 1D array of the component parameters
+        """
         pass
 
 
