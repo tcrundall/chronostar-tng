@@ -405,13 +405,27 @@ responsibilities (membership probabilities)</p>
 this components current estimated parameters</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>X</strong> (<em>NDArray</em><em>[</em><em>float64</em><em>] of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input data</p>
+<dd class="field-odd"><p><strong>X</strong> (<em>ndarray</em><em> of </em><em>shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input data</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Log probabilities</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>NDArray[float64] of shape (n_samples)</p>
+<dd class="field-odd"><p>ndarray of shape (n_samples)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.base.BaseComponent.get_parameters">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.base.BaseComponent.get_parameters" title="Permalink to this definition">#</a></dt>
+<dd><p>Get parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>a single 1D array of the component parameters</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray of shape (n_params)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -448,6 +462,20 @@ number of parameters, e.g. BIC or AIC</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chronostar.base.BaseComponent.set_parameters">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chronostar.base.BaseComponent.set_parameters" title="Permalink to this definition">#</a></dt>
+<dd><p>Set parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>ndarray</em><em> of </em><em>shape</em><em> (</em><em>n_params</em><em>)</em>) – a single 1D array of the component parameters</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1144,8 +1172,10 @@ and velocities</p>
 <li><a class="reference internal" href="#chronostar.base.BaseComponent"><code class="docutils literal notranslate"><span class="pre">BaseComponent</span></code></a><ul>
 <li><a class="reference internal" href="#chronostar.base.BaseComponent.configure"><code class="docutils literal notranslate"><span class="pre">BaseComponent.configure()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.base.BaseComponent.estimate_log_prob"><code class="docutils literal notranslate"><span class="pre">BaseComponent.estimate_log_prob()</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.base.BaseComponent.get_parameters"><code class="docutils literal notranslate"><span class="pre">BaseComponent.get_parameters()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.base.BaseComponent.maximize"><code class="docutils literal notranslate"><span class="pre">BaseComponent.maximize()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.base.BaseComponent.n_params"><code class="docutils literal notranslate"><span class="pre">BaseComponent.n_params</span></code></a></li>
+<li><a class="reference internal" href="#chronostar.base.BaseComponent.set_parameters"><code class="docutils literal notranslate"><span class="pre">BaseComponent.set_parameters()</span></code></a></li>
 <li><a class="reference internal" href="#chronostar.base.BaseComponent.split"><code class="docutils literal notranslate"><span class="pre">BaseComponent.split()</span></code></a></li>
 </ul>
 </li>

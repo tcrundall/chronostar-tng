@@ -221,71 +221,75 @@
         <article role="main">
           <section id="component-guide">
 <h1>Component Guide<a class="headerlink" href="#component-guide" title="Permalink to this heading">#</a></h1>
-<p>A Component object models a simple distribution, typically a mutli-variate normal (i.e. Gaussian) distribution. A Component class encapsulates the parameters that define the distribution and the methods that determine the best parameters given input data.</p>
-<p>For example, a <a class="reference internal" href="../api/chronostar.component.html#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent" title="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent</span></code></a> is defined by an age, birth mean and birth covariance matrix, parameterised by a single array <cite>parameters</cite> (as used in Paper 1). It also has methods for calculating the log probability of stars <a class="reference internal" href="../api/chronostar.component.html#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.estimate_log_prob" title="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.estimate_log_prob"><code class="xref py py-func docutils literal notranslate"><span class="pre">estimate_log_prob()</span></code></a> and estimating its parameters <code class="xref py py-func docutils literal notranslate"><span class="pre">maximize()</span></code>. For more details, see the API.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The intention is to not differentiate between <em>Background</em> components and <em>stellar association</em> components. The difference will be implicit in the components’ parameterization and fitting method. For example, an association component could have an age parameter, where as a background component would have none. Some other methods could be employed such as enforcing a large minimum position spread for background components and a small minimum position spread for association components. If one wishes to get fancy, one could choose to implement a <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseIntroducer</span></code> which can convert background components to association components and vica verse, based on some “failure” criteria.</p>
-</div>
-<section id="example-spherespacetimecomponent-usage">
-<h2>Example SphereSpaceTimeComponent Usage<a class="headerlink" href="#example-spherespacetimecomponent-usage" title="Permalink to this heading">#</a></h2>
-<p>A simple usage will look something like this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">resp</span> <span class="o">=</span> <span class="c1"># ... assume we have responsibilities (i.e. Z or membership probabilites)</span>
-<span class="n">X</span> <span class="o">=</span> <span class="c1"># ... assume we have data, array-like with shape (n_samples, n_features)</span>
-<span class="n">config_params</span> <span class="o">=</span> <span class="c1"># ... assume we have Component specific config params as a dict</span>
-
-<span class="n">SphereSpaceTimeComponent</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">config_params</span><span class="p">)</span>
-
-<span class="n">c</span> <span class="o">=</span> <span class="n">SphereSpaceTimeComponent</span><span class="p">()</span>
-<span class="n">c</span><span class="o">.</span><span class="n">maximize</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
-<span class="n">log_probs</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">estimate_log_prob</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-
-<span class="c1"># If you have a specific parameters for the component (i.e. taken from a paper)</span>
-<span class="c1"># you can set the parameters yourself, but note that SphereSpaceTimeComponent</span>
-<span class="n">paper_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
-<span class="n">params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">...</span><span class="p">])</span>  <span class="c1"># parameterise as best you can</span>
-</pre></div>
-</div>
-<p>If you desire a specific set of parameters, e.g. because you would like to match a component to that provided in paper, you can initialise a component by parameters. Note that this is non-trivial, since the components are typically parameterised by their <em>birth</em> distribution, and projecting arbitrary covariance matrices backwards through time rarely leads to a contracting distribution in space. This is how I would propose to do it:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define current day mean and covariance</span>
-<span class="n">paper_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">...</span><span class="p">])</span>
-<span class="n">paper_covariance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">...</span><span class="p">]])</span>
-<span class="n">paper_age</span> <span class="o">=</span> <span class="o">...</span>
-
-<span class="n">birth_mean</span> <span class="o">=</span> <span class="n">SphereSpaceTimeComponent</span><span class="o">.</span><span class="n">trace_orbit_func</span><span class="p">(</span><span class="n">paper_mean</span><span class="p">,</span> <span class="o">-</span><span class="n">paper_age</span><span class="p">)</span>
-
-<span class="c1"># For birth velocity spread, estimate current day spherical velocity spread</span>
-<span class="c1"># and assume minimal change</span>
-<span class="n">birth_duvw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvals</span><span class="p">(</span><span class="n">paper_covariance</span><span class="p">[</span><span class="mi">3</span><span class="p">:,</span> <span class="mi">3</span><span class="p">:])))</span>
-
-<span class="c1"># For birth position spread, estimate current day spherical position spread</span>
-<span class="c1"># and assume linear expansion</span>
-<span class="n">paper_dxyz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvals</span><span class="p">(</span><span class="n">paper_covariance</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">])))</span>
-<span class="n">birth_dxyz</span> <span class="o">=</span> <span class="n">paper_xyz</span> <span class="o">-</span> <span class="n">age</span> <span class="o">*</span> <span class="n">birth_duvw</span>
-<span class="k">assert</span> <span class="n">birth_dxyz</span> <span class="o">&gt;</span> <span class="mf">0.</span>
-
-<span class="n">params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">birth_mean</span><span class="p">,</span> <span class="n">birth_dxyz</span><span class="p">,</span> <span class="n">birth_duvw</span><span class="p">,</span> <span class="n">paper_age</span><span class="p">))</span>
-
-<span class="c1"># Configuring is likely unnecessary, since we&#39;re not fitting to data</span>
-<span class="c1"># SphereSpaceTimeComponent.configure(config_params)</span>
-
-<span class="n">paper_comp</span> <span class="o">=</span> <span class="n">SphereSpaceTimeComponent</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-<span class="n">log_probs</span> <span class="o">=</span> <span class="n">paper_comp</span><span class="o">.</span><span class="n">estimate_log_prob</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<p>A Component object models a simple distribution, typically a mutli-variate normal (i.e. Gaussian) distribution. A Component class encapsulates the parameters that define the distribution, the methods that determine the best parameters given input data and how the input data is interpreted.</p>
+<p>For example, a <a class="reference internal" href="../api/chronostar.component.html#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent" title="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent</span></code></a> is defined by an age, birth mean and birth covariance matrix, parameterised by a single array <cite>parameters</cite> (as used in Paper 1). It also has methods for calculating the log probability of stars <a class="reference internal" href="../api/chronostar.component.html#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.estimate_log_prob" title="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.estimate_log_prob"><code class="xref py py-func docutils literal notranslate"><span class="pre">estimate_log_prob()</span></code></a> and estimating its parameters <code class="xref py py-func docutils literal notranslate"><span class="pre">maximize()</span></code>. For more details, see the API. It also is able to reconstruct data covariance matrices from the input
+data rows.</p>
+<p>Components can accept a list of membership probabilities, thereby the contribution
+of any datapoint is weighted accordingly during fits.</p>
+<p>For example usages see <a class="reference internal" href="../userdocs/scripts.html#scripts-comp"><span class="std std-ref">Fitting a component</span></a>.</p>
+<section id="implemented-components">
+<h2>Implemented Components<a class="headerlink" href="#implemented-components" title="Permalink to this heading">#</a></h2>
+<section id="spacecomponent">
+<span id="guide-spacecomp"></span><h3><a class="reference internal" href="../api/chronostar.component.html#chronostar.component.spacecomponent.SpaceComponent" title="chronostar.component.spacecomponent.SpaceComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceComponent</span></code></a><a class="headerlink" href="#spacecomponent" title="Permalink to this heading">#</a></h3>
+<p>The space component fits a free 6D Gaussian to a set of 6D data points.
+This component cannot handle uncertainties and ignores any data beyond the
+first 6 columns.</p>
+<p>This component class is useful for fitting to data where either uncertainties are not
+significant (e.g. when characterising the background) or for getting a first order
+characterisation of the environment of an association, the results of which
+may be used to initialise a more nuanced fit, thereby skipping a lot of computation.</p>
+<p>This component is lightning quick to fit, because it doesn’t perform any parameter
+exploration. It calculates its mean and covariance using simple numpy functions.</p>
+<p>The parameters array of a SpaceComponent is <code class="docutils literal notranslate"><span class="pre">42</span></code> elements long, the first <code class="docutils literal notranslate"><span class="pre">6</span></code>
+being the mean, the next <code class="docutils literal notranslate"><span class="pre">36</span></code> are the covariance matrix, flattened, i.e.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">parameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">mean</span><span class="p">,</span> <span class="n">covariance</span><span class="o">.</span><span class="n">flatten</span><span class="p">()))</span>
 </pre></div>
 </div>
 </section>
-<section id="deriving-new-component-classes">
-<h2>Deriving New Component Classes<a class="headerlink" href="#deriving-new-component-classes" title="Permalink to this heading">#</a></h2>
-<p>The hope is that implementing a new component class is relatively straightforward.</p>
-<p>A new component class must inherit from <a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseComponent</span></code></a>. If you have an IDE (e.g. Visual Studio Code) and are using type hints, then the IDE will prompt you into completing all the necessary aspects.</p>
-<p><a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseComponent</span></code></a> has three abstract methods and one property you must implement:</p>
+<section id="spherespacetimecomponent">
+<span id="guide-spherecomp"></span><h3><a class="reference internal" href="../api/chronostar.component.html#chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent" title="chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent</span></code></a><a class="headerlink" href="#spherespacetimecomponent" title="Permalink to this heading">#</a></h3>
+<p>The SphereSpaceTimeComponent has an age (hence time) and assumes the
+distribution of an association at birth to be spherical. The birth distribution
+is therefore a 6D Gaussian, spherical in position and spherical in velocity.
+The current day distribution (which determines the actual log probabilities of the data)
+is the birth distribution projected forward through the galactic potential by <em>age</em> Myr.</p>
+<p>The parameters array
+parameterise the birth mean (first <code class="docutils literal notranslate"><span class="pre">6</span></code> elements), the birth covariance (the next <code class="docutils literal notranslate"><span class="pre">2</span></code>) and the age. A standard deviation in position <code class="docutils literal notranslate"><span class="pre">dxyz</span></code> and in velocity <code class="docutils literal notranslate"><span class="pre">duvw</span></code> parameterise the birth
+covariance matrix. Therefore the parameters array looks like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">parameters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">dxyz</span><span class="p">,</span> <span class="n">duvw</span><span class="p">,</span> <span class="n">age</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The component calculates its current day mean using the epicyclic approximation
+<a class="reference internal" href="../api/chronostar.html#chronostar.traceorbit.trace_epicyclic_orbit" title="chronostar.traceorbit.trace_epicyclic_orbit"><code class="xref py py-func docutils literal notranslate"><span class="pre">trace_epicyclic_orbit()</span></code></a>, and transforms the birth covariance
+to the current day covariance using a jacobian matrix <a class="reference internal" href="../api/chronostar.utils.html#chronostar.utils.transform.transform_covmatrix" title="chronostar.utils.transform.transform_covmatrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">transform_covmatrix()</span></code></a>.</p>
+</section>
+</section>
+<section id="implementing-custom-components">
+<h2>Implementing Custom Components<a class="headerlink" href="#implementing-custom-components" title="Permalink to this heading">#</a></h2>
+<p>All component classes derive from <a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseComponent</span></code></a>.
+Any custom derived component classes should also derive from this base class.
+The base class has some abstract methods and properties that your new class must implement:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent.estimate_log_prob" title="chronostar.base.BaseComponent.estimate_log_prob"><code class="xref py py-func docutils literal notranslate"><span class="pre">estimate_log_prob()</span></code></a>: given your component’s current distribution, estimate the log probability of a data point. i.e. if the distribution is a normalised PDF, evaluate it at the location of the data point, and take the log of the result.</p></li>
 <li><p><a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent.maximize" title="chronostar.base.BaseComponent.maximize"><code class="xref py py-func docutils literal notranslate"><span class="pre">maximize()</span></code></a>: given input data, determine the best values for the component’s parameters</p></li>
+<li><p><a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent.estimate_log_prob" title="chronostar.base.BaseComponent.estimate_log_prob"><code class="xref py py-func docutils literal notranslate"><span class="pre">estimate_log_prob()</span></code></a>: given your component’s current distribution, estimate the log probability of a data point. i.e. if the distribution is a normalised PDF, evaluate it at the location of the data point, and take the log of the result.</p></li>
 <li><p><a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent.split" title="chronostar.base.BaseComponent.split"><code class="xref py py-func docutils literal notranslate"><span class="pre">split()</span></code></a>: split the current component into two similar, overlapping components that when combined more or less describe the original. This is the key mechanism used to by <code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleIntroducer</span></code> to introduce new components.</p></li>
-<li><p><a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent.n_params" title="chronostar.base.BaseComponent.n_params"><code class="xref py py-func docutils literal notranslate"><span class="pre">n_params()</span></code></a>: define how many parameters are needed to parameterise the component. Calculations of BIC and AIC need to know this.</p></li>
+<li><p><a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent.set_parameters" title="chronostar.base.BaseComponent.set_parameters"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_parameters()</span></code></a> - set the parameters</p></li>
+<li><p><a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent.get_parameters" title="chronostar.base.BaseComponent.get_parameters"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_parameters()</span></code></a> - get the parameters</p></li>
+<li><p><a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent.n_params" title="chronostar.base.BaseComponent.n_params"><code class="xref py py-func docutils literal notranslate"><span class="pre">n_params()</span></code></a> - the number of parameters used. This is not necessarily the same as <code class="docutils literal notranslate"><span class="pre">len(self.get_parameters())</span></code>, for example <a class="reference internal" href="#guide-spacecomp"><span class="std std-ref">SpaceComponent</span></a> has duplicates of the covariance values in its parameter array. Calculations of BIC and AIC need to know this.</p></li>
 </ul>
-<p>Check the API for the required function signatures and return types.</p>
+<p>You may find it convenient to define further properties that convert the raw
+parameter array into the component aspects. For example, <a class="reference internal" href="#guide-spherecomp"><span class="std std-ref">SphereSpaceTimeComponent</span></a> has as properties <code class="docutils literal notranslate"><span class="pre">mean</span></code>, <code class="docutils literal notranslate"><span class="pre">covariance</span></code> and <code class="docutils literal notranslate"><span class="pre">age</span></code>.
+These properties should only depend on the component’s <code class="docutils literal notranslate"><span class="pre">parameters</span></code>. Defining
+them as properties (and not attributes) guarantees that the state of the component
+is defined in one place only, the <code class="docutils literal notranslate"><span class="pre">parameters</span></code> and removes the temptation of the
+user to attempt to modfiy the current day mean and covariance.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">maximize()</span></code> method should never make use of these properties, for two reasons.
+Firstly it doesn’t make algorithmic sense because it is trying to find the best values for <code class="docutils literal notranslate"><span class="pre">parameters</span></code> and update them, not evaluate how good the current values are.
+Secondly, there would be potential performance issues by redoing a potentially expensive
+operation during the many iterations.</p>
+</div>
 </section>
 </section>
 
@@ -347,8 +351,12 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Component Guide</a><ul>
-<li><a class="reference internal" href="#example-spherespacetimecomponent-usage">Example SphereSpaceTimeComponent Usage</a></li>
-<li><a class="reference internal" href="#deriving-new-component-classes">Deriving New Component Classes</a></li>
+<li><a class="reference internal" href="#implemented-components">Implemented Components</a><ul>
+<li><a class="reference internal" href="#spacecomponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceComponent</span></code></a></li>
+<li><a class="reference internal" href="#spherespacetimecomponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">SphereSpaceTimeComponent</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implementing-custom-components">Implementing Custom Components</a></li>
 </ul>
 </li>
 </ul>
