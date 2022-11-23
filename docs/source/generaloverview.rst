@@ -15,31 +15,16 @@ Chronostar: The Next Generation
    guides/icpoolguide
    guides/driverguide
 
-.. note::
-
-    All the guides are slightly out of date with the code. The general approach and algorithms are correct, but the specific module and class names may slightly differ.
-
 Here we provide a deep dive into the various parts of Chronostar, detailing how they work and hopefully providing enough guidance such that users can implement their own custom classes in order to augment Chronostar's functionality.
 
-The framework of Chronostar TNG consists of 5 classes. A :doc:`Driver <guides/driverguide>`, a :doc:`Initial Conditions Pool <guides/icpoolguide>`, a :doc:`Mixture <guides/mixtureguide>` and a :doc:`Component <guides/componentguide>`.
+The core framework of Chronostar TNG consists of 4 classes. A :doc:`Driver <guides/driverguide>`, an :doc:`Initial Conditions Pool <guides/icpoolguide>`, a :doc:`Mixture <guides/mixtureguide>` and a :doc:`Component <guides/componentguide>`.
 
 .. image:: images/simple_snapshot.svg
   :width: 800
   :alt: A graphical representation of how the classes connect.
 
-
-The goal of Chronostar is to be a flexible framework for fitting Gaussian
-Mixture Models to astronomical data. This will be achieved by utilising
-"injected dependencies". The :doc:`Driver <guides/driverguide>` is composed of a collection
-of 3 classes (:doc:`ICPool <guides/icpoolguide>`, :doc:`Mixture <guides/mixtureguide>` and :doc:`Component <guides/componentguide>`) for which
-Chronostar provides many implementations. Anyone wishing to modify 
-aspects of Chronostar (e.g. input data, fitting method, models of 
-components) simply needs to provide the :doc:`driver <guides/driverguide>` with their own
-class that matches the required interface, whether that be by writing
-the class from scratch, or by using inheritance to extend pre-existing
-classes.
-
-Here we provide a :doc:`general overview <generaloverview>` of the framework. 
+Here we detail each element in a top-down approach. If you prefer a bottom-up approach,
+feel free to read this page backwards.
 
 Summary of Driver
 ^^^^^^^^^^^^^^^^^
@@ -48,14 +33,14 @@ In a multiprocessor implementation, the Driver could also manage the MPI Pool, p
 
 Driver-ICPool interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-The :doc:`Initial Conditions Pool <guides/icpoolguide>` or *ICPool* serves as (perhaps surprisingly) a pool of initial conditions. An ICPool generates set after set of plausible :class:`~chronostar.base.InitialCondition`\ s. An ``InitialCondition`` is a labelled tuple of :doc:`Components <guides/componentguide>`. For each set of initial conditions the `Driver` initializes a :doc:`Mixture Model <guides/mixtureguide>` (Gaussian or otherwise). The Mixture Model fits itself to the data by maximizing the parameters of its list of `Components`. Once fit the Mixture Model calculates its final score (AIC, BIC, etc.). The ``Driver`` registers each fit to the ``ICPool`` along with its score. The primary loop repeats and the Driver acquires the next set of initial conditions. When the ``ICPool`` runs out of plausible initial conditions, the primary loop ends and the ``Driver`` returns the best fit.
+The :doc:`Initial Conditions Pool <guides/icpoolguide>` or *ICPool* serves as a queue of initial conditions (the name will be updated in the next code refactor). An ICPool generates set after set of plausible :class:`~chronostar.base.InitialCondition`\ s. An ``InitialCondition`` is a labelled tuple of :doc:`Components <guides/componentguide>`. For each set of initial conditions the ``Driver`` initializes a :doc:`Mixture Model <guides/mixtureguide>` (Gaussian or otherwise). The Mixture Model fits itself to the data by maximizing the parameters of its list of `Components`. Once fit the Mixture Model calculates its final score (AIC, BIC, etc.). The ``Driver`` registers each fit to the ``ICPool`` along with its score. The primary loop repeats and the Driver acquires the next set of initial conditions. When the ``ICPool`` runs out of plausible initial conditions, the primary loop ends and the ``Driver`` returns the best fit.
 
 .. note::
   The interaction between Driver and ICPool lends itself well to parallelisation, an aspect sorely lacking in the original Chronostar. The number of processes that can fit a mixture model in parallel is only capped by the number of sets of initial conditions sitting in the ICPool.
 
 ICPool internal
 ^^^^^^^^^^^^^^^
-Lets explore how the ``ICPool`` cultivates this pool of initial conditions and determines when to trigger an end to the primary loop. The ``ICPool`` builds up a *registry* of previous fits and their scores as registered by the ``Driver``. The ``ICPool`` has an internal queue, to which it adds the next ``InitialCondition``\ s in batches called *generations*. The precise mechanism by which the next generation of ``InitialCondition``\ s is generated is unique to each ``ICPool``.
+Lets explore how the ``ICPool`` maintains this queue of initial conditions and determines when to trigger an end to the primary loop. The ``ICPool`` builds up a *registry* of previous fits and their scores as registered by the ``Driver``. The ``ICPool`` has an internal queue, to which it adds the next ``InitialCondition``\ s in batches called *generations*. The precise mechanism by which the next generation of ``InitialCondition``\ s is generated is unique to each ``ICPool``.
 
 ..
   One simple approach is the :class:`~chronostar.icpool.simpliecpool.SimpleICPool`. This implementation produces the next generation of ``InitialCondition``\ s by

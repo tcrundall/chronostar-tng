@@ -199,14 +199,15 @@ Example config.yml file
         minimize_method: 'Nelder-Mead'
         trace_orbit_func: 'epicyclic'
 
+.. _scripts-chron:
 
 Fit Chronostar
 --------------
 
 Running full chronostar is the simplest script of them all, because
 the :class:`Driver` handles everything. The default classes used are
-:class:`SphereSpaceTimeComponent`, :class:`ComponentMixture`, 
-:class:`SimpleICPool` and :class:`SimpleIntroducer`.
+:class:`SphereSpaceTimeComponent`, :class:`ComponentMixture` and
+:class:`SimpleICPool`.
 If you wish to use an alternative (either included in Chronostar or
 a custom class of your own) simply import it and pass it to the :class:`Driver`.
 

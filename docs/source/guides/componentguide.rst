@@ -4,7 +4,7 @@ Component Guide
 
 A Component object models a simple distribution, typically a mutli-variate normal (i.e. Gaussian) distribution. A Component class encapsulates the parameters that define the distribution, the methods that determine the best parameters given input data and how the input data is interpreted.
 
-For example, a :class:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent` is defined by an age, birth mean and birth covariance matrix, parameterised by a single array `parameters` (as used in Paper 1). It also has methods for calculating the log probability of stars :func:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.estimate_log_prob` and estimating its parameters :func:`~SpaceTimeComponent.maximize`. For more details, see the API. It also is able to reconstruct data covariance matrices from the input
+For example, a :class:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent` is defined by an age, birth mean and birth covariance matrix, parameterised by a single array `parameters` (as used in Paper 1). It also has methods for calculating the log probability of stars :func:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.estimate_log_prob` and estimating its parameters :func:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent.maximize`. For more details, see the API. It also is able to reconstruct data covariance matrices from the input
 data rows.
 
 Components can accept a list of membership probabilities, thereby the contribution
@@ -41,7 +41,7 @@ being the mean, the next ``36`` are the covariance matrix, flattened, i.e.::
 
 :class:`~chronostar.component.spherespacetimecomponent.SphereSpaceTimeComponent`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The SphereSpaceTimeComponent has an age (hence time) and assumes the
+The SphereSpaceTimeComponent has an age (hence the time in its name) and assumes the
 distribution of an association at birth to be spherical. The birth distribution
 is therefore a 6D Gaussian, spherical in position and spherical in velocity.
 The current day distribution (which determines the actual log probabilities of the data)
