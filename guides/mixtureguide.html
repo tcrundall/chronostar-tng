@@ -162,7 +162,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../userdocs/quickstart.html">Quickstart</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../userdocs/cli.html">Command-Line Interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../userdocs/scripts.html">Scripts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../userdocs/settings.html">Configuration Settings</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../generaloverview.html">General Overview</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -174,6 +173,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/workedexamples.html">Worked Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userdocs/settings.html">Configuration Settings</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/modules.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../api/chronostar.html">chronostar package</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api/chronostar.component.html">chronostar.component package</a></li>
@@ -221,77 +221,37 @@
         <article role="main">
           <section id="mixture-guide">
 <h1>Mixture Guide<a class="headerlink" href="#mixture-guide" title="Permalink to this heading">#</a></h1>
-<p>Chronostar’s Mixture Models match the interface of <a class="reference external" href="https://scikit-learn.org/stable/modules/mixture.html#gmm">scikit-learn’s mixture models</a> as closely as possible, , with the default mixture model <code class="xref py py-class docutils literal notranslate"><span class="pre">ComponentMixture</span></code> even inheriting from <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html#sklearn.base.BaseEstimator">sklearn.mixture.BaseMixture</a>. For reference of a class that inherits from BaseMixture, see <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.mixture.GaussianMixture.html#sklearn.mixture.GaussianMixture">sklearn.mixture.GaussianMixture</a>.</p>
-<p>I predict there will only need to be one implementation of this class, as customisation of data features, component features, fitting approaches and overall model extensions can be done elsewhere (i.e. in <code class="xref py py-class docutils literal notranslate"><span class="pre">Component</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseICPool</span></code>).</p>
-<p>Our Mixture Models will be a linear combination of components, fit to an input data array of shape <cite>(n_samples, n_features)</cite> where a “sample” is a single star (or can be treated as such, e.g. a combined binary) and a feature is any data we’re trying to fit to (position, velocity, magnitude, apparent-magnitude, abundances, inferred-age, etc.). The Mixture Model will remain completely agnostic of the features being fit. The implementation of how features are fit to is left to the <code class="xref py py-class docutils literal notranslate"><span class="pre">Component</span></code> class.</p>
-<p>This linear combination of components can include background components. In fact, this is the only (intended) means of including information about the background. The implementation of the background components is completely arbitrary. For example, it could be a single flat distribution, or a collection of fixed 6D Gaussians, or a collection of free 6D Gaussians that are fit alongside components intended for <em>stellar associations</em>.</p>
-<p>Conceivably, if users wish to replicate Crundall et al. (2019)’s treatment of the background, one could precompute background log likelihoods, store them in the input data array, and have a background component that simply retrieves that column of data.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The precise interface will likely need to be tweaked as the first implementation is written, however I expect implementation specific configuration parameters will be passed through the chronostar framework as a dictionary read from a config file (see <a class="reference internal" href="driverguide.html"><span class="doc">Driver Guide</span></a>) to the Mixture class’s constructor method. Therefore, despite my intentions to only implement a Mixture Class that inherits from <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html#sklearn.base.BaseEstimator">sklearn.mixture.BaseMixture</a>, I will ensure the interface remains simple and allows for alternate implementations. To ensure a clear interface I will write an abstract base class <code class="xref py py-class docutils literal notranslate"><span class="pre">ChronBaseMixture</span></code> which all mixtures will inherit from.</p>
-</div>
-<section id="data-treatment">
-<h2>Data treatment<a class="headerlink" href="#data-treatment" title="Permalink to this heading">#</a></h2>
-<p>To achieve first the <strong>minimal working example</strong>, I propose disregarding data uncertainties completely. RV’s are pretty good (compared to the occupied velocity volumn of associations), and datasets with no RV’s are too large for Chronostar to successfully fit in it’s current implementation anyway. By disregarding data uncertainties, the parameter space to be explored for each (traditional) component is restricted to one dimension only, the age.</p>
-<p>Note that this framework can still accommodate data uncertainties. The uncertainties (and correlations) would be just another feature column and it will be up to the Component to interpet correctly.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Intepreting uncertainties and correlations at the component level will lead to repeated calculations (e.g. constructing a covariance matrix each time) however I deem this a worthy trade off for the simplicity and flexibility of the framework as a whole. Especially since the covariance reconstruction will likely occur alongside some expensive parameter exploration method.</p>
-</div>
+<p>A Mixture object is a linear combination of Component objects that describes a complex distribution. The Mixture object state describes the distribution in terms of the Component
+objects (which have their own paramters) and a list of weights that describe the relative
+importance of each Component. Using the <a class="reference external" href="https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm">Expectation-Maximization algorithm</a>, a Mixture object can fit itself to an input data array of shape <code class="docutils literal notranslate"><span class="pre">(n_samples,</span> <span class="pre">n_features)</span></code> where a “sample” is a single star (or can be treated as such, e.g. a combined binary) and a feature is any data we’re trying to fit to (position, velocity, magnitude, apparent-magnitude, abundances, inferred-age, etc.). The Mixture object will remain completely agnostic of the features being fit. The implementation of how features are fit to is left to the <a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent" title="chronostar.base.BaseComponent"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseComponent</span></code></a> class.</p>
+<p>See <a class="reference internal" href="../userdocs/scripts.html#scripts-mixture"><span class="std std-ref">Fitting a Mixture</span></a> for an example script and
+<a class="reference internal" href="../userdocs/cli.html#cli-mix"><span class="std std-ref">Fitting a mixture</span></a> for instructions on how to use the command line
+tool <code class="docutils literal notranslate"><span class="pre">fit-mixture</span></code>.</p>
+<section id="implemented-mixtures">
+<h2>Implemented Mixtures<a class="headerlink" href="#implemented-mixtures" title="Permalink to this heading">#</a></h2>
+<section id="componentmixture">
+<span id="guide-compmix"></span><h3><a class="reference internal" href="../api/chronostar.mixture.html#chronostar.mixture.componentmixture.ComponentMixture" title="chronostar.mixture.componentmixture.ComponentMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComponentMixture</span></code></a><a class="headerlink" href="#componentmixture" title="Permalink to this heading">#</a></h3>
+<p>Chronostar’s sole implemented Mixture Model matches the interface of <a class="reference external" href="https://scikit-learn.org/stable/modules/mixture.html#gmm">scikit-learn’s mixture models</a> as closely as possible, inheriting from <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html#sklearn.base.BaseEstimator">sklearn.mixture.BaseMixture</a>. For reference of a class that inherits from BaseMixture, see <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.mixture.GaussianMixture.html#sklearn.mixture.GaussianMixture">sklearn.mixture.GaussianMixture</a>.</p>
+<p>The key method of the ComponentMixture is its <a class="reference internal" href="../api/chronostar.mixture.html#chronostar.mixture.componentmixture.ComponentMixture.fit" title="chronostar.mixture.componentmixture.ComponentMixture.fit"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit()</span></code></a> method.
+In this instance, it calls <code class="xref py py-func docutils literal notranslate"><span class="pre">fit()</span></code> which is a <a class="reference external" href="https://github.com/scikit-learn/scikit-learn/blob/02ebf9e68fe1fc7687d9e1047b9e465ae0fd945e/sklearn/mixture/_base.py#L159">scikit-learn
+method</a>.
+This performs the Expectation-Maximization algorithm which we explain briefly here.</p>
+<p>The Expectation-Maximization (EM) algorithm consists of two steps which are
+executed iteratively until convergence is reached. Underlying this algorithm is
+the assumption that each data point as a true membership to one of the components,
+or equivalently, for each data point, there is one component that is responsible
+for it. The E-step’s purpose is to estimate these membership probabilities as a value between 0 and 1. This is done by, for each data point, calculating the
+probability that it was generated by each component’s distribution (i.e. evaluate
+each Component’s PDF at the position of the data point) and then normalizing these
+probabilities such that they sum to 1. The E-step is implemented by
+<a class="reference external" href="https://github.com/scikit-learn/scikit-learn/blob/02ebf9e68fe1fc7687d9e1047b9e465ae0fd945e/sklearn/mixture/_base.py#L293">scikit-learn’s base Class</a>
+which calls the abstract method <code class="docutils literal notranslate"><span class="pre">_estimate_log_prob</span></code> which is defined
+in <a class="reference internal" href="../api/chronostar.mixture.html#chronostar.mixture.sklmixture.SKLComponentMixture" title="chronostar.mixture.sklmixture.SKLComponentMixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">SKLComponentMixture</span></code></a>.</p>
+<p>Eqiupped with membership probabilites, the M-step can maximize the parameters
+of each Component in isolation. Since each Component has its own defined
+<a class="reference internal" href="../api/chronostar.html#chronostar.base.BaseComponent.maximize" title="chronostar.base.BaseComponent.maximize"><code class="xref py py-func docutils literal notranslate"><span class="pre">maximize()</span></code></a> method, the M-step implementation
+loops over the mixture’s components, maximizing them one by one.</p>
 </section>
-<section id="example-mixture-usage">
-<h2>Example Mixture Usage<a class="headerlink" href="#example-mixture-usage" title="Permalink to this heading">#</a></h2>
-<p>A simple usage will look something like this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># ...</span>
-<span class="c1"># initial conditions is a list of Component objects with pars set sensibly</span>
-<span class="n">inital_conditions</span> <span class="o">=</span> <span class="n">get_some_valid_initial_conditions</span><span class="p">(</span><span class="n">ComponentClass</span><span class="p">)</span>
-
-<span class="c1"># config params is a dictionary</span>
-<span class="n">config_params</span> <span class="o">=</span> <span class="n">read_relevant_config_params</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
-
-<span class="c1"># data is array-like of shape (n_samples, n_features)</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">read_in_preprocessed_data</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
-
-<span class="c1"># Note: the Component objects know how to interpret the data</span>
-
-<span class="c1"># Initialse model, and fit to data</span>
-<span class="n">m</span> <span class="o">=</span> <span class="n">ComponentMixture</span><span class="p">(</span><span class="o">**</span><span class="n">config_params</span><span class="p">)</span>
-<span class="n">m</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">initial_conditions</span><span class="p">)</span>
-<span class="n">m</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="suggested-componentmixture-implementation">
-<h2>Suggested ComponentMixture implementation<a class="headerlink" href="#suggested-componentmixture-implementation" title="Permalink to this heading">#</a></h2>
-<p>The bulk of the implementation is within sklearn’s BaseMixture. The key abstract methods that ComponentMixture must implement are <code class="xref py py-func docutils literal notranslate"><span class="pre">ComponentMixture.set_params()</span></code> and <code class="xref py py-func docutils literal notranslate"><span class="pre">ComponentMixture_estimate_log_prob()</span></code>.</p>
-<p>These could be done as follows:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">components</span><span class="p">):</span>
-  <span class="bp">self</span><span class="o">.</span><span class="n">components</span> <span class="o">=</span> <span class="n">components</span>
-
-<span class="k">def</span> <span class="nf">_estimate_log_prob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-  <span class="n">n_samples</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-  <span class="n">n_components</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span>
-
-  <span class="n">log_probs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_components</span><span class="p">))</span>
-  <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">component</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">):</span>
-    <span class="n">log_probs</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">estimate_log_prob</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-
-  <span class="k">return</span> <span class="n">log_probs</span>
-
-<span class="k">def</span> <span class="nf">_m_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">log_resp</span><span class="p">):</span>
-  <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
-    <span class="c1"># X is the data, log_resp is log of responsibilities (a.k.a. mebership probs, a.k.a. Z)</span>
-    <span class="n">component</span><span class="o">.</span><span class="n">maximize</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">log_resp</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>TODO: Confirm that responsibilities are indeed exactly membership probabilites. There might be a chance responsibilities aren’t normalised to sum to 1 for each sample. <a class="reference external" href="https://github.com/scikit-learn/scikit-learn/blob/36958fb240fbe435673a9e3c52e769f01f36bec0/sklearn/mixture/_gaussian_mixture.py#L740">Sci-kit’s docs</a> use “responsiblity” and “posterior probability” as synonyms.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>There are some other abstract methods of <cite>BaseMixture</cite> that would need to be implemented, but from what I can see these will be trivial.</p>
-</div>
 </section>
 </section>
 
@@ -353,9 +313,10 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Mixture Guide</a><ul>
-<li><a class="reference internal" href="#data-treatment">Data treatment</a></li>
-<li><a class="reference internal" href="#example-mixture-usage">Example Mixture Usage</a></li>
-<li><a class="reference internal" href="#suggested-componentmixture-implementation">Suggested ComponentMixture implementation</a></li>
+<li><a class="reference internal" href="#implemented-mixtures">Implemented Mixtures</a><ul>
+<li><a class="reference internal" href="#componentmixture"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComponentMixture</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

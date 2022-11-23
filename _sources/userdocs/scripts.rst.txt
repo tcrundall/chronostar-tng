@@ -66,6 +66,7 @@ Example config.yaml file
         reg_covar: 1e-6
         trace_orbit_func: 'epicyclic'
 
+.. _scripts-mixture:
 
 Fitting a Mixture
 -----------------
