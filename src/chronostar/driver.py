@@ -1,3 +1,4 @@
+import os
 from collections import defaultdict
 import inspect
 from io import TextIOWrapper
@@ -57,6 +58,8 @@ class Driver:
 
     intermediate_dumps: bool = True
     savedir: str = './result/intermediate'
+    # savedir_path: Path = Path(savedir)
+    restart: bool = False
 
     def __init__(
         self,
@@ -124,8 +127,9 @@ class Driver:
         """
 
         # Before we start, make sure results directory exists
+        # self.savedir_path = Path(self.savedir)
+        self.savedir_path = Path(self.savedir)
         if self.intermediate_dumps:
-            self.savedir_path = Path(self.savedir)
             self.savedir_path.mkdir(parents=True, exist_ok=True)
 
         # Initial conditions for all mixture model fits come from the ICPool,
@@ -143,6 +147,13 @@ class Driver:
             component_class=self.component_class,
             start_init_comps=start_init_comps,
         )
+
+        # If restarting, check savedir
+        if self.restart:
+            # pass
+            parent_mixture, child_mixtures = self.load_partial_result()
+            icpool.restart(parent_mixture, child_mixtures)
+        import ipdb; ipdb.set_trace()
 
         # icpool maintains an internal queue of sets of initial conditions
         # iterate through, fitting to each set, and registering the result
@@ -311,3 +322,50 @@ class Driver:
                     fp.write(f'    {name}: {value:.1e}\n')
                 else:
                     fp.write(f'    {name}: {value}\n')
+
+    def load_partial_result(
+        self,
+    ) -> tuple[dict[str, BaseMixture], dict[str, BaseMixture]]:
+        """Load in a partial result, useful when restarting a crashed run
+        """
+        # List all subdirectories in reverse alphabetical order
+        subdirs = list(reversed(sorted(next(os.walk(self.savedir_path))[1])))
+
+        # Identify the parent id of the most recent subdirectory
+        parent_id = subdirs[0].split('-')[1]
+
+        # Identify all the children subdirs
+        child_dirs = [subdir for subdir in subdirs if (
+            parent_id in subdir and not subdir.startswith(parent_id)
+        )]
+
+        parent_dir = [subdir for subdir in subdirs if (
+            subdir.startswith(parent_id)
+        )][0]
+
+        # Load in results from each subdirectory with a higher key than the parent
+        child_mixtures = {
+            child_dir: self.load_mixture(child_dir) for child_dir in child_dirs
+        }
+
+        # Load in the parent as well
+        parent_mixture = {parent_dir: self.load_mixture(parent_dir)}
+
+        return parent_mixture, child_mixtures
+
+    def load_mixture(self, results_dir) -> BaseMixture:
+        n_comps = int(results_dir.split('-')[3])
+        # Load in weights
+        weights = np.load(self.savedir_path / results_dir / 'weights.npy')
+
+        # Load in all parameters
+        components = tuple([
+            self.component_class(
+                params=np.load(
+                    self.savedir_path / results_dir / f'comp_{i:03}_params.npy'
+                )
+            )
+            for i in range(n_comps)
+        ])
+
+        return self.mixture_class(init_weights=weights, init_components=components)

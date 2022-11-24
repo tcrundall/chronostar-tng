@@ -164,9 +164,9 @@ class BaseMixture(metaclass=ABCMeta):
     def __init__(
         self,
         init_weights: NDArray[float64],
-        init_comps: tuple[BaseComponent, ...],
+        init_components: tuple[BaseComponent, ...],
     ) -> None:
-        self.init_comps = init_comps
+        self.init_comps = init_components
         self.init_weights = init_weights
 
     @classmethod
