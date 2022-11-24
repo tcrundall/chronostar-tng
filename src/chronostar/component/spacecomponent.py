@@ -67,10 +67,6 @@ class SpaceComponent(BaseComponent):
         -----
         This method relies heavily on functions written by
         scikit-learn.
-
-        References
-        ----------
-        TODO: Cite the authors of code which was used as inspiration
         """
         with threadpool_limits(self.nthreads, user_api='openmp'):
             nsamples = X.shape[0]
