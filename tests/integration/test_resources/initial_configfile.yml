@@ -1,0 +1,13 @@
+driver:
+  intermediate_dumps: True
+  savedir: "tests/integration/results-restartable"
+  restart: False
+
+icpool:
+  max_components: 3
+
+mixture: {}
+
+component:
+  nthreads: 1
+  stellar_uncertainties: False
