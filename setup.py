@@ -12,7 +12,7 @@ def read(fname):
 
 setup(
     name="chronostar",
-    version="0.0.1",
+    version="0.1.0",
     author="Timothy Crundall",
     author_email="tim.crundall@gmail.com",
     description=("An astrophysical tool for discovering and characterising"
@@ -20,9 +20,6 @@ setup(
     license="BSD",
     keywords="astrophysics stellar associations",
     url="https://github.com/tcrundall/chronostar-tng",
-
-    # packages=find_packages('src'),
-    # package_dir={'': 'src'},
 
     packages=find_packages('src'),
     package_dir={'': 'src'},
