@@ -17,7 +17,7 @@ conda activate chron
 pip install .       # this will put chronostar-trial in your site-packages
 ```
 
-You will now have three command-line tools at your disposal.
+You will now have multiple command-line tools at your disposal.
 Prepare your data into a numpy array of shape `(n_stars, n_features)`,
 where the features are in RHS cartesian coordinates centred on the local
 standard of rest (`XYZUVW`).
