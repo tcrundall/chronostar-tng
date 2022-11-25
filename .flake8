@@ -1,4 +1,4 @@
 [flake8]
 exclude = .git,docs,data,build
 max-line-length = 89
-ignore = E402,E241,W503,E226
+ignore = E402,E241,W503,E226,E266

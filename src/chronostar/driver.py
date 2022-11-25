@@ -152,8 +152,8 @@ class Driver:
         if self.restart:
             # pass
             parent_mixture, child_mixtures = self.load_partial_result()
-            icpool.restart(parent_mixture, child_mixtures)
-        import ipdb; ipdb.set_trace()
+            # icpool.restart(parent_mixture, child_mixtures)
+        # import ipdb; ipdb.set_trace()
 
         # icpool maintains an internal queue of sets of initial conditions
         # iterate through, fitting to each set, and registering the result

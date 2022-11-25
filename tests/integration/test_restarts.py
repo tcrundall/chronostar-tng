@@ -1,7 +1,8 @@
 from pathlib import Path
 import os
+import pytest
 
-from ..context import chronostar
+from ..context import chronostar   # noqa
 
 import numpy as np
 from chronostar.driver import Driver
@@ -11,12 +12,13 @@ from chronostar.component.spacecomponent import SpaceComponent
 from chronostar.mixture.componentmixture import ComponentMixture
 
 
+@pytest.mark.skip("Not yet implem")
 def test_restart():
     """
     Set up a 4 (space-only) component dataset
     Fit up to 3 components, then halt run (by setting max_components)
     Restart with the intermediate results dir
-    
+
     (if possible, try and crash run on the second 3 component fit....)
     """
     ##################################################
@@ -54,7 +56,6 @@ def test_restart():
     initial_configfile = test_dir / 'test_resources' / 'initial_configfile.yml'
     restart_configfile = test_dir / 'test_resources' / 'restart_configfile.yml'
 
-
     ##################################################
     #######   Run a fit up until 3 components   ######
     ##################################################
@@ -66,7 +67,6 @@ def test_restart():
     )
 
     driver.run(data=all_stars)
-
 
     ##################################################
     #######   Run a fit restarting from 3 comps ######
@@ -81,6 +81,6 @@ def test_restart():
         mixture_class=ComponentMixture,
     )
 
-    best_mixture = driver.run(data=all_stars)
+    best_mixture = driver.run(data=all_stars)   # noqa
     del driver
     assert False
